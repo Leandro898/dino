@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PublicProductController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,5 +17,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Cambiamos la ruta '/' para que use nuestro controlador
+Route::get('/', [PublicProductController::class, 'index'])->name('home');
 
 require __DIR__.'/auth.php';
