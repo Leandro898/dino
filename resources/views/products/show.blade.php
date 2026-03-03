@@ -61,9 +61,12 @@
                 </div>
 
                 <div class="mt-auto space-y-4">
-                    <button class="w-full bg-[#f53003] text-white py-5 rounded-2xl font-black text-xl uppercase tracking-tighter hover:bg-[#d42a02] transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]">
-                        Comprar ahora
-                    </button>
+                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+@csrf
+<button type="submit" class="w-full bg-[#f53003] text-white py-5 rounded-2xl font-black text-xl uppercase tracking-tighter hover:bg-[#d42a02] transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]">
+Comprar ahora
+</button>
+</form>
                     
                     <a href="https://wa.me/5491100000000?text=Hola! Estoy interesado en el producto: {{ $product->name }}" 
                        target="_blank"
