@@ -15,4 +15,10 @@ class PublicProductController extends Controller
 
          return view('welcome', compact('products'));
     }
+
+    public function show(Product $product)
+    {
+        // Esto cargará automáticamente el producto por su ID gracias al Route Model Binding
+        return view('products.show', compact('product'));
+    }
 }

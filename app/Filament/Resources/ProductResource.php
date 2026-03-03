@@ -23,7 +23,7 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('nombre')->required(),
+                Forms\Components\TextInput::make('name')->required(),
                 Forms\Components\Textarea::make('description')->required(),
                 Forms\Components\TextInput::make('price')->numeric()->prefix('$')->required(),
                 Forms\Components\TextInput::make('stock')->numeric()->default(1),
@@ -39,7 +39,30 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                //
+                // Muestra la imagen (si configuraste el storage:link)
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Imagen'),
+
+                // Muestra el nombre del producto
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
+                    ->searchable()
+                    ->sortable(),
+
+                // Muestra el precio formateado
+                Tables\Columns\TextColumn::make('price')
+                    ->label('Precio')
+                    ->money('usd')
+                    ->sortable(),
+
+                // Muestra el stock
+                Tables\Columns\TextColumn::make('stock')
+                    ->label('Stock')
+                    ->sortable(),
+
+                // Muestra el nombre del vendedor (relación user)
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Vendedor'),
             ])
             ->filters([
                 //
