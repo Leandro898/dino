@@ -21,4 +21,10 @@ class Product extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Relación: Un producto puede tener muchos items de orden (en diferentes órdenes)
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

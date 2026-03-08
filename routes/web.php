@@ -31,4 +31,7 @@ Route::post('/carrito/remove/{id}', [CartController::class, 'remove'])->name('ca
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
+//Ruta para la página de agradecimiento después del checkout
+Route::get('/gracias', [CheckoutController::class, 'thankyou'])->name('checkout.thankyou');
+
 require __DIR__.'/auth.php';
