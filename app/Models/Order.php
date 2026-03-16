@@ -15,6 +15,8 @@ class Order extends Model
         'total',
         'status', // 'pending', 'processing', 'completed'
         'payment_method',
+        'mercadopago_preference_id',
+        'mercadopago_payment_id',
     ];
 
     public function items()

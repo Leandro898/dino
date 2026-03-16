@@ -41,6 +41,12 @@
             </div>
         @endif
 
+        @if (session('error'))
+            <div class="bg-red-500 text-white p-4 rounded-xl mb-6">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <form action="{{ route('checkout.process') }}" method="POST">
             @csrf
 

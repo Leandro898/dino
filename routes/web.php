@@ -32,6 +32,12 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
 //Ruta para la página de agradecimiento después del checkout
-Route::get('/gracias', [CheckoutController::class, 'thankyou'])->name('checkout.thankyou');
+Route::get('/gracias', [CheckoutController::class, 'thankyou'])->name('checkout.success');
+
+// Ruta para recibir el callback de Mercado Pago
+Route::get('/mercadopago/callback', [CheckoutController::class, 'handleMercadoPagoCallback'])->name('mercadopago.callback');
+
+// Ruta para recibir el webhook de Mercado Pago
+Route::post('/mercadopago/webhook', [CheckoutController::class, 'handleWebhook'])->name('mercadopago.webhook');
 
 require __DIR__.'/auth.php';
