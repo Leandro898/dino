@@ -40,4 +40,11 @@ Route::get('/mercadopago/callback', [CheckoutController::class, 'handleMercadoPa
 // Ruta para recibir el webhook de Mercado Pago
 Route::post('/mercadopago/webhook', [CheckoutController::class, 'handleWebhook'])->name('mercadopago.webhook');
 
+// Rutas para NAVE
+// Esta es la que va en el panel de configuración de Nave
+Route::post('/nave/webhook', [CheckoutController::class, 'handleNaveWebhook'])->name('nave.webhook');
+
+// Esta es a la que vuelve el usuario después de pagar
+Route::get('/nave/callback', [CheckoutController::class, 'handleNaveCallback'])->name('nave.callback');
+
 require __DIR__.'/auth.php';
