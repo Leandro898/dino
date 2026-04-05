@@ -5,7 +5,7 @@
 <header class="w-full p-6 lg:px-20 flex justify-between items-center bg-white dark:bg-[#161615] shadow-sm sticky top-0 z-50">
 
     <a href="{{ route('home') }}" class="text-2xl font-bold text-[#f53003]">
-        Marketplace Bariloche
+        Bari Tienda
     </a>
 
     <nav class="flex gap-6 items-center">

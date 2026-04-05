@@ -100,7 +100,7 @@
     </main>
 
     <footer class="py-10 text-center text-sm text-[#706f6c]">
-        &copy; {{ date('Y') }} Bari Tienda - 2026
+        &copy; {{ date('Y') }} Bari Tienda
     </footer>
 </body>
 
