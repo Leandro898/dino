@@ -10,17 +10,7 @@
 
 <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
 
-    <header
-        class="w-full p-6 lg:px-20 flex justify-between items-center bg-white dark:bg-[#161615] shadow-sm sticky top-0 z-50">
-        <a href="{{ route('home') }}" class="text-2xl font-bold text-[#f53003]">
-            Marketplace Bariloche
-        </a>
-
-        <a href="{{ route('cart.index') }}"
-            class="text-sm font-bold uppercase tracking-widest hover:text-[#f53003] transition-colors">
-            Volver al carrito
-        </a>
-    </header>
+    @include('partials.header')
 
     <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20">
 
@@ -125,7 +115,7 @@
                         </div>
 
                         <button type="submit"
-                            class="w-full mt-8 bg-black hover:bg-[#f53003] transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm">
+                            class="w-full mt-8 bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm">
                             Confirmar Pedido
                         </button>
 

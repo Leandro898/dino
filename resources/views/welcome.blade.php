@@ -19,25 +19,7 @@
 
     @include('partials.header')
 
-    <section
-        class="relative w-full h-[400px] bg-gradient-to-r from-orange-600 to-red-700 flex items-center overflow-hidden">
-        <div class="absolute inset-0 opacity-20">
-            <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white"></path>
-            </svg>
-        </div>
-
-        <div class="relative max-w-7xl mx-auto px-6 lg:px-20 w-full text-white">
-            <h2 class="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-md">Todo lo que buscas,<br>en tu ciudad.
-            </h2>
-            <p class="text-lg md:text-xl opacity-90 max-w-lg mb-8">Comprá y vendé de forma local en Bariloche de manera
-                fácil y rápida.</p>
-            <div class="flex gap-4">
-                <a href="#productos"
-                    class="bg-white text-[#f53003] px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg">Ver
-                    productos</a>
-            </div>
-        </div>
+    <section class="relative w-full h-32 bg-[#FDFDFC] flex items-center">
     </section>
 
     <main id="productos" class="w-full max-w-7xl mx-auto p-4 md:p-10 lg:p-20">
@@ -78,7 +60,7 @@
                         </span>
 
                         <h3
-                            class="text-sm font-extrabold dark:text-white uppercase leading-tight mb-2 line-clamp-2 group-hover:text-[#f53003] transition-colors">
+                            class="text-sm font-extrabold dark:text-white uppercase leading-tight mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">
                             {{ $product->name }}
                         </h3>
 
@@ -87,7 +69,7 @@
                             <span class="text-lg font-black text-black dark:text-white">
                                 ${{ number_format($product->price, 0, ',', '.') }}
                             </span>
-                            <span class="text-[10px] font-bold text-[#f53003] uppercase">Ver más</span>
+                            <span class="text-[10px] font-bold text-purple-600 uppercase">Ver más</span>
                         </div>
                     </div>
                 </a>

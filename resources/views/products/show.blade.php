@@ -34,7 +34,7 @@
             <div class="w-full lg:w-2/5 flex flex-col">
                 <div class="mb-6">
                     <span
-                        class="inline-block bg-orange-100 dark:bg-orange-900/30 text-[#f53003] text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4">
+                        class="inline-block bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4">
                         Publicado por {{ $product->user->name }}
                     </span>
                     <h1 class="text-4xl md:text-5xl font-black dark:text-white uppercase leading-none mb-4">
@@ -61,10 +61,10 @@
                 </div>
 
                 <div class="mt-auto space-y-4">
-                    <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                    <form id="addToCartForm" action="{{ route('cart.add', $product->id) }}" method="POST">
                         @csrf
                         <button type="submit"
-                            class="w-full bg-[#f53003] text-white py-5 rounded-2xl font-black text-xl uppercase tracking-tighter hover:bg-[#d42a02] transition-all shadow-xl shadow-orange-500/20 active:scale-[0.98]">
+                            class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-5 rounded-2xl font-black text-xl uppercase tracking-tighter hover:from-purple-700 hover:to-purple-800 transition-all shadow-xl shadow-purple-500/20 active:scale-[0.98]">
                             Comprar ahora
                         </button>
                     </form>
@@ -96,6 +96,34 @@
     <footer class="py-10 text-center text-sm text-[#706f6c] border-t border-gray-100 dark:border-white/5">
         &copy; {{ date('Y') }} Marketplace Bariloche
     </footer>
+
+    <script>
+        document.getElementById('addToCartForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mostrar notificación
+                        alert('✓ ' + data.message);
+                        // Redirect al carrito después de 500ms
+                        setTimeout(() => {
+                            window.location.href = '{{ route('cart.index') }}';
+                        }, 500);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
 </body>
 
 </html>

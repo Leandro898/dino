@@ -25,6 +25,7 @@ Route::get('/productos/{product}', [PublicProductController::class, 'show'])->na
 // Rutas para el carrito de compras
 Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
 Route::post('/carrito/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/carrito/update/{id}', [CartController::class, 'update'])->name('cart.update');
 Route::post('/carrito/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
 // Rutas para el proceso de checkout
@@ -47,4 +48,4 @@ Route::post('/nave/webhook', [CheckoutController::class, 'handleNaveWebhook'])->
 // Esta es a la que vuelve el usuario después de pagar
 Route::get('/nave/callback', [CheckoutController::class, 'handleNaveCallback'])->name('nave.callback');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
