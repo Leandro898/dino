@@ -15,15 +15,19 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {
-        DB::table('users')->truncate();
+{
+    // 1. Agregá esta línea arriba de todo
+    \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
 
-        // User::factory(10)->create();
+    DB::table('users')->truncate();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
-        ]);
-    }
+    User::factory()->create([
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => bcrypt('password'),
+    ]);
+
+    // 2. Agregá esta línea al final
+    \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+}
 }
