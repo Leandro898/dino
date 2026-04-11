@@ -24,14 +24,17 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')->required(),
-                Forms\Components\Textarea::make('description'),
+                Forms\Components\Textarea::make('description')
+                    ->nullable()
+                    ->rows(5),
                 Forms\Components\TextInput::make('price')->numeric()->prefix('$')->required(),
                 Forms\Components\TextInput::make('stock')->numeric()->default(1),
-                Forms\Components\FileUpload::make('image')->image()->disk('public'),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->required()
-                    ->searchable(),
+                Forms\Components\FileUpload::make('image')
+                    ->image()
+                    ->disk('public')
+                    ->directory('products')
+                    ->visibility('public')
+                    ->nullable(),
             ]);
     }
 

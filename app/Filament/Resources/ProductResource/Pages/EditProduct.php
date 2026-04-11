@@ -16,4 +16,12 @@ class EditProduct extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // No permitir cambiar el propietario del producto al editar
+        $data['user_id'] = $this->record->user_id;
+
+        return $data;
+    }
 }

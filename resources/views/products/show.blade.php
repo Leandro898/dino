@@ -68,12 +68,6 @@
                             Comprar ahora
                         </button>
                     </form>
-
-                    <a href="https://wa.me/5491100000000?text=Hola! Estoy interesado en el producto: {{ $product->name }}"
-                        target="_blank"
-                        class="w-full flex justify-center items-center gap-2 border-2 border-gray-200 dark:border-white/10 dark:text-white py-4 rounded-2xl font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-                        Consultar al vendedor
-                    </a>
                 </div>
 
                 <div
@@ -115,9 +109,9 @@
                     if (data.success) {
                         // Mostrar notificación
                         alert('✓ ' + data.message);
-                        // Redirect al carrito después de 500ms
+                        // Redirect directo al checkout después de 500ms
                         setTimeout(() => {
-                            window.location.href = '{{ route('cart.index') }}';
+                            window.location.href = '{{ route('checkout.index') }}';
                         }, 500);
                     }
                 })
