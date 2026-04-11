@@ -24,7 +24,7 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')->required(),
-                Forms\Components\Textarea::make('description')->required(),
+                Forms\Components\Textarea::make('description'),
                 Forms\Components\TextInput::make('price')->numeric()->prefix('$')->required(),
                 Forms\Components\TextInput::make('stock')->numeric()->default(1),
                 Forms\Components\FileUpload::make('image')->image()->disk('public'),
