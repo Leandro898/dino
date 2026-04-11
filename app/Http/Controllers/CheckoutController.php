@@ -92,7 +92,7 @@ class CheckoutController extends Controller
                     "pending" => url(route('mercadopago.callback')),
                 ],
                 "external_reference" => (string) $order->id,
-                "notification_url" => "https://954b-181-110-104-182.ngrok-free.app/api/mercadopago/webhook",
+                "notification_url" => route('mercadopago.webhook'),
             ]);
 
             // Guardamos el ID de la preferencia en nuestra orden
