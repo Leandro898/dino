@@ -12,11 +12,6 @@ class OrderNotificationService
 {
     public function notifyNewOrder(Order $order): void
     {
-        if ($this->canSendTelegram()) {
-            $this->sendTelegram($order);
-            return;
-        }
-
         if ($this->canSendSms()) {
             $this->sendSms($order);
             return;
@@ -32,13 +27,26 @@ class OrderNotificationService
         ]);
     }
 
+    public function notifyMercadoPagoApprovedPayment(Order $order): void
+    {
+        if (!$this->canSendTelegram()) {
+            Log::info('Mercado Pago payment approved, but Telegram is not configured.', [
+                'order_id' => $order->id,
+            ]);
+
+            return;
+        }
+
+        $this->sendTelegramMercadoPagoApproved($order);
+    }
+
     protected function canSendTelegram(): bool
     {
         return !empty(config('services.telegram.bot_token'))
             && !empty(config('services.telegram.chat_id'));
     }
 
-    protected function sendTelegram(Order $order): void
+    protected function sendTelegramMercadoPagoApproved(Order $order): void
     {
         try {
             $url = sprintf(
@@ -47,7 +55,7 @@ class OrderNotificationService
             );
 
             $body = sprintf(
-                "✅ Nuevo pedido # %s confirmado\nCliente: %s\nEmail: %s\nTel: %s\nTotal: $%s",
+                "✅ Pago aprobado en Mercado Pago\nPedido: #%s\nCliente: %s\nEmail: %s\nTel: %s\nTotal: $%s",
                 $order->id,
                 $order->name,
                 $order->email,
@@ -60,7 +68,7 @@ class OrderNotificationService
                 'text' => $body,
             ]);
         } catch (\Throwable $e) {
-            Log::error('Error sending Telegram notification for new order.', [
+            Log::error('Error sending Telegram notification for approved Mercado Pago payment.', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
             ]);

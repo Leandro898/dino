@@ -229,9 +229,9 @@ class CheckoutController extends Controller
             ]);
 
             try {
-                app(OrderNotificationService::class)->notifyNewOrder($order);
+                app(OrderNotificationService::class)->notifyMercadoPagoApprovedPayment($order);
             } catch (\Throwable $e) {
-                \Log::error('Error notifying admin about completed order.', [
+                \Log::error('Error notifying Telegram bot about approved Mercado Pago payment.', [
                     'order_id' => $order->id,
                     'error' => $e->getMessage(),
                 ]);
