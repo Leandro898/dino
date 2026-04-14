@@ -19,12 +19,12 @@ Route::middleware('auth')->group(function () {
 // Cambiamos la ruta '/' para que use nuestro controlador
 Route::get('/', [PublicProductController::class, 'index'])->name('home');
 
-// Acceso a la ruta de los productos
-Route::get('/productos/{product}', [PublicProductController::class, 'show'])->name('products.show');
+// Acceso a la ruta de los productos con URL amigable
+Route::get('/productos/{product:slug}', [PublicProductController::class, 'show'])->name('products.show');
 
 // Rutas para el carrito de compras
 Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
-Route::post('/carrito/add/{product}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/carrito/add/{product:id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/carrito/update/{id}', [CartController::class, 'update'])->name('cart.update');
 Route::post('/carrito/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 

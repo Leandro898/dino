@@ -15,7 +15,17 @@
         <tr>
             <td style="padding-bottom: 16px;">
                 <p>Hola <strong>{{ $order->name }}</strong>,</p>
-                <p>Tu orden <strong>#{{ $order->id }}</strong> fue confirmada correctamente. A continuación te compartimos los detalles:</p>
+                <p>
+                    Tu pedido <strong>#{{ $order->id }}</strong> fue registrado correctamente.
+                    @if ($order->payment_method === 'mercadopago')
+                        El pago fue confirmado con Mercado Pago.
+                    @elseif ($order->payment_method === 'transferencia')
+                        Quedó pendiente de acreditación por transferencia.
+                    @elseif ($order->payment_method === 'efectivo')
+                        Quedó marcado para pagar en efectivo al entregar.
+                    @endif
+                    A continuación te compartimos los detalles:
+                </p>
             </td>
         </tr>
         <tr>
@@ -43,6 +53,17 @@
         <tr>
             <td style="padding-bottom: 16px;">
                 <p><strong>Total:</strong> $ {{ number_format($order->total, 2, ',', '.') }}</p>
+                <p><strong>Método de pago:</strong>
+                    @if ($order->payment_method === 'mercadopago')
+                        Mercado Pago
+                    @elseif ($order->payment_method === 'transferencia')
+                        Transferencia bancaria
+                    @elseif ($order->payment_method === 'efectivo')
+                        Efectivo al entregar
+                    @else
+                        {{ $order->payment_method }}
+                    @endif
+                </p>
                 <p><strong>Dirección de envío:</strong> {{ $order->address }}</p>
                 <p><strong>Teléfono:</strong> {{ $order->phone }}</p>
             </td>

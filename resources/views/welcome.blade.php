@@ -30,7 +30,7 @@
         <!-- GRID FIJO DE 4 COLUMNAS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @forelse($products as $product)
-                <a href="{{ route('products.show', $product->id) }}"
+                <a href="{{ route('products.show', ['product' => $product->slug]) }}"
                     class="group bg-white dark:bg-[#1d1d1d] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col h-full border border-gray-100 dark:border-white/5">
 
                     <div class="relative h-64 overflow-hidden bg-gray-200">

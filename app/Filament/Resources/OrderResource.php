@@ -52,6 +52,16 @@ class OrderResource extends Resource
                                     ->prefix('$')
                                     ->disabled(),
 
+                                Forms\Components\TextInput::make('payment_method')
+                                    ->label('Payment Method')
+                                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                        'mercadopago' => 'Mercado Pago',
+                                        'efectivo' => 'Efectivo al entregar',
+                                        'transferencia' => 'Transferencia bancaria',
+                                        default => $state ?? 'No informado',
+                                    })
+                                    ->disabled(),
+
                                 Forms\Components\Textarea::make('address')
                                     ->columnSpanFull()
                                     ->disabled(),
@@ -100,6 +110,21 @@ class OrderResource extends Resource
                         'cancelled' => 'danger',
                     })
                     ->searchable(),
+                Tables\Columns\TextColumn::make('payment_method')
+                    ->label('Payment')
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'mercadopago' => 'Mercado Pago',
+                        'efectivo' => 'Efectivo',
+                        'transferencia' => 'Transferencia',
+                        default => $state ?? 'No informado',
+                    })
+                    ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'mercadopago' => 'success',
+                        'efectivo' => 'gray',
+                        'transferencia' => 'warning',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
                     ->sortable()
@@ -121,6 +146,12 @@ class OrderResource extends Resource
                         'completed' => 'Completed',
                         'shipped' => 'Shipped',
                         'cancelled' => 'Cancelled',
+                    ]),
+                Tables\Filters\SelectFilter::make('payment_method')
+                    ->options([
+                        'mercadopago' => 'Mercado Pago',
+                        'efectivo' => 'Efectivo',
+                        'transferencia' => 'Transferencia',
                     ]),
             ])
             ->actions([

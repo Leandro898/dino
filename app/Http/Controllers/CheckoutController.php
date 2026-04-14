@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Services\OrderEmailService;
+use App\Services\OrderNotificationService;
 // Importaciones de Mercado Pago SDK v3
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
@@ -27,11 +28,14 @@ class CheckoutController extends Controller
             'email' => 'required|email',
             'address' => 'required',
             'phone' => 'required',
+            'payment_method' => 'required|in:mercadopago,efectivo,transferencia',
         ]);
 
         $cart = session()->get('cart', []);
         \Log::info('Cart contents: ' . json_encode($cart));
         if (empty($cart)) return redirect()->back()->with('error', 'El carrito está vacío');
+
+        $paymentMethod = $request->string('payment_method')->toString();
 
         try {
             DB::beginTransaction();
@@ -62,7 +66,7 @@ class CheckoutController extends Controller
                 'phone' => $request->phone,
                 'total' => $totalGeneral,
                 'status' => 'pending',
-                'payment_method' => 'mercadopago', // Actualizado
+                'payment_method' => $paymentMethod,
             ]);
 
             foreach ($cart as $id => $details) {
@@ -75,7 +79,29 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // --- LÓGICA DE MERCADO PAGO ---
+            if ($paymentMethod !== 'mercadopago') {
+                DB::commit();
+
+                $order->loadMissing('items.product');
+
+                app(OrderEmailService::class)->sendOrderConfirmation($order);
+
+                try {
+                    app(OrderNotificationService::class)->notifyNewOrder($order);
+                } catch (\Throwable $e) {
+                    \Log::error('Error notifying admin about offline payment order.', [
+                        'order_id' => $order->id,
+                        'payment_method' => $paymentMethod,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
+                session()->forget('cart');
+                $this->flashCheckoutSuccess($order);
+
+                return redirect()->route('checkout.success');
+            }
+
             $this->configureMercadoPago();
 
             $client = new PreferenceClient();
@@ -91,7 +117,6 @@ class CheckoutController extends Controller
                 "notification_url" => route('mercadopago.webhook'),
             ]);
 
-            // Guardamos el ID de la preferencia en nuestra orden
             $order->mercadopago_preference_id = $preference->id;
             $order->save();
 
@@ -125,6 +150,8 @@ class CheckoutController extends Controller
         $order = Order::where('id', $request->external_reference)->firstOrFail();
 
         if ($request->status === 'approved') {
+            session()->forget('cart');
+            $this->flashCheckoutSuccess($order, 'approved');
             return redirect()->route('checkout.success');
         }
 
@@ -133,7 +160,10 @@ class CheckoutController extends Controller
 
     public function thankyou()
     {
-        return view('checkout.thankyou');
+        return view('checkout.thankyou', [
+            'checkout' => session('checkout'),
+            'bankTransfer' => config('services.bank_transfer'),
+        ]);
     }
 
     private function configureMercadoPago(): void
@@ -197,6 +227,15 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'payment_id' => $paymentId,
             ]);
+
+            try {
+                app(OrderNotificationService::class)->notifyNewOrder($order);
+            } catch (\Throwable $e) {
+                \Log::error('Error notifying admin about completed order.', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         if ($status !== 'approved' && $order->status === 'pending') {
@@ -206,5 +245,26 @@ class CheckoutController extends Controller
         }
 
         return response()->json(['status' => 'ok'], 200);
+    }
+
+    private function flashCheckoutSuccess(Order $order, ?string $paymentStatus = null): void
+    {
+        session()->flash('checkout', [
+            'order_id' => $order->id,
+            'payment_method' => $order->payment_method,
+            'payment_method_label' => $this->paymentMethodLabel($order->payment_method),
+            'status' => $paymentStatus ?? $order->status,
+            'total' => $order->total,
+        ]);
+    }
+
+    private function paymentMethodLabel(?string $paymentMethod): string
+    {
+        return match ($paymentMethod) {
+            'mercadopago' => 'Mercado Pago',
+            'efectivo' => 'Efectivo al entregar',
+            'transferencia' => 'Transferencia bancaria',
+            default => 'No informado',
+        };
     }
 }

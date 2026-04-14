@@ -35,4 +35,27 @@ return [
         ],
     ],
 
+    'twilio' => [
+        'sid' => env('TWILIO_ACCOUNT_SID'),
+        'auth_token' => env('TWILIO_AUTH_TOKEN'),
+        'from' => env('TWILIO_FROM'),
+        'admin_to' => env('ADMIN_NOTIFICATION_PHONE'),
+    ],
+
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id' => env('TELEGRAM_CHAT_ID'),
+    ],
+
+    'admin_notifications' => [
+        'email' => env('ADMIN_EMAIL'),
+    ],
+
+    'bank_transfer' => [
+        'account_holder' => env('BANK_TRANSFER_ACCOUNT_HOLDER'),
+        'bank_name' => env('BANK_TRANSFER_BANK_NAME'),
+        'alias' => env('BANK_TRANSFER_ALIAS'),
+        'cbu' => env('BANK_TRANSFER_CBU'),
+        'notes' => env('BANK_TRANSFER_NOTES'),
+    ],
 ];
