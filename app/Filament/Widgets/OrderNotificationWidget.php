@@ -15,7 +15,7 @@ class OrderNotificationWidget extends Widget
 
     public function mount(): void
     {
-        $this->pendingOrdersCount = Order::where('status', 'pending')->count();
+        $this->pendingOrdersCount = Order::whereIn('status', ['pending', 'pending_transfer', 'proof_sent'])->count();
         $this->recentOrders = Order::latest()->limit(5)->get();
     }
 

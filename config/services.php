@@ -57,5 +57,6 @@ return [
         'alias' => env('BANK_TRANSFER_ALIAS'),
         'cbu' => env('BANK_TRANSFER_CBU'),
         'notes' => env('BANK_TRANSFER_NOTES'),
+        'whatsapp_number' => env('BANK_TRANSFER_WHATSAPP_NUMBER'),
     ],
 ];

@@ -22,6 +22,9 @@ class OrderConfirmation extends Mailable
     {
         return $this
             ->subject('Confirmación de tu compra en Baritienda')
-            ->view('emails.order_confirmation');
+            ->view('emails.order_confirmation')
+            ->with([
+                'bankTransfer' => config('services.bank_transfer'),
+            ]);
     }
 }

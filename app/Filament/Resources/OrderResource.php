@@ -40,7 +40,10 @@ class OrderResource extends Resource
                                 Forms\Components\Select::make('status')
                                     ->options([
                                         'pending' => 'Pending',
+                                        'pending_transfer' => 'Pendiente de transferencia',
+                                        'proof_sent' => 'Comprobante enviado',
                                         'processing' => 'Processing',
+                                        'paid_confirmed' => 'Pago confirmado',
                                         'completed' => 'Completed',
                                         'shipped' => 'Shipped',
                                         'cancelled' => 'Cancelled',
@@ -102,12 +105,22 @@ class OrderResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending_transfer' => 'Pendiente transferencia',
+                        'proof_sent' => 'Comprobante enviado',
+                        'paid_confirmed' => 'Pago confirmado',
+                        default => str_replace('_', ' ', ucfirst($state)),
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
+                        'pending_transfer' => 'warning',
+                        'proof_sent' => 'info',
                         'processing' => 'info',
+                        'paid_confirmed' => 'success',
                         'completed' => 'success',
                         'shipped' => 'primary',
                         'cancelled' => 'danger',
+                        default => 'gray',
                     })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('payment_method')
@@ -142,7 +155,10 @@ class OrderResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'pending' => 'Pending',
+                        'pending_transfer' => 'Pendiente de transferencia',
+                        'proof_sent' => 'Comprobante enviado',
                         'processing' => 'Processing',
+                        'paid_confirmed' => 'Pago confirmado',
                         'completed' => 'Completed',
                         'shipped' => 'Shipped',
                         'cancelled' => 'Cancelled',

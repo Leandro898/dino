@@ -58,6 +58,10 @@ class CheckoutController extends Controller
             }
 
             // Crear la Orden
+            $orderStatus = $paymentMethod === 'transferencia'
+                ? 'pending_transfer'
+                : 'pending';
+
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'name' => $request->name,
@@ -65,7 +69,7 @@ class CheckoutController extends Controller
                 'address' => $request->address,
                 'phone' => $request->phone,
                 'total' => $totalGeneral,
-                'status' => 'pending',
+                'status' => $orderStatus,
                 'payment_method' => $paymentMethod,
             ]);
 
@@ -160,9 +164,32 @@ class CheckoutController extends Controller
 
     public function thankyou()
     {
+        $checkout = session('checkout', []);
+        $bankTransfer = config('services.bank_transfer');
+
+        $whatsAppUrl = null;
+        $whatsAppNumber = preg_replace('/\D+/', '', (string) ($bankTransfer['whatsapp_number'] ?? ''));
+
+        if (($checkout['payment_method'] ?? null) === 'transferencia' && !empty($checkout['order_id']) && !empty($whatsAppNumber)) {
+            $customerName = $checkout['name'] ?? 'Cliente';
+            $customerEmail = $checkout['email'] ?? 'sin-email';
+            $total = isset($checkout['total']) ? number_format((float) $checkout['total'], 0, ',', '.') : '0';
+
+            $message = sprintf(
+                "Hola, quiero confirmar el pedido #%s por $%s y coordinar el pago por transferencia. Nombre: %s. Email: %s.",
+                $checkout['order_id'],
+                $total,
+                $customerName,
+                $customerEmail,
+            );
+
+            $whatsAppUrl = 'https://wa.me/' . $whatsAppNumber . '?text=' . urlencode($message);
+        }
+
         return view('checkout.thankyou', [
-            'checkout' => session('checkout'),
-            'bankTransfer' => config('services.bank_transfer'),
+            'checkout' => $checkout,
+            'bankTransfer' => $bankTransfer,
+            'whatsAppUrl' => $whatsAppUrl,
         ]);
     }
 
@@ -249,8 +276,10 @@ class CheckoutController extends Controller
 
     private function flashCheckoutSuccess(Order $order, ?string $paymentStatus = null): void
     {
-        session()->flash('checkout', [
+        session()->put('checkout', [
             'order_id' => $order->id,
+            'name' => $order->name,
+            'email' => $order->email,
             'payment_method' => $order->payment_method,
             'payment_method_label' => $this->paymentMethodLabel($order->payment_method),
             'status' => $paymentStatus ?? $order->status,

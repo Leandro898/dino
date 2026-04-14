@@ -68,6 +68,28 @@
                 <p><strong>Teléfono:</strong> {{ $order->phone }}</p>
             </td>
         </tr>
+        @if ($order->payment_method === 'transferencia')
+            <tr>
+                <td style="padding-bottom: 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0;"><strong>Datos para transferir</strong></p>
+                    @if (!empty($bankTransfer['account_holder']))
+                        <p style="margin: 0 0 6px 0;"><strong>Titular:</strong> {{ $bankTransfer['account_holder'] }}</p>
+                    @endif
+                    @if (!empty($bankTransfer['bank_name']))
+                        <p style="margin: 0 0 6px 0;"><strong>Banco:</strong> {{ $bankTransfer['bank_name'] }}</p>
+                    @endif
+                    @if (!empty($bankTransfer['alias']))
+                        <p style="margin: 0 0 6px 0;"><strong>Alias:</strong> {{ $bankTransfer['alias'] }}</p>
+                    @endif
+                    @if (!empty($bankTransfer['cbu']))
+                        <p style="margin: 0 0 6px 0;"><strong>CBU/CVU:</strong> {{ $bankTransfer['cbu'] }}</p>
+                    @endif
+                    @if (!empty($bankTransfer['notes']))
+                        <p style="margin: 0;">{{ $bankTransfer['notes'] }}</p>
+                    @endif
+                </td>
+            </tr>
+        @endif
         <tr>
             <td style="padding-bottom: 16px;">
                 <p>Si necesitas ayuda, respondé este email o visitá nuestro sitio web.</p>

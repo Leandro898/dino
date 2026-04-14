@@ -88,8 +88,10 @@
                         </h2>
 
                         <div class="space-y-4">
-                            <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer">
-                                <input type="radio" name="payment_method" value="mercadopago" class="mt-1"
+
+                            <label id="label-mercadopago"
+                                class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
+                                <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="mt-1"
                                     {{ old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
                                 <span>
                                     <span class="block font-semibold dark:text-white">Mercado Pago</span>
@@ -97,23 +99,42 @@
                                 </span>
                             </label>
 
-                            <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer">
-                                <input type="radio" name="payment_method" value="efectivo" class="mt-1"
-                                    {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
-                                <span>
-                                    <span class="block font-semibold dark:text-white">Efectivo al entregar</span>
-                                    <span class="block text-sm text-gray-500 dark:text-gray-400">Reservamos tu pedido y lo abonás en efectivo cuando te lo entreguemos.</span>
-                                </span>
-                            </label>
+                            <div id="manual-payment-card"
+                                class="rounded-2xl border border-gray-200 dark:border-[#2a2a2a] overflow-hidden transition-colors">
+                                <button type="button" id="manual-payment-toggle"
+                                    class="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors">
+                                    <span id="manual-indicator"
+                                        class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-colors mt-0.5"></span>
+                                    <span>
+                                        <span class="block font-semibold dark:text-white">Pago al recibir</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Reservamos tu pedido y coordinamos el pago cuando te lo entreguemos.</span>
+                                    </span>
+                                </button>
 
-                            <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer">
-                                <input type="radio" name="payment_method" value="transferencia" class="mt-1"
-                                    {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
-                                <span>
-                                    <span class="block font-semibold dark:text-white">Transferencia</span>
-                                    <span class="block text-sm text-gray-500 dark:text-gray-400">Generamos el pedido y luego te mostramos los datos para transferir desde cualquier app bancaria o billetera.</span>
-                                </span>
-                            </label>
+                                <div id="manual-payment-options"
+                                    class="{{ in_array(old('payment_method'), ['efectivo', 'transferencia']) ? '' : 'hidden' }} border-t border-gray-100 dark:border-[#2a2a2a] px-4 pb-4 pt-3 space-y-3">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">¿Cómo preferís pagar?</p>
+
+                                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
+                                        <input type="radio" name="payment_method" value="efectivo" class="mt-1"
+                                            {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
+                                        <span>
+                                            <span class="block font-semibold text-sm dark:text-white">Efectivo</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">Abonás en efectivo al momento de la entrega.</span>
+                                        </span>
+                                    </label>
+
+                                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
+                                        <input type="radio" name="payment_method" value="transferencia" class="mt-1"
+                                            {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
+                                        <span>
+                                            <span class="block font-semibold text-sm dark:text-white">Transferencia bancaria</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">Te mostramos los datos para transferir desde cualquier app bancaria o billetera.</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -165,6 +186,65 @@
         </form>
 
     </main>
+
+    <script>
+            (() => {
+                const toggle       = document.getElementById('manual-payment-toggle');
+                const options      = document.getElementById('manual-payment-options');
+                const indicator    = document.getElementById('manual-indicator');
+                const card         = document.getElementById('manual-payment-card');
+                const mpInput      = document.getElementById('pm-mercadopago');
+                if (!toggle || !options || !indicator || !card) {
+                    return;
+                }
+
+                const manualInputs = options.querySelectorAll('input[type="radio"]');
+
+                function syncIndicator() {
+                    const anyChecked = Array.from(manualInputs).some(i => i.checked);
+                    if (anyChecked) {
+                        indicator.classList.replace('border-gray-300', 'border-indigo-600');
+                        indicator.classList.add('bg-indigo-600');
+                        card.classList.add('border-indigo-500');
+                        card.classList.remove('border-gray-200');
+                    } else {
+                        indicator.classList.replace('border-indigo-600', 'border-gray-300');
+                        indicator.classList.remove('bg-indigo-600');
+                        card.classList.remove('border-indigo-500');
+                        card.classList.add('border-gray-200');
+                    }
+                }
+
+                // Abrir/cerrar sub-opciones
+                toggle.addEventListener('click', () => {
+                    const isHidden = options.classList.toggle('hidden');
+                    // Si se abrió y MP estaba seleccionado, deseleccionarlo
+                    if (!isHidden && mpInput && mpInput.checked) {
+                        mpInput.checked = false;
+                    }
+                });
+
+                // Al seleccionar sub-opción: actualizar indicador visual
+                manualInputs.forEach(input => {
+                    input.addEventListener('change', () => {
+                        syncIndicator();
+                        if (mpInput) mpInput.checked = false;
+                    });
+                });
+
+                // Al seleccionar MP: cerrar sub-opciones y limpiar selección manual
+                if (mpInput) {
+                    mpInput.addEventListener('change', () => {
+                        manualInputs.forEach(i => { i.checked = false; });
+                        options.classList.add('hidden');
+                        syncIndicator();
+                    });
+                }
+
+                // Estado inicial (por old() en caso de error de validación)
+                syncIndicator();
+            })();
+    </script>
 
 </body>
 
