@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
     ]);
 
     // 2. Agregá esta línea al final
+    $this->call(StreetZoneSeeder::class);
+
     \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 }
 }

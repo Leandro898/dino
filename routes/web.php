@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ShippingZoneController;
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -29,6 +30,9 @@ Route::post('/carrito/update/{id}', [CartController::class, 'update'])->name('ca
 Route::post('/carrito/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
 
 // Rutas para el proceso de checkout
+// Detección automática de zona por calle/altura
+Route::get('/shipping/detect-zone', [ShippingZoneController::class, 'detect'])->name('shipping.detect-zone');
+
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 

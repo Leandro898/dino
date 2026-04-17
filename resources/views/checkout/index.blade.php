@@ -65,11 +65,31 @@
                                     class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
                             </div>
 
-                            <div class="md:col-span-2">
-                                <label class="text-sm font-semibold">Dirección</label>
-                                <input type="text" name="address" value="{{ old('address') }}" required
+                            <div>
+                                <label class="text-sm font-semibold">Calle</label>
+                                <input type="text" id="street-name-input" name="street_name"
+                                    value="{{ old('street_name') }}" required autocomplete="off"
+                                    placeholder="Ej: Albarracín"
                                     class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                @error('street_name')
+                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                @enderror
                             </div>
+
+                            <div>
+                                <label class="text-sm font-semibold">Altura (número)</label>
+                                <input type="number" id="street-number-input" name="street_number"
+                                    value="{{ old('street_number') }}" required min="1"
+                                    placeholder="Ej: 1430"
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                @error('street_number')
+                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Dirección completa compuesta (oculta, para guardar en BD) --}}
+                            <input type="hidden" id="address-hidden" name="address" value="{{ old('address') }}">
+                            <input type="hidden" id="shipping-zone-hidden" name="shipping_zone" value="{{ old('shipping_zone') }}">
 
                             <div>
                                 <label class="text-sm font-semibold">Teléfono</label>
@@ -78,16 +98,7 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <label class="text-sm font-semibold">Zona de envío</label>
-                                <select name="shipping_zone" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
-                                    <option value="">Seleccioná tu zona</option>
-                                    @foreach ($shippingZones as $zoneKey => $zone)
-                                        <option value="{{ $zoneKey }}" {{ old('shipping_zone') === $zoneKey ? 'selected' : '' }}>
-                                            {{ $zone['label'] }} - ${{ number_format($zone['price'], 0, ',', '.') }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div id="zone-detection-msg" class="hidden mb-1 p-3 rounded-xl text-sm font-medium"></div>
                                 @error('shipping_zone')
                                     <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
@@ -95,28 +106,6 @@
 
                         </div>
 
-                    </div>
-
-                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
-                        <h2 class="text-xl font-bold mb-4 dark:text-white">Tarifas de envío por zona</h2>
-                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-[#2a2a2a]">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-gray-50 dark:bg-[#111111]">
-                                    <tr>
-                                        <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200">Zona</th>
-                                        <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200">Tarifa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($shippingZones as $zone)
-                                        <tr class="border-t border-gray-100 dark:border-[#2a2a2a]">
-                                            <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ $zone['label'] }}</td>
-                                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">${{ number_format($zone['price'], 0, ',', '.') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
 
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
@@ -214,12 +203,12 @@
 
                         <div class="flex justify-between mt-6 pt-4 border-t text-lg font-bold dark:text-white">
                             <span>Subtotal productos</span>
-                            <span>${{ number_format($total, 0, ',', '.') }}</span>
+                            <span id="summary-subtotal" data-value="{{ $total }}">${{ number_format($total, 0, ',', '.') }}</span>
                         </div>
 
                         <div class="flex justify-between mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                             <span>Envío</span>
-                            <span>
+                            <span id="summary-shipping">
                                 @if (!is_null($selectedShippingCost))
                                     ${{ number_format($selectedShippingCost, 0, ',', '.') }}
                                 @else
@@ -230,7 +219,7 @@
 
                         <div class="flex justify-between mt-3 pt-3 border-t text-lg font-bold dark:text-white">
                             <span>Total</span>
-                            <span>
+                            <span id="summary-total">
                                 @if (!is_null($selectedShippingCost))
                                     ${{ number_format($total + $selectedShippingCost, 0, ',', '.') }}
                                 @else
@@ -311,6 +300,98 @@
                 // Estado inicial (por old() en caso de error de validación)
                 syncIndicator();
             })();
+    </script>
+
+    <script>
+        // ── Auto-detección de zona de envío ──────────────────────────────────
+        (() => {
+            const streetInput   = document.getElementById('street-name-input');
+            const numberInput   = document.getElementById('street-number-input');
+            const zoneHidden    = document.getElementById('shipping-zone-hidden');
+            const msgBox        = document.getElementById('zone-detection-msg');
+            const addressHidden = document.getElementById('address-hidden');
+            const shippingZones = @json($shippingZones);
+
+            if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden) return;
+
+            function updateAddressHidden() {
+                const s = streetInput.value.trim();
+                const n = numberInput.value.trim();
+                addressHidden.value = s + (n ? ' ' + n : '');
+            }
+
+            function showMsg(type, text) {
+                msgBox.className = 'mb-3 p-3 rounded-xl text-sm font-medium border';
+                msgBox.classList.add(
+                    type === 'success' ? 'bg-green-50'  : 'bg-amber-50',
+                    type === 'success' ? 'text-green-700' : 'text-amber-700',
+                    type === 'success' ? 'border-green-200' : 'border-amber-200'
+                );
+                msgBox.textContent = text;
+                msgBox.classList.remove('hidden');
+            }
+
+            function hideMsg() {
+                msgBox.classList.add('hidden');
+            }
+
+            function updateTotals(price) {
+                const subtotalEl = document.getElementById('summary-subtotal');
+                const shippingEl = document.getElementById('summary-shipping');
+                const totalEl    = document.getElementById('summary-total');
+                if (!subtotalEl || !shippingEl || !totalEl) return;
+
+                const subtotal = parseInt(subtotalEl.dataset.value || 0, 10);
+                if (price !== null) {
+                    shippingEl.textContent = '$' + price.toLocaleString('es-AR');
+                    totalEl.textContent    = '$' + (subtotal + price).toLocaleString('es-AR');
+                } else {
+                    shippingEl.textContent = 'Completá tu dirección';
+                    totalEl.textContent    = '$' + subtotal.toLocaleString('es-AR');
+                }
+            }
+
+            let detectTimeout = null;
+
+            async function detectZone() {
+                const street = streetInput.value.trim();
+                const number = numberInput.value.trim();
+                updateAddressHidden();
+                if (!street) { hideMsg(); return; }
+
+                clearTimeout(detectTimeout);
+                detectTimeout = setTimeout(async () => {
+                    try {
+                        const url = new URL('{{ route("shipping.detect-zone") }}', window.location.origin);
+                        url.searchParams.set('street', street);
+                        if (number) url.searchParams.set('number', number);
+
+                        const res  = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+                        const data = await res.json();
+
+                        if (data.zone_key) {
+                            zoneHidden.value = data.zone_key;
+                            showMsg('success', 'Zona detectada: ' + data.zone_label + ' - Envio: $' + data.zone_price.toLocaleString('es-AR'));
+                            updateTotals(data.zone_price);
+                        } else {
+                            zoneHidden.value = '';
+                            showMsg('warning', 'No encontramos esa calle y altura. Revisa los datos para calcular el envio.');
+                            updateTotals(null);
+                        }
+                    } catch (_) { /* silencioso */ }
+                }, 600);
+            }
+
+            const initialZoneKey = zoneHidden.value;
+            if (initialZoneKey && shippingZones[initialZoneKey]) {
+                updateTotals(shippingZones[initialZoneKey].price);
+            }
+
+            streetInput.addEventListener('input', detectZone);
+            numberInput.addEventListener('input', detectZone);
+            streetInput.addEventListener('blur',  updateAddressHidden);
+            numberInput.addEventListener('blur',  updateAddressHidden);
+        })();
     </script>
 
 </body>

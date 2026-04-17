@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Services\OrderEmailService;
 use App\Services\OrderNotificationService;
+use App\Services\ZoneDetectionService;
 // Importaciones de Mercado Pago SDK v3
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
@@ -27,13 +28,33 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'address' => 'required',
-            'phone' => 'required',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email',
+            'street_name'   => 'required|string|max:255',
+            'street_number' => 'required|integer|min:1',
+            'phone'         => 'required',
             'payment_method' => 'required|in:mercadopago,efectivo,transferencia',
-            'shipping_zone' => ['required', 'string', Rule::in(array_keys($this->shippingZones()))],
+            'shipping_zone' => ['nullable', 'string', Rule::in(array_keys($this->shippingZones()))],
         ]);
+
+        // Componer dirección completa
+        if (empty($request->address)) {
+            $request->merge([
+                'address' => trim($request->street_name . ' ' . $request->street_number),
+            ]);
+        }
+
+        // Si el frontend no pudo setear la zona, intentamos detectarla del lado servidor.
+        if (empty($request->shipping_zone)) {
+            $detectedZone = app(ZoneDetectionService::class)->detect(
+                $request->string('street_name')->toString(),
+                (int) $request->input('street_number')
+            );
+
+            if ($detectedZone) {
+                $request->merge(['shipping_zone' => $detectedZone]);
+            }
+        }
 
         $cart = session()->get('cart', []);
         \Log::info('Cart contents: ' . json_encode($cart));
@@ -45,7 +66,9 @@ class CheckoutController extends Controller
         $shippingZoneData = $shippingZones[$shippingZone] ?? null;
 
         if (!$shippingZoneData) {
-            return redirect()->back()->withErrors(['shipping_zone' => 'Seleccioná una zona de envío válida.'])->withInput();
+            return redirect()->back()->withErrors([
+                'shipping_zone' => 'No pudimos detectar la zona con esa calle y altura. Revisá la dirección.',
+            ])->withInput();
         }
 
         try {
