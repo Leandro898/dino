@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Services\OrderEmailService;
 use App\Services\OrderNotificationService;
 // Importaciones de Mercado Pago SDK v3
@@ -18,7 +19,9 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        return view('checkout.index');
+        return view('checkout.index', [
+            'shippingZones' => $this->shippingZones(),
+        ]);
     }
 
     public function process(Request $request)
@@ -29,6 +32,7 @@ class CheckoutController extends Controller
             'address' => 'required',
             'phone' => 'required',
             'payment_method' => 'required|in:mercadopago,efectivo,transferencia',
+            'shipping_zone' => ['required', 'string', Rule::in(array_keys($this->shippingZones()))],
         ]);
 
         $cart = session()->get('cart', []);
@@ -36,16 +40,23 @@ class CheckoutController extends Controller
         if (empty($cart)) return redirect()->back()->with('error', 'El carrito está vacío');
 
         $paymentMethod = $request->string('payment_method')->toString();
+        $shippingZone = $request->string('shipping_zone')->toString();
+        $shippingZones = $this->shippingZones();
+        $shippingZoneData = $shippingZones[$shippingZone] ?? null;
+
+        if (!$shippingZoneData) {
+            return redirect()->back()->withErrors(['shipping_zone' => 'Seleccioná una zona de envío válida.'])->withInput();
+        }
 
         try {
             DB::beginTransaction();
 
-            $totalGeneral = 0;
+            $productsSubtotal = 0;
             $itemsMP = []; // Array para Mercado Pago
 
             foreach ($cart as $id => $details) {
                 $subtotal = $details['price'] * $details['quantity'];
-                $totalGeneral += $subtotal;
+                $productsSubtotal += $subtotal;
 
                 // Preparar items para MP
                 $itemsMP[] = [
@@ -54,6 +65,19 @@ class CheckoutController extends Controller
                     "quantity" => (int) $details['quantity'],
                     "unit_price" => (float) $details['price'],
                     "currency_id" => "ARS"
+                ];
+            }
+
+            $shippingCost = (float) ($shippingZoneData['price'] ?? 0);
+            $totalGeneral = $productsSubtotal + $shippingCost;
+
+            if ($shippingCost > 0) {
+                $itemsMP[] = [
+                    'id' => 'shipping-' . $shippingZone,
+                    'title' => 'Costo de envio - ' . ($shippingZoneData['label'] ?? 'Zona seleccionada'),
+                    'quantity' => 1,
+                    'unit_price' => $shippingCost,
+                    'currency_id' => 'ARS',
                 ];
             }
 
@@ -71,6 +95,8 @@ class CheckoutController extends Controller
                 'total' => $totalGeneral,
                 'status' => $orderStatus,
                 'payment_method' => $paymentMethod,
+                'shipping_zone' => $shippingZone,
+                'shipping_cost' => $shippingCost,
             ]);
 
             foreach ($cart as $id => $details) {
@@ -283,8 +309,26 @@ class CheckoutController extends Controller
             'payment_method' => $order->payment_method,
             'payment_method_label' => $this->paymentMethodLabel($order->payment_method),
             'status' => $paymentStatus ?? $order->status,
+            'shipping_zone' => $order->shipping_zone,
+            'shipping_zone_label' => $this->shippingZoneLabel($order->shipping_zone),
+            'shipping_cost' => (float) $order->shipping_cost,
+            'subtotal_products' => (float) $order->total - (float) $order->shipping_cost,
             'total' => $order->total,
         ]);
+    }
+
+    private function shippingZones(): array
+    {
+        return config('shipping.zones', []);
+    }
+
+    private function shippingZoneLabel(?string $shippingZone): ?string
+    {
+        if (!$shippingZone) {
+            return null;
+        }
+
+        return $this->shippingZones()[$shippingZone]['label'] ?? $shippingZone;
     }
 
     private function paymentMethodLabel(?string $paymentMethod): string

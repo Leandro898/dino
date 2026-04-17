@@ -52,6 +52,13 @@
         </tr>
         <tr>
             <td style="padding-bottom: 16px;">
+                @if (!is_null($order->shipping_cost))
+                    @php
+                        $shippingZoneLabel = $shippingZones[$order->shipping_zone]['label'] ?? $order->shipping_zone;
+                    @endphp
+                    <p><strong>Subtotal productos:</strong> $ {{ number_format($order->total - $order->shipping_cost, 2, ',', '.') }}</p>
+                    <p><strong>Envío{{ $shippingZoneLabel ? ' (' . $shippingZoneLabel . ')' : '' }}:</strong> $ {{ number_format($order->shipping_cost, 2, ',', '.') }}</p>
+                @endif
                 <p><strong>Total:</strong> $ {{ number_format($order->total, 2, ',', '.') }}</p>
                 <p><strong>Método de pago:</strong>
                     @if ($order->payment_method === 'mercadopago')

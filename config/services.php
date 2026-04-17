@@ -51,6 +51,10 @@ return [
         'email' => env('ADMIN_EMAIL'),
     ],
 
+    'support' => [
+        'whatsapp_number' => env('SUPPORT_WHATSAPP_NUMBER'),
+    ],
+
     'bank_transfer' => [
         'account_holder' => env('BANK_TRANSFER_ACCOUNT_HOLDER'),
         'bank_name' => env('BANK_TRANSFER_BANK_NAME'),

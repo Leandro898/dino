@@ -17,6 +17,9 @@
         $paymentMethodLabel = $checkout['payment_method_label'] ?? 'tu método de pago';
         $orderId = $checkout['order_id'] ?? null;
         $total = $checkout['total'] ?? null;
+        $shippingCost = $checkout['shipping_cost'] ?? null;
+        $shippingZoneLabel = $checkout['shipping_zone_label'] ?? null;
+        $subtotalProducts = $checkout['subtotal_products'] ?? null;
     @endphp
 
     <main class="flex-grow flex items-center justify-center px-6">
@@ -40,6 +43,15 @@
                     <p class="text-sm text-gray-500 uppercase tracking-wide mb-2">Resumen</p>
                     <div class="space-y-2 text-sm text-gray-700">
                         <p><strong>Pedido:</strong> #{{ $orderId }}</p>
+                        @if (!is_null($subtotalProducts))
+                            <p><strong>Subtotal productos:</strong> ${{ number_format($subtotalProducts, 0, ',', '.') }}</p>
+                        @endif
+                        @if (!is_null($shippingCost))
+                            <p>
+                                <strong>Envío{{ $shippingZoneLabel ? ' (' . $shippingZoneLabel . ')' : '' }}:</strong>
+                                ${{ number_format($shippingCost, 0, ',', '.') }}
+                            </p>
+                        @endif
                         @if ($total)
                             <p><strong>Total:</strong> ${{ number_format($total, 0, ',', '.') }}</p>
                         @endif

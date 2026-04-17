@@ -77,8 +77,46 @@
                                     class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
                             </div>
 
+                            <div class="md:col-span-2">
+                                <label class="text-sm font-semibold">Zona de envío</label>
+                                <select name="shipping_zone" required
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                    <option value="">Seleccioná tu zona</option>
+                                    @foreach ($shippingZones as $zoneKey => $zone)
+                                        <option value="{{ $zoneKey }}" {{ old('shipping_zone') === $zoneKey ? 'selected' : '' }}>
+                                            {{ $zone['label'] }} - ${{ number_format($zone['price'], 0, ',', '.') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('shipping_zone')
+                                    <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                         </div>
 
+                    </div>
+
+                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 dark:text-white">Tarifas de envío por zona</h2>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-[#2a2a2a]">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-gray-50 dark:bg-[#111111]">
+                                    <tr>
+                                        <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200">Zona</th>
+                                        <th class="px-4 py-3 font-semibold text-gray-700 dark:text-gray-200">Tarifa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($shippingZones as $zone)
+                                        <tr class="border-t border-gray-100 dark:border-[#2a2a2a]">
+                                            <td class="px-4 py-3 text-gray-700 dark:text-gray-200">{{ $zone['label'] }}</td>
+                                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">${{ number_format($zone['price'], 0, ',', '.') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
@@ -151,6 +189,13 @@
 
                     @if (session('cart'))
 
+                        @php
+                            $selectedShippingZone = old('shipping_zone');
+                            $selectedShippingCost = $selectedShippingZone && isset($shippingZones[$selectedShippingZone])
+                                ? (float) $shippingZones[$selectedShippingZone]['price']
+                                : null;
+                        @endphp
+
                         @foreach (session('cart') as $id => $details)
                             @php
                                 $subtotal = $details['price'] * $details['quantity'];
@@ -168,8 +213,30 @@
                         @endforeach
 
                         <div class="flex justify-between mt-6 pt-4 border-t text-lg font-bold dark:text-white">
-                            <span>Total</span>
+                            <span>Subtotal productos</span>
                             <span>${{ number_format($total, 0, ',', '.') }}</span>
+                        </div>
+
+                        <div class="flex justify-between mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            <span>Envío</span>
+                            <span>
+                                @if (!is_null($selectedShippingCost))
+                                    ${{ number_format($selectedShippingCost, 0, ',', '.') }}
+                                @else
+                                    Seleccioná zona
+                                @endif
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between mt-3 pt-3 border-t text-lg font-bold dark:text-white">
+                            <span>Total</span>
+                            <span>
+                                @if (!is_null($selectedShippingCost))
+                                    ${{ number_format($total + $selectedShippingCost, 0, ',', '.') }}
+                                @else
+                                    ${{ number_format($total, 0, ',', '.') }}
+                                @endif
+                            </span>
                         </div>
 
                         <button type="submit"

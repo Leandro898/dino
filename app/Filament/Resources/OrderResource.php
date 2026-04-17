@@ -65,6 +65,16 @@ class OrderResource extends Resource
                                     })
                                     ->disabled(),
 
+                                Forms\Components\TextInput::make('shipping_zone')
+                                    ->label('Shipping Zone')
+                                    ->disabled(),
+
+                                Forms\Components\TextInput::make('shipping_cost')
+                                    ->label('Shipping Cost')
+                                    ->numeric()
+                                    ->prefix('$')
+                                    ->disabled(),
+
                                 Forms\Components\Textarea::make('address')
                                     ->columnSpanFull()
                                     ->disabled(),
@@ -138,6 +148,13 @@ class OrderResource extends Resource
                         'transferencia' => 'warning',
                         default => 'gray',
                     }),
+                Tables\Columns\TextColumn::make('shipping_zone')
+                    ->label('Zona envío')
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('shipping_cost')
+                    ->label('Envío')
+                    ->money('ARS')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('total')
                     ->numeric()
                     ->sortable()

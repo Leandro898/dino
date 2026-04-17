@@ -25,6 +25,7 @@ class OrderConfirmation extends Mailable
             ->view('emails.order_confirmation')
             ->with([
                 'bankTransfer' => config('services.bank_transfer'),
+                'shippingZones' => config('shipping.zones', []),
             ]);
     }
 }
