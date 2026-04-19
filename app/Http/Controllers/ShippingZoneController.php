@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\StreetZone;
 use App\Services\ZoneDetectionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -9,6 +10,38 @@ use Illuminate\Http\Request;
 class ShippingZoneController extends Controller
 {
     public function __construct(private ZoneDetectionService $detector) {}
+
+    /**
+     * GET /shipping/street-suggestions?q=alba
+     */
+    public function suggestions(Request $request): JsonResponse
+    {
+        $query = trim($request->query('q', ''));
+
+        if (mb_strlen($query) < 2) {
+            return response()->json(['suggestions' => []]);
+        }
+
+        $normalized = $this->detector->normalize($query);
+
+        if ($normalized === '') {
+            return response()->json(['suggestions' => []]);
+        }
+
+        $streets = StreetZone::query()
+            ->select('street_name')
+            ->where('street_name', 'like', $normalized . '%')
+            ->distinct()
+            ->orderBy('street_name')
+            ->limit(12)
+            ->pluck('street_name')
+            ->map(fn ($name) => mb_convert_case($name, MB_CASE_TITLE, 'UTF-8'))
+            ->values();
+
+        return response()->json([
+            'suggestions' => $streets,
+        ]);
+    }
 
     /**
      * GET /shipping/detect-zone?street=albarracin&number=1430

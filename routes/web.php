@@ -32,6 +32,7 @@ Route::post('/carrito/remove/{id}', [CartController::class, 'remove'])->name('ca
 // Rutas para el proceso de checkout
 // Detección automática de zona por calle/altura
 Route::get('/shipping/detect-zone', [ShippingZoneController::class, 'detect'])->name('shipping.detect-zone');
+Route::get('/shipping/street-suggestions', [ShippingZoneController::class, 'suggestions'])->name('shipping.street-suggestions');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');

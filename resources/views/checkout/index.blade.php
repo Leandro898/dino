@@ -69,8 +69,10 @@
                                 <label class="text-sm font-semibold">Calle</label>
                                 <input type="text" id="street-name-input" name="street_name"
                                     value="{{ old('street_name') }}" required autocomplete="off"
+                                    list="street-suggestions-list"
                                     placeholder="Ej: Albarracín"
                                     class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                <datalist id="street-suggestions-list"></datalist>
                                 @error('street_name')
                                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
@@ -310,9 +312,10 @@
             const zoneHidden    = document.getElementById('shipping-zone-hidden');
             const msgBox        = document.getElementById('zone-detection-msg');
             const addressHidden = document.getElementById('address-hidden');
+            const datalist      = document.getElementById('street-suggestions-list');
             const shippingZones = @json($shippingZones);
 
-            if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden) return;
+            if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden || !datalist) return;
 
             function updateAddressHidden() {
                 const s = streetInput.value.trim();
@@ -352,6 +355,37 @@
             }
 
             let detectTimeout = null;
+            let suggestTimeout = null;
+
+            async function fetchStreetSuggestions() {
+                const term = streetInput.value.trim();
+
+                if (term.length < 2) {
+                    datalist.innerHTML = '';
+                    return;
+                }
+
+                clearTimeout(suggestTimeout);
+                suggestTimeout = setTimeout(async () => {
+                    try {
+                        const url = new URL('{{ route("shipping.street-suggestions") }}', window.location.origin);
+                        url.searchParams.set('q', term);
+
+                        const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+                        const data = await res.json();
+                        const items = Array.isArray(data.suggestions) ? data.suggestions : [];
+
+                        datalist.innerHTML = '';
+                        items.forEach((street) => {
+                            const option = document.createElement('option');
+                            option.value = street;
+                            datalist.appendChild(option);
+                        });
+                    } catch (_) {
+                        // silencioso
+                    }
+                }, 200);
+            }
 
             async function detectZone() {
                 const street = streetInput.value.trim();
@@ -387,7 +421,10 @@
                 updateTotals(shippingZones[initialZoneKey].price);
             }
 
-            streetInput.addEventListener('input', detectZone);
+            streetInput.addEventListener('input', () => {
+                fetchStreetSuggestions();
+                detectZone();
+            });
             numberInput.addEventListener('input', detectZone);
             streetInput.addEventListener('blur',  updateAddressHidden);
             numberInput.addEventListener('blur',  updateAddressHidden);
