@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
         'password' => bcrypt('password'),
     ]);
 
+    $this->call(ShippingZoneSeeder::class);
+
     // 2. Agregá esta línea al final
     $this->call(StreetZoneSeeder::class);
 

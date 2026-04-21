@@ -60,12 +60,6 @@
                             </div>
 
                             <div>
-                                <label class="text-sm font-semibold">Email</label>
-                                <input type="email" name="email" value="{{ old('email') }}" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
-                            </div>
-
-                            <div>
                                 <label class="text-sm font-semibold">Calle</label>
                                 <input type="text" id="street-name-input" name="street_name"
                                     value="{{ old('street_name') }}" required autocomplete="off"
@@ -120,8 +114,9 @@
 
                             <label id="label-mercadopago"
                                 class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="mt-1"
+                                <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="sr-only"
                                     {{ old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
+                                <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                 <span>
                                     <span class="block font-semibold dark:text-white">Mercado Pago</span>
                                     <span class="block text-sm text-gray-500 dark:text-gray-400">Pagás online en el momento y la orden queda confirmada cuando Mercado Pago aprueba el pago.</span>
@@ -133,7 +128,7 @@
                                 <button type="button" id="manual-payment-toggle"
                                     class="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors">
                                     <span id="manual-indicator"
-                                        class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-colors mt-0.5"></span>
+                                        class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-colors mt-0.5" style="box-sizing:border-box;"></span>
                                     <span>
                                         <span class="block font-semibold dark:text-white">Pago al recibir</span>
                                         <span class="block text-sm text-gray-500 dark:text-gray-400">Reservamos tu pedido y coordinamos el pago cuando te lo entreguemos.</span>
@@ -145,8 +140,9 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400">¿Cómo preferís pagar?</p>
 
                                     <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                        <input type="radio" name="payment_method" value="efectivo" class="mt-1"
+                                        <input type="radio" name="payment_method" id="pm-efectivo" value="efectivo" class="sr-only"
                                             {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
+                                        <span id="dot-efectivo" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                         <span>
                                             <span class="block font-semibold text-sm dark:text-white">Efectivo</span>
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">Abonás en efectivo al momento de la entrega.</span>
@@ -154,8 +150,9 @@
                                     </label>
 
                                     <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                        <input type="radio" name="payment_method" value="transferencia" class="mt-1"
+                                        <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
                                             {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
+                                        <span id="dot-transferencia" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                         <span>
                                             <span class="block font-semibold text-sm dark:text-white">Transferencia bancaria</span>
                                             <span class="block text-xs text-gray-500 dark:text-gray-400">Te mostramos los datos para transferir desde cualquier app bancaria o billetera.</span>
@@ -252,23 +249,44 @@
                 const indicator    = document.getElementById('manual-indicator');
                 const card         = document.getElementById('manual-payment-card');
                 const mpInput      = document.getElementById('pm-mercadopago');
-                if (!toggle || !options || !indicator || !card) {
-                    return;
-                }
+                const dotMP        = document.getElementById('dot-mercadopago');
+                const dotEfectivo  = document.getElementById('dot-efectivo');
+                const dotTransf    = document.getElementById('dot-transferencia');
+                if (!toggle || !options || !indicator || !card) return;
 
                 const manualInputs = options.querySelectorAll('input[type="radio"]');
 
-                function syncIndicator() {
-                    const anyChecked = Array.from(manualInputs).some(i => i.checked);
-                    if (anyChecked) {
-                        indicator.classList.replace('border-gray-300', 'border-indigo-600');
-                        indicator.classList.add('bg-indigo-600');
-                        card.classList.add('border-indigo-500');
+                function setDot(el, active) {
+                    if (!el) return;
+                    if (active) {
+                        el.style.borderColor = '#9333ea';
+                        el.style.backgroundColor = '#9333ea';
+                    } else {
+                        el.style.borderColor = '';
+                        el.style.backgroundColor = '';
+                    }
+                }
+
+                function syncAll() {
+                    const mpChecked     = mpInput && mpInput.checked;
+                    const efecChecked   = document.getElementById('pm-efectivo')?.checked;
+                    const transfChecked = document.getElementById('pm-transferencia')?.checked;
+                    const anyManual     = efecChecked || transfChecked;
+
+                    setDot(dotMP, mpChecked);
+                    setDot(dotEfectivo, efecChecked);
+                    setDot(dotTransf, transfChecked);
+
+                    // indicador del botón "Pago al recibir"
+                    if (anyManual) {
+                        indicator.style.borderColor = '#9333ea';
+                        indicator.style.backgroundColor = '#9333ea';
+                        card.classList.add('border-purple-500');
                         card.classList.remove('border-gray-200');
                     } else {
-                        indicator.classList.replace('border-indigo-600', 'border-gray-300');
-                        indicator.classList.remove('bg-indigo-600');
-                        card.classList.remove('border-indigo-500');
+                        indicator.style.borderColor = '';
+                        indicator.style.backgroundColor = '';
+                        card.classList.remove('border-purple-500');
                         card.classList.add('border-gray-200');
                     }
                 }
@@ -276,31 +294,31 @@
                 // Abrir/cerrar sub-opciones
                 toggle.addEventListener('click', () => {
                     const isHidden = options.classList.toggle('hidden');
-                    // Si se abrió y MP estaba seleccionado, deseleccionarlo
                     if (!isHidden && mpInput && mpInput.checked) {
                         mpInput.checked = false;
                     }
+                    syncAll();
                 });
 
-                // Al seleccionar sub-opción: actualizar indicador visual
+                // Al seleccionar sub-opción
                 manualInputs.forEach(input => {
                     input.addEventListener('change', () => {
-                        syncIndicator();
                         if (mpInput) mpInput.checked = false;
+                        syncAll();
                     });
                 });
 
-                // Al seleccionar MP: cerrar sub-opciones y limpiar selección manual
+                // Al seleccionar MP
                 if (mpInput) {
                     mpInput.addEventListener('change', () => {
                         manualInputs.forEach(i => { i.checked = false; });
                         options.classList.add('hidden');
-                        syncIndicator();
+                        syncAll();
                     });
                 }
 
-                // Estado inicial (por old() en caso de error de validación)
-                syncIndicator();
+                // Estado inicial
+                syncAll();
             })();
     </script>
 

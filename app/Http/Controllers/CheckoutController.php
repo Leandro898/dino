@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use App\Services\OrderEmailService;
 use App\Services\OrderNotificationService;
 use App\Services\ZoneDetectionService;
+use App\Models\ShippingZone;
 // Importaciones de Mercado Pago SDK v3
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
@@ -29,7 +30,6 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'name'          => 'required|string|max:255',
-            'email'         => 'required|email',
             'street_name'   => 'required|string|max:255',
             'street_number' => 'required|integer|min:1',
             'phone'         => 'required',
@@ -342,7 +342,20 @@ class CheckoutController extends Controller
 
     private function shippingZones(): array
     {
-        return config('shipping.zones', []);
+        $zones = ShippingZone::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['zone_key', 'label', 'price'])
+            ->mapWithKeys(fn ($zone) => [
+                $zone->zone_key => [
+                    'label' => $zone->label,
+                    'price' => (int) $zone->price,
+                ],
+            ])
+            ->toArray();
+
+        return !empty($zones) ? $zones : config('shipping.zones', []);
     }
 
     private function shippingZoneLabel(?string $shippingZone): ?string

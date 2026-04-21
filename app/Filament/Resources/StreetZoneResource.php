@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StreetZoneResource\Pages;
+use App\Models\ShippingZone;
 use App\Models\StreetZone;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -21,9 +22,21 @@ class StreetZoneResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $zones = collect(config('shipping.zones', []))
-            ->mapWithKeys(fn ($zone, $key) => [$key => $zone['label'] . ' ($' . number_format($zone['price'], 0, ',', '.') . ')'])
+        $zones = ShippingZone::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['zone_key', 'label', 'price'])
+            ->mapWithKeys(fn ($zone) => [
+                $zone->zone_key => $zone->label . ' ($' . number_format((int) $zone->price, 0, ',', '.') . ')',
+            ])
             ->toArray();
+
+        if (empty($zones)) {
+            $zones = collect(config('shipping.zones', []))
+                ->mapWithKeys(fn ($zone, $key) => [$key => $zone['label'] . ' ($' . number_format($zone['price'], 0, ',', '.') . ')'])
+                ->toArray();
+        }
 
         return $form->schema([
             Forms\Components\TextInput::make('street_name')
@@ -53,9 +66,18 @@ class StreetZoneResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $zones = collect(config('shipping.zones', []))
-            ->mapWithKeys(fn ($zone, $key) => [$key => $zone['label']])
+        $zones = ShippingZone::query()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get(['zone_key', 'label'])
+            ->mapWithKeys(fn ($zone) => [$zone->zone_key => $zone->label])
             ->toArray();
+
+        if (empty($zones)) {
+            $zones = collect(config('shipping.zones', []))
+                ->mapWithKeys(fn ($zone, $key) => [$key => $zone['label']])
+                ->toArray();
+        }
 
         return $table
             ->columns([

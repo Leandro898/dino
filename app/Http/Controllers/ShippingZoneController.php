@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShippingZone;
 use App\Models\StreetZone;
 use App\Services\ZoneDetectionService;
 use Illuminate\Http\JsonResponse;
@@ -61,7 +62,21 @@ class ShippingZoneController extends Controller
             return response()->json(['zone_key' => null]);
         }
 
-        $zones = config('shipping.zones', []);
+        $zones = ShippingZone::query()
+            ->where('is_active', true)
+            ->get(['zone_key', 'label', 'price'])
+            ->mapWithKeys(fn ($zone) => [
+                $zone->zone_key => [
+                    'label' => $zone->label,
+                    'price' => (int) $zone->price,
+                ],
+            ])
+            ->toArray();
+
+        if (empty($zones)) {
+            $zones = config('shipping.zones', []);
+        }
+
         $zone  = $zones[$zoneKey] ?? null;
 
         return response()->json([

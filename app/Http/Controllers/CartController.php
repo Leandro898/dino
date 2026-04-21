@@ -15,13 +15,14 @@ class CartController extends Controller
     public function add(\App\Models\Product $product)
     {
         $cart = session()->get('cart', []);
+        $requestedQuantity = max(1, (int) request()->input('quantity', 1));
 
         if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity']++;
+            $cart[$product->id]['quantity'] += $requestedQuantity;
         } else {
             $cart[$product->id] = [
                 "name" => $product->name,
-                "quantity" => 1,
+                "quantity" => $requestedQuantity,
                 "price" => $product->price,
                 "image" => $product->image
             ];
@@ -30,7 +31,11 @@ class CartController extends Controller
         session()->put('cart', $cart);
 
         if (request()->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Producto agregado al carrito']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto agregado al carrito',
+                'quantity' => $requestedQuantity,
+            ]);
         }
 
         return redirect()->route('cart.index');

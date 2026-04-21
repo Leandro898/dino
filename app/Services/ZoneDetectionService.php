@@ -38,6 +38,13 @@ class ZoneDetectionService
                 ->whereNull('number_from')
                 ->first();
 
+            if ($noRange) {
+                $boundaryZone = $this->resolveBoundaryZone($normalized, $number, $noRange->zone_key);
+                if ($boundaryZone !== null) {
+                    return $boundaryZone;
+                }
+            }
+
             return $noRange?->zone_key;
         }
 
@@ -79,5 +86,43 @@ class ZoneDetectionService
         $street = preg_replace('/\s+\d+.*$/', '', $street);
 
         return trim($street);
+    }
+
+    /**
+     * Permite aplicar reglas globales de corte por altura para calles
+     * que estaban cargadas como "toda la calle".
+     */
+    private function resolveBoundaryZone(string $street, int $number, string $currentZone): ?string
+    {
+        $rule = config('shipping.height_boundary_rule', []);
+
+        if (!($rule['enabled'] ?? false)) {
+            return null;
+        }
+
+        $fromNumber = (int) ($rule['from_number'] ?? 0);
+        $fromZone   = (string) ($rule['from_zone'] ?? '');
+        $toZone     = (string) ($rule['to_zone'] ?? '');
+        $streets    = (array) ($rule['streets'] ?? []);
+
+        if ($fromNumber <= 0 || $fromZone === '' || $toZone === '' || empty($streets)) {
+            return null;
+        }
+
+        if ($currentZone !== $fromZone) {
+            return null;
+        }
+
+        if ($number < $fromNumber) {
+            return null;
+        }
+
+        $normalizedStreets = array_map(fn ($name) => $this->normalize((string) $name), $streets);
+
+        if (in_array($street, $normalizedStreets, true)) {
+            return $toZone;
+        }
+
+        return null;
     }
 }
