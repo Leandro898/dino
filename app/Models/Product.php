@@ -15,7 +15,13 @@ class Product extends Model
         'price',
         'image',
         'stock',
-        'is_active'
+        'is_active',
+        'is_raffle',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'is_raffle' => 'boolean',
     ];
 
     protected static function booted()
@@ -57,5 +63,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function isRaffle(): bool
+    {
+        return (bool) $this->is_raffle;
     }
 }

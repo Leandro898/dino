@@ -6,6 +6,9 @@
     <title>Confirmación de compra</title>
 </head>
 <body style="font-family: Arial, sans-serif; color: #333; background: #f6f6f6; margin: 0; padding: 0;">
+    @php
+        $hasRaffle = $order->items->contains(fn ($item) => !empty($item->raffle_number));
+    @endphp
     <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 700px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 8px;">
         <tr>
             <td style="text-align: center; padding-bottom: 24px;">
@@ -41,7 +44,13 @@
                     <tbody>
                         @foreach ($order->items as $item)
                             <tr>
-                                <td>{{ optional($item->product)->name ?? 'Producto #' . $item->product_id }}</td>
+                                <td>
+                                    {{ optional($item->product)->name ?? 'Producto #' . $item->product_id }}
+                                    @if (!empty($item->raffle_number))
+                                        <br>
+                                        <small>Numero de sorteo: {{ $item->raffle_number }}</small>
+                                    @endif
+                                </td>
                                 <td align="center">{{ $item->quantity }}</td>
                                 <td align="right">$ {{ number_format($item->subtotal, 2, ',', '.') }}</td>
                             </tr>
@@ -75,6 +84,15 @@
                 <p><strong>Teléfono:</strong> {{ $order->phone }}</p>
             </td>
         </tr>
+        @if ($hasRaffle)
+            <tr>
+                <td style="padding-bottom: 16px; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px;">
+                    <p style="margin: 0 0 8px 0;"><strong>Regla de transparencia del sorteo</strong></p>
+                    <p style="margin: 0 0 6px 0;">Si no se venden los 100 numeros, el sorteo se realiza igual en la fecha anunciada y participan solo los numeros vendidos.</p>
+                    <p style="margin: 0;">Para garantizar ganador, si el primer numero oficial no fue vendido, se toma el siguiente puesto oficial hasta encontrar un numero vendido.</p>
+                </td>
+            </tr>
+        @endif
         @if ($order->payment_method === 'transferencia')
             <tr>
                 <td style="padding-bottom: 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;">

@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'mercadopago/webhook',
         ]);
+
+        // Registrar visitas reales de usuarios (filtra bots automáticamente)
+        $middleware->appendToGroup('web', \App\Http\Middleware\TrackPageView::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -63,4 +63,7 @@ return [
         'notes' => env('BANK_TRANSFER_NOTES'),
         'whatsapp_number' => env('BANK_TRANSFER_WHATSAPP_NUMBER'),
     ],
+
+    'ga4_measurement_id' => env('GA4_MEASUREMENT_ID'),
+
 ];

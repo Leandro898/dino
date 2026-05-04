@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Checkout - Marketplace Bariloche</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -56,16 +57,27 @@
                             <div>
                                 <label class="text-sm font-semibold">Nombre completo</label>
                                 <input type="text" name="name" value="{{ old('name') }}" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
                             </div>
 
+                            <div>
+                                <label class="text-sm font-semibold">Email</label>
+                                <input type="email" name="email" value="{{ old('email') }}" required
+                                    placeholder="tu@email.com"
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
+                                @error('email')
+                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            @if(!$raffleOnlyMercadoPago)
                             <div>
                                 <label class="text-sm font-semibold">Calle</label>
                                 <input type="text" id="street-name-input" name="street_name"
                                     value="{{ old('street_name') }}" required autocomplete="off"
                                     list="street-suggestions-list"
                                     placeholder="Ej: Albarracín"
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
                                 <datalist id="street-suggestions-list"></datalist>
                                 @error('street_name')
                                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -77,7 +89,7 @@
                                 <input type="number" id="street-number-input" name="street_number"
                                     value="{{ old('street_number') }}" required min="1"
                                     placeholder="Ej: 1430"
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
                                 @error('street_number')
                                     <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
@@ -86,11 +98,12 @@
                             {{-- Dirección completa compuesta (oculta, para guardar en BD) --}}
                             <input type="hidden" id="address-hidden" name="address" value="{{ old('address') }}">
                             <input type="hidden" id="shipping-zone-hidden" name="shipping_zone" value="{{ old('shipping_zone') }}">
+                            @endif
 
                             <div>
                                 <label class="text-sm font-semibold">Teléfono</label>
                                 <input type="text" name="phone" value="{{ old('phone') }}" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f]">
+                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
                             </div>
 
                             <div class="md:col-span-2">
@@ -110,12 +123,18 @@
                             Método de pago
                         </h2>
 
+                        @if (!empty($raffleOnlyMercadoPago))
+                            <div class="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-800 px-4 py-3 text-sm font-medium">
+                                Este pedido incluye un numero de sorteo. Solo está disponible Mercado Pago.
+                            </div>
+                        @endif
+
                         <div class="space-y-4">
 
                             <label id="label-mercadopago"
                                 class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
                                 <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="sr-only"
-                                    {{ old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
+                                    {{ !empty($raffleOnlyMercadoPago) || old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
                                 <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                 <span>
                                     <span class="block font-semibold dark:text-white">Mercado Pago</span>
@@ -123,43 +142,57 @@
                                 </span>
                             </label>
 
-                            <div id="manual-payment-card"
-                                class="rounded-2xl border border-gray-200 dark:border-[#2a2a2a] overflow-hidden transition-colors">
-                                <button type="button" id="manual-payment-toggle"
-                                    class="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors">
-                                    <span id="manual-indicator"
-                                        class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-colors mt-0.5" style="box-sizing:border-box;"></span>
-                                    <span>
-                                        <span class="block font-semibold dark:text-white">Pago al recibir</span>
-                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Reservamos tu pedido y coordinamos el pago cuando te lo entreguemos.</span>
-                                    </span>
-                                </button>
-
-                                <div id="manual-payment-options"
-                                    class="{{ in_array(old('payment_method'), ['efectivo', 'transferencia']) ? '' : 'hidden' }} border-t border-gray-100 dark:border-[#2a2a2a] px-4 pb-4 pt-3 space-y-3">
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">¿Cómo preferís pagar?</p>
-
-                                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                        <input type="radio" name="payment_method" id="pm-efectivo" value="efectivo" class="sr-only"
-                                            {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
-                                        <span id="dot-efectivo" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
+                            @if (empty($raffleOnlyMercadoPago))
+                                <div id="manual-payment-card"
+                                    class="rounded-2xl border border-gray-200 dark:border-[#2a2a2a] overflow-hidden transition-colors">
+                                    <button type="button" id="manual-payment-toggle"
+                                        class="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors">
+                                        <span id="manual-indicator"
+                                            class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-colors mt-0.5" style="box-sizing:border-box;"></span>
                                         <span>
-                                            <span class="block font-semibold text-sm dark:text-white">Efectivo</span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">Abonás en efectivo al momento de la entrega.</span>
+                                            <span class="block font-semibold dark:text-white">Pago al recibir</span>
+                                            <span class="block text-sm text-gray-500 dark:text-gray-400">Reservamos tu pedido y coordinamos el pago cuando te lo entreguemos.</span>
                                         </span>
-                                    </label>
+                                    </button>
 
-                                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                        <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
-                                            {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
-                                        <span id="dot-transferencia" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
-                                        <span>
-                                            <span class="block font-semibold text-sm dark:text-white">Transferencia bancaria</span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">Te mostramos los datos para transferir desde cualquier app bancaria o billetera.</span>
-                                        </span>
-                                    </label>
+                                    <div id="manual-payment-options"
+                                        class="{{ in_array(old('payment_method'), ['efectivo', 'transferencia']) ? '' : 'hidden' }} border-t border-gray-100 dark:border-[#2a2a2a] px-4 pb-4 pt-3 space-y-3">
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">¿Cómo preferís pagar?</p>
+
+                                        <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
+                                            <input type="radio" name="payment_method" id="pm-efectivo" value="efectivo" class="sr-only"
+                                                {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
+                                            <span id="dot-efectivo" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
+                                            <span>
+                                                <span class="block font-semibold text-sm dark:text-white">Efectivo</span>
+                                                <span class="block text-xs text-gray-500 dark:text-gray-400">Abonás en efectivo al momento de la entrega.</span>
+                                            </span>
+                                        </label>
+
+                                        <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
+                                            <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
+                                                {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
+                                            <span id="dot-transferencia" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
+                                            <span>
+                                                <span class="block font-semibold text-sm dark:text-white">Transferencia bancaria</span>
+                                                <span class="block text-xs text-gray-500 dark:text-gray-400">Te mostramos los datos para transferir desde cualquier app bancaria o billetera.</span>
+                                            </span>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
+
+                            @if (!empty($raffleOnlyMercadoPago))
+                                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                                    El dia del sorteo, el premio sera entregado por uno de los repartidores de BariTienda al ganador.
+                                </div>
+
+                                <div class="rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+                                    <p class="font-semibold mb-1">Regla de transparencia</p>
+                                    <p>Si no se venden los 100 numeros, el sorteo se realiza igual y participan solo los numeros vendidos.</p>
+                                    <p class="mt-1">Para asegurar ganador: si el primer numero oficial no fue vendido, se toma el siguiente puesto oficial hasta encontrar un numero vendido.</p>
+                                </div>
+                            @endif
 
                         </div>
 
@@ -179,9 +212,11 @@
 
                         @php
                             $selectedShippingZone = old('shipping_zone');
-                            $selectedShippingCost = $selectedShippingZone && isset($shippingZones[$selectedShippingZone])
-                                ? (float) $shippingZones[$selectedShippingZone]['price']
-                                : null;
+                            $selectedShippingCost = !empty($freeShippingForSpecificRaffle)
+                                ? 0
+                                : ($selectedShippingZone && isset($shippingZones[$selectedShippingZone])
+                                    ? (float) $shippingZones[$selectedShippingZone]['price']
+                                    : null);
                         @endphp
 
                         @foreach (session('cart') as $id => $details)
@@ -208,7 +243,9 @@
                         <div class="flex justify-between mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                             <span>Envío</span>
                             <span id="summary-shipping">
-                                @if (!is_null($selectedShippingCost))
+                                @if (!empty($freeShippingForSpecificRaffle))
+                                    Gratis (solo sorteo)
+                                @elseif (!is_null($selectedShippingCost))
                                     ${{ number_format($selectedShippingCost, 0, ',', '.') }}
                                 @else
                                     Seleccioná zona
@@ -332,6 +369,7 @@
             const addressHidden = document.getElementById('address-hidden');
             const datalist      = document.getElementById('street-suggestions-list');
             const shippingZones = @json($shippingZones);
+            const freeShippingForSpecificRaffle = @json(!empty($freeShippingForSpecificRaffle));
 
             if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden || !datalist) return;
 
@@ -363,6 +401,12 @@
                 if (!subtotalEl || !shippingEl || !totalEl) return;
 
                 const subtotal = parseInt(subtotalEl.dataset.value || 0, 10);
+                if (freeShippingForSpecificRaffle) {
+                    shippingEl.textContent = 'Gratis (solo sorteo)';
+                    totalEl.textContent = '$' + subtotal.toLocaleString('es-AR');
+                    return;
+                }
+
                 if (price !== null) {
                     shippingEl.textContent = '$' + price.toLocaleString('es-AR');
                     totalEl.textContent    = '$' + (subtotal + price).toLocaleString('es-AR');
@@ -374,6 +418,13 @@
 
             let detectTimeout = null;
             let suggestTimeout = null;
+
+            if (freeShippingForSpecificRaffle) {
+                updateAddressHidden();
+                updateTotals(0);
+                hideMsg();
+                return;
+            }
 
             async function fetchStreetSuggestions() {
                 const term = streetInput.value.trim();

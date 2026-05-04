@@ -8,10 +8,12 @@ use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use App\Services\OrderEmailService;
 use App\Services\OrderNotificationService;
 use App\Services\ZoneDetectionService;
 use App\Models\ShippingZone;
+use App\Models\Product;
 // Importaciones de Mercado Pago SDK v3
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
@@ -19,53 +21,78 @@ use MercadoPago\Client\Payment\PaymentClient;
 
 class CheckoutController extends Controller
 {
+    private const FREE_SHIPPING_RAFFLE_SLUG = 'sorteo-helado-rapa-nui-1kg';
+
     public function index()
     {
+        $cart = session()->get('cart', []);
+
         return view('checkout.index', [
             'shippingZones' => $this->shippingZones(),
+            'raffleOnlyMercadoPago' => $this->cartContainsRaffle($cart),
+            'freeShippingForSpecificRaffle' => $this->isSpecificRaffleFreeShippingCart($cart),
         ]);
     }
 
     public function process(Request $request)
     {
-        $request->validate([
-            'name'          => 'required|string|max:255',
-            'street_name'   => 'required|string|max:255',
-            'street_number' => 'required|integer|min:1',
-            'phone'         => 'required',
-            'payment_method' => 'required|in:mercadopago,efectivo,transferencia',
-            'shipping_zone' => ['nullable', 'string', Rule::in(array_keys($this->shippingZones()))],
-        ]);
-
-        // Componer dirección completa
-        if (empty($request->address)) {
-            $request->merge([
-                'address' => trim($request->street_name . ' ' . $request->street_number),
-            ]);
-        }
-
-        // Si el frontend no pudo setear la zona, intentamos detectarla del lado servidor.
-        if (empty($request->shipping_zone)) {
-            $detectedZone = app(ZoneDetectionService::class)->detect(
-                $request->string('street_name')->toString(),
-                (int) $request->input('street_number')
-            );
-
-            if ($detectedZone) {
-                $request->merge(['shipping_zone' => $detectedZone]);
-            }
-        }
-
         $cart = session()->get('cart', []);
         \Log::info('Cart contents: ' . json_encode($cart));
         if (empty($cart)) return redirect()->back()->with('error', 'El carrito está vacío');
 
+        $raffleOnlyMercadoPago = $this->cartContainsRaffle($cart);
+        $freeShippingForSpecificRaffle = $this->isSpecificRaffleFreeShippingCart($cart);
+        $shippingZones = $this->shippingZones();
+        $allowedPaymentMethods = $raffleOnlyMercadoPago
+            ? ['mercadopago']
+            : ['mercadopago', 'efectivo', 'transferencia'];
+
+        $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'street_name'   => $raffleOnlyMercadoPago ? 'nullable|string|max:255' : 'required|string|max:255',
+            'street_number' => $raffleOnlyMercadoPago ? 'nullable|integer|min:1' : 'required|integer|min:1',
+            'phone'         => 'required',
+            'payment_method' => ['required', Rule::in($allowedPaymentMethods)],
+            'shipping_zone' => $freeShippingForSpecificRaffle
+                ? ['nullable', 'string']
+                : ['nullable', 'string', Rule::in(array_keys($shippingZones))],
+        ]);
+
+        if ($raffleOnlyMercadoPago && $request->string('payment_method')->toString() !== 'mercadopago') {
+            return redirect()->back()->withErrors([
+                'payment_method' => 'Para productos de sorteo solo esta disponible Mercado Pago.',
+            ])->withInput();
+        }
+
+        // Componer dirección completa (no aplica para sorteos)
+        if (!$raffleOnlyMercadoPago) {
+            if (empty($request->address)) {
+                $request->merge([
+                    'address' => trim($request->street_name . ' ' . $request->street_number),
+                ]);
+            }
+
+            // Si el frontend no pudo setear la zona, intentamos detectarla del lado servidor.
+            if (!$freeShippingForSpecificRaffle && empty($request->shipping_zone)) {
+                $detectedZone = app(ZoneDetectionService::class)->detect(
+                    $request->string('street_name')->toString(),
+                    (int) $request->input('street_number')
+                );
+
+                if ($detectedZone) {
+                    $request->merge(['shipping_zone' => $detectedZone]);
+                }
+            }
+        }
+
         $paymentMethod = $request->string('payment_method')->toString();
         $shippingZone = $request->string('shipping_zone')->toString();
-        $shippingZones = $this->shippingZones();
-        $shippingZoneData = $shippingZones[$shippingZone] ?? null;
+        $shippingZoneData = $freeShippingForSpecificRaffle
+            ? ['label' => 'Sorteo sin costo de envio', 'price' => 0]
+            : ($shippingZones[$shippingZone] ?? null);
 
-        if (!$shippingZoneData) {
+        if (!$freeShippingForSpecificRaffle && !$shippingZoneData) {
             return redirect()->back()->withErrors([
                 'shipping_zone' => 'No pudimos detectar la zona con esa calle y altura. Revisá la dirección.',
             ])->withInput();
@@ -77,21 +104,74 @@ class CheckoutController extends Controller
             $productsSubtotal = 0;
             $itemsMP = []; // Array para Mercado Pago
 
+            $productIds = collect($cart)
+                ->map(fn (array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+                ->filter(fn (int $id) => $id > 0)
+                ->unique()
+                ->values();
+
+            $products = Product::query()
+                ->whereIn('id', $productIds)
+                ->get()
+                ->keyBy('id');
+
             foreach ($cart as $id => $details) {
+                $productId = (int) ($details['product_id'] ?? $id);
+                $product = $products->get($productId);
+
+                if (!$product) {
+                    throw ValidationException::withMessages([
+                        'cart' => 'Hay un producto en el carrito que ya no existe.',
+                    ]);
+                }
+
+                $quantity = (int) $details['quantity'];
+                $raffleNumber = isset($details['raffle_number'])
+                    ? $this->normalizeRaffleNumber((string) $details['raffle_number'])
+                    : null;
+
+                if ($product->isRaffle()) {
+                    if ($raffleNumber === null) {
+                        throw ValidationException::withMessages([
+                            'cart' => "El producto {$product->name} requiere un numero de sorteo valido (000-099).",
+                        ]);
+                    }
+
+                    if ($quantity !== 1) {
+                        throw ValidationException::withMessages([
+                            'cart' => "El numero {$raffleNumber} del sorteo {$product->name} solo puede comprarse en cantidad 1.",
+                        ]);
+                    }
+
+                    $alreadySold = OrderItem::query()
+                        ->where('product_id', $productId)
+                        ->where('raffle_number', $raffleNumber)
+                        ->lockForUpdate()
+                        ->exists();
+
+                    if ($alreadySold) {
+                        throw ValidationException::withMessages([
+                            'cart' => "El numero {$raffleNumber} ya fue vendido. Eliminalo del carrito y elegi otro.",
+                        ]);
+                    }
+                }
+
                 $subtotal = $details['price'] * $details['quantity'];
                 $productsSubtotal += $subtotal;
 
                 // Preparar items para MP
                 $itemsMP[] = [
-                    "id" => $id,
+                    "id" => (string) $productId,
                     "title" => $details['name'] ?? "Producto $id", // Asegúrate de tener el nombre en el carro
-                    "quantity" => (int) $details['quantity'],
+                    "quantity" => $quantity,
                     "unit_price" => (float) $details['price'],
                     "currency_id" => "ARS"
                 ];
             }
 
-            $shippingCost = (float) ($shippingZoneData['price'] ?? 0);
+            $shippingCost = $freeShippingForSpecificRaffle
+                ? 0.0
+                : (float) ($shippingZoneData['price'] ?? 0);
             $totalGeneral = $productsSubtotal + $shippingCost;
 
             if ($shippingCost > 0) {
@@ -123,12 +203,19 @@ class CheckoutController extends Controller
             ]);
 
             foreach ($cart as $id => $details) {
+                $productId = (int) ($details['product_id'] ?? $id);
+                $product = $products->get($productId);
+                $raffleNumber = isset($details['raffle_number'])
+                    ? $this->normalizeRaffleNumber((string) $details['raffle_number'])
+                    : null;
+
                 OrderItem::create([
                     'order_id'   => $order->id,
-                    'product_id' => $id,
+                    'product_id' => $productId,
                     'price'      => $details['price'],
                     'quantity'   => $details['quantity'],
                     'subtotal'   => $details['price'] * $details['quantity'],
+                    'raffle_number' => $product && $product->isRaffle() ? $raffleNumber : null,
                 ]);
             }
 
@@ -189,6 +276,26 @@ class CheckoutController extends Controller
             }
             return back()->with('error', 'Error al procesar: ' . $e->getMessage());
         }
+    }
+
+    private function normalizeRaffleNumber(string $value): ?string
+    {
+        $digits = preg_replace('/\D+/', '', $value);
+
+        if ($digits === null || $digits === '') {
+            return null;
+        }
+
+        if (!ctype_digit($digits)) {
+            return null;
+        }
+
+        $number = (int) $digits;
+        if ($number < 0 || $number > 99) {
+            return null;
+        }
+
+        return str_pad((string) $number, 3, '0', STR_PAD_LEFT);
     }
 
     public function handleMercadoPagoCallback(Request $request)
@@ -325,6 +432,10 @@ class CheckoutController extends Controller
 
     private function flashCheckoutSuccess(Order $order, ?string $paymentStatus = null): void
     {
+        $hasRaffleItems = $order->items()
+            ->whereNotNull('raffle_number')
+            ->exists();
+
         session()->put('checkout', [
             'order_id' => $order->id,
             'name' => $order->name,
@@ -337,6 +448,7 @@ class CheckoutController extends Controller
             'shipping_cost' => (float) $order->shipping_cost,
             'subtotal_products' => (float) $order->total - (float) $order->shipping_cost,
             'total' => $order->total,
+            'has_raffle' => $hasRaffleItems,
         ]);
     }
 
@@ -375,5 +487,58 @@ class CheckoutController extends Controller
             'transferencia' => 'Transferencia bancaria',
             default => 'No informado',
         };
+    }
+
+    private function cartContainsRaffle(array $cart): bool
+    {
+        if (empty($cart)) {
+            return false;
+        }
+
+        foreach ($cart as $details) {
+            if (!empty($details['is_raffle'])) {
+                return true;
+            }
+        }
+
+        $productIds = collect($cart)
+            ->map(fn (array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($productIds->isEmpty()) {
+            return false;
+        }
+
+        return Product::query()
+            ->whereIn('id', $productIds)
+            ->where('is_raffle', true)
+            ->exists();
+    }
+
+    private function isSpecificRaffleFreeShippingCart(array $cart): bool
+    {
+        if (empty($cart)) {
+            return false;
+        }
+
+        $productIds = collect($cart)
+            ->map(fn (array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+            ->filter(fn (int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($productIds->count() !== 1) {
+            return false;
+        }
+
+        $product = Product::query()
+            ->where('id', $productIds->first())
+            ->first(['slug', 'is_raffle']);
+
+        return (bool) $product
+            && (bool) $product->is_raffle
+            && $product->slug === self::FREE_SHIPPING_RAFFLE_SLUG;
     }
 }

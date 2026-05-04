@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>¡Gracias por tu compra! - Marketplace Bariloche</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -20,6 +21,7 @@
         $shippingCost = $checkout['shipping_cost'] ?? null;
         $shippingZoneLabel = $checkout['shipping_zone_label'] ?? null;
         $subtotalProducts = $checkout['subtotal_products'] ?? null;
+        $hasRaffle = (bool) ($checkout['has_raffle'] ?? false);
     @endphp
 
     <main class="flex-grow flex items-center justify-center px-6">
@@ -129,6 +131,14 @@
                 <div class="bg-green-50 border border-green-200 rounded-2xl p-6 mb-8 text-left text-sm text-green-950">
                     <h2 class="font-bold text-base mb-3">Pago aprobado</h2>
                     <p>Recibimos la confirmación de Mercado Pago y tu pedido ya quedó confirmado.</p>
+                </div>
+            @endif
+
+            @if ($hasRaffle)
+                <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 mb-8 text-left text-sm text-indigo-950">
+                    <h2 class="font-bold text-base mb-3">Regla de transparencia del sorteo</h2>
+                    <p>Si no se venden los 100 numeros, el sorteo se realiza igual en la fecha anunciada y participan solo los numeros vendidos.</p>
+                    <p class="mt-2">Para garantizar ganador, si el primer numero oficial no fue vendido, se toma el siguiente puesto oficial hasta encontrar un numero vendido.</p>
                 </div>
             @endif
 

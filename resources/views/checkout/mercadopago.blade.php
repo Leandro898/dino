@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pago - Marketplace Bariloche</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -12,8 +13,8 @@
 
     @include('partials.header')
 
-    <main class="max-w-3xl mx-auto px-6 py-10 lg:py-20 text-center">
-        <div class="bg-white dark:bg-[#161615] p-10 rounded-3xl shadow-sm border border-gray-100 dark:border-[#2a2a2a]">
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 lg:py-20 text-center">
+        <div class="bg-white dark:bg-[#161615] p-5 sm:p-10 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 dark:border-[#2a2a2a] overflow-hidden">
 
             <div class="mb-6 flex justify-center">
                 <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-full">
@@ -36,7 +37,7 @@
                     class="text-2xl font-bold text-purple-700 dark:text-purple-400">${{ number_format($order->total, 0, ',', '.') }}</span>
             </div>
 
-            <div id="wallet_container"></div>
+            <div id="wallet_container" class="w-full"></div>
 
             <div class="mt-8 pt-6 border-t dark:border-[#2a2a2a]">
                 <a href="{{ route('home') }}"
