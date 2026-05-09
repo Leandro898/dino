@@ -17,8 +17,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Cambiamos la ruta '/' para que use nuestro controlador
+// Home principal con catalogo completo
 Route::get('/', [PublicProductController::class, 'index'])->name('home');
+
+// Home paralela estilo menu mobile (prueba)
+Route::view('/home-preview-glovo', 'home-preview-glovo')->name('home.preview.glovo');
 
 // Acceso a la ruta de los productos con URL amigable
 Route::get('/productos/{product:slug}', [PublicProductController::class, 'show'])->name('products.show');
