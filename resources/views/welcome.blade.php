@@ -45,6 +45,11 @@
 
     <section class="relative w-full bg-[#FDFDFC] pt-8 pb-3 md:pt-10 md:pb-4">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
+            @php
+                $raffleSalesEnabled = $raffleSalesEnabled ?? (bool) config('raffle.sales_enabled', true);
+                $raffleWinner = $raffleWinner ?? config('raffle.winner', []);
+            @endphp
+
             <div class="max-w-2xl">
                 <label for="home-search" class="block text-sm font-bold uppercase tracking-widest text-gray-500 mb-3">
                     Buscar productos
@@ -60,39 +65,20 @@
                 </div>
             </div>
 
-            @if ($raffleProduct)
-                @php
-                    $raffleBannerPath = collect([
-                        'images/sorteo-banner.jpg',
-                        'images/sorteo-banner.jpeg',
-                        'images/sorteo-banner.png',
-                        'images/sorteo-banner.webp',
-                    ])->first(fn ($path) => file_exists(public_path($path)));
-                @endphp
-
-                <a href="{{ route('products.show', ['product' => $raffleProduct->slug]) }}"
-                    class="mt-6 block rounded-3xl overflow-hidden transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2">
-                    @if ($raffleBannerPath)
-                        <div class="relative w-full h-[170px] sm:h-[230px] md:h-[300px] lg:h-[340px] overflow-hidden bg-[#2b0f5b]">
-                            <img src="{{ asset($raffleBannerPath) }}" alt="Participar del sorteo"
-                                class="block w-full h-full object-cover object-center scale-[1.25] sm:scale-[1.16] md:scale-[1.12] lg:scale-[1.08]">
-                        </div>
-                    @else
-                        <div
-                            class="relative w-full aspect-[16/8] sm:aspect-[16/7] md:aspect-[16/6] bg-gradient-to-r from-[#f97316] via-[#f59e0b] to-[#facc15] px-6 py-8 sm:px-10 sm:py-10 text-white flex items-center">
-                            <div class="absolute inset-y-0 right-0 w-1/3 bg-white/10 blur-2xl"></div>
-                            <div class="relative z-10 max-w-2xl">
-                                <p class="text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white/90">Sorteo Bari Tienda</p>
-                                <h2 class="mt-2 text-2xl sm:text-3xl font-black uppercase leading-tight">Participa ahora por el premio</h2>
-                                <p class="mt-2 text-sm sm:text-base text-white/90">Toca este flyer para elegir tu numero y entrar al sorteo.</p>
-                                <span
-                                    class="inline-flex mt-4 items-center rounded-full bg-white text-[#7c2d12] px-4 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide">Ver sorteo</span>
-                                <p class="mt-3 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-white/80">Aqui ira tu imagen de banner cuando la subas en public/images/sorteo-banner.jpg</p>
-                            </div>
-                        </div>
-                    @endif
-                </a>
+            @if (!empty($raffleWinner['number']) && !empty($raffleWinner['label']))
+                <div class="mt-9 max-w-2xl rounded-2xl border border-gray-200 bg-[#f3f4f6] p-4 sm:p-5">
+                    <p class="text-[11px] sm:text-xs font-black uppercase tracking-[0.18em] text-gray-700">
+                        {{ $raffleWinner['draw'] ?? 'Nocturna' }}
+                    </p>
+                    <p class="mt-1 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
+                        {{ $raffleWinner['position'] ?? 'A la cabeza' }}
+                    </p>
+                    <p class="mt-3 text-3xl sm:text-5xl font-light tracking-wide text-[#374151]">
+                        {{ $raffleWinner['number'] }} - {{ $raffleWinner['label'] }}
+                    </p>
+                </div>
             @endif
+
         </div>
     </section>
 

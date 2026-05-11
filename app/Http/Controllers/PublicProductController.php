@@ -12,6 +12,9 @@ class PublicProductController extends Controller
 {
     public function index(): View
     {
+         $raffleSalesEnabled = (bool) config('raffle.sales_enabled', true);
+         $raffleWinner = config('raffle.winner');
+
          // Traemos solo los productos activos y los mas recientes primero
          $products = Product::where('is_active', true)->latest()->get();
 
@@ -49,7 +52,7 @@ class PublicProductController extends Controller
                  return $indexA <=> $indexB;
              });
 
-            return view('welcome', compact('products', 'categorizedProducts', 'raffleProduct'));
+                return view('welcome', compact('products', 'categorizedProducts', 'raffleProduct', 'raffleSalesEnabled', 'raffleWinner'));
     }
 
     private function detectCategory(string $name): string
@@ -86,6 +89,14 @@ class PublicProductController extends Controller
             return response()->json([
                 'ok' => false,
                 'message' => 'Este producto no es un sorteo por numero.',
+            ], 422);
+        }
+
+        if (!(bool) config('raffle.sales_enabled', true)) {
+            return response()->json([
+                'ok' => false,
+                'available' => false,
+                'message' => 'La venta de numeros del sorteo esta temporalmente cerrada.',
             ], 422);
         }
 

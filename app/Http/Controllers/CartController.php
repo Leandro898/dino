@@ -21,6 +21,10 @@ class CartController extends Controller
         $requestedQuantity = max(1, (int) request()->input('quantity', 1));
 
         if ($product->isRaffle()) {
+            if (!(bool) config('raffle.sales_enabled', true)) {
+                return $this->errorResponse('La venta de numeros del sorteo esta temporalmente cerrada.');
+            }
+
             $raffleNumber = $this->normalizeRaffleNumber((string) request()->input('raffle_number', ''));
 
             if ($raffleNumber === null) {

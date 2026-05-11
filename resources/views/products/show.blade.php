@@ -31,6 +31,10 @@
 
 <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
 
+    @php
+        $raffleSalesEnabled = (bool) config('raffle.sales_enabled', true);
+    @endphp
+
     @include('partials.header')
 
     <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20">
@@ -80,6 +84,13 @@
                             @csrf
 
                             @if ($product->is_raffle)
+                                @if (!$raffleSalesEnabled)
+                                    <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                                        <p class="font-semibold">La venta de numeros del sorteo esta cerrada temporalmente.</p>
+                                        <p class="mt-1">En breve se habilitara nuevamente.</p>
+                                    </div>
+                                @endif
+
                                 <div class="mb-5 space-y-2">
                                     <label for="raffle-number" class="text-sm font-semibold uppercase tracking-wide text-gray-500">Numero del sorteo (000-099)</label>
                                     <input
@@ -91,11 +102,13 @@
                                         pattern="[0-9]{3}"
                                         placeholder="Ej: 007"
                                         required
+                                        @disabled(!$raffleSalesEnabled)
                                         class="w-40 h-11 px-4 rounded-xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#161615] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 font-bold tracking-[0.25em] text-center"
                                     >
                                     <button
                                         type="button"
                                         id="check-raffle-number"
+                                        @disabled(!$raffleSalesEnabled)
                                         class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-semibold hover:bg-gray-50"
                                     >
                                         Verificar numero
@@ -124,10 +137,17 @@
                                 </div>
                             @endif
 
-                            <button type="submit"
-                                class="block w-72 text-center bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3.5 rounded-xl font-black text-lg uppercase tracking-tight hover:from-purple-700 hover:to-purple-800 transition-all shadow-xl shadow-purple-500/20 active:scale-[0.98]">
-                                Comprar ahora
-                            </button>
+                            @if ($product->is_raffle && !$raffleSalesEnabled)
+                                <button type="submit" disabled
+                                    class="block w-72 text-center bg-gray-300 text-gray-600 px-8 py-3.5 rounded-xl font-black text-lg uppercase tracking-tight cursor-not-allowed">
+                                    Venta pausada
+                                </button>
+                            @else
+                                <button type="submit"
+                                    class="block w-72 text-center bg-gradient-to-r from-purple-600 to-purple-700 text-white px-8 py-3.5 rounded-xl font-black text-lg uppercase tracking-tight hover:from-purple-700 hover:to-purple-800 transition-all shadow-xl shadow-purple-500/20 active:scale-[0.98]">
+                                    Comprar ahora
+                                </button>
+                            @endif
                         </form>
                     </div>
                 </div>
