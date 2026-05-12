@@ -10,7 +10,8 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ config('app.name', 'Bari Tienda') }}">
     <meta property="og:title" content="Bari Tienda — Tienda online en Bariloche">
-    <meta property="og:description" content="Comprá cigarrillos, bebidas, snacks y más con entrega rápida en Bariloche. ¡Pedí ahora!">
+    <meta property="og:description"
+        content="Comprá cigarrillos, bebidas, snacks y más con entrega rápida en Bariloche. ¡Pedí ahora!">
     <meta property="og:url" content="{{ config('app.url') }}">
     <meta property="og:image" content="{{ config('app.url') }}/images/og-image.png">
     <meta property="og:image:width" content="1200">
@@ -53,46 +54,15 @@
                     <input id="home-search" type="search" placeholder="Ej: cigarrillos, coca cola, fernet..."
                         class="w-full rounded-2xl border-2 border-purple-300 bg-white px-5 py-4 pr-12 text-sm font-medium text-gray-700 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-300 transition shadow-lg hover:shadow-xl">
                     <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-purple-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </span>
                 </div>
             </div>
 
-            @if ($raffleProduct)
-                @php
-                    $raffleBannerPath = collect([
-                        'images/sorteo-banner.jpg',
-                        'images/sorteo-banner.jpeg',
-                        'images/sorteo-banner.png',
-                        'images/sorteo-banner.webp',
-                    ])->first(fn ($path) => file_exists(public_path($path)));
-                @endphp
-
-                <a href="{{ route('products.show', ['product' => $raffleProduct->slug]) }}"
-                    class="mt-6 block rounded-3xl overflow-hidden transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2">
-                    @if ($raffleBannerPath)
-                        <div class="relative w-full h-[170px] sm:h-[230px] md:h-[300px] lg:h-[340px] overflow-hidden bg-[#2b0f5b]">
-                            <img src="{{ asset($raffleBannerPath) }}" alt="Participar del sorteo"
-                                class="block w-full h-full object-cover object-center scale-[1.25] sm:scale-[1.16] md:scale-[1.12] lg:scale-[1.08]">
-                        </div>
-                    @else
-                        <div
-                            class="relative w-full aspect-[16/8] sm:aspect-[16/7] md:aspect-[16/6] bg-gradient-to-r from-[#f97316] via-[#f59e0b] to-[#facc15] px-6 py-8 sm:px-10 sm:py-10 text-white flex items-center">
-                            <div class="absolute inset-y-0 right-0 w-1/3 bg-white/10 blur-2xl"></div>
-                            <div class="relative z-10 max-w-2xl">
-                                <p class="text-xs sm:text-sm font-black uppercase tracking-[0.2em] text-white/90">Sorteo Bari Tienda</p>
-                                <h2 class="mt-2 text-2xl sm:text-3xl font-black uppercase leading-tight">Participa ahora por el premio</h2>
-                                <p class="mt-2 text-sm sm:text-base text-white/90">Toca este flyer para elegir tu numero y entrar al sorteo.</p>
-                                <span
-                                    class="inline-flex mt-4 items-center rounded-full bg-white text-[#7c2d12] px-4 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-wide">Ver sorteo</span>
-                                <p class="mt-3 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-white/80">Aqui ira tu imagen de banner cuando la subas en public/images/sorteo-banner.jpg</p>
-                            </div>
-                        </div>
-                    @endif
-                </a>
-            @endif
         </div>
     </section>
 
@@ -105,75 +75,86 @@
         @else
             <div id="categories-wrapper" class="space-y-6">
                 @foreach ($categorizedProducts as $category => $categoryProducts)
-                    <details data-category-details class="group rounded-2xl border border-gray-200 bg-white overflow-hidden">
-                        <summary class="list-none cursor-pointer px-5 py-4 bg-gradient-to-r from-white to-purple-50 flex items-center justify-between gap-3">
+                    <details data-category-details
+                        class="group rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                        <summary
+                            class="list-none cursor-pointer px-5 py-4 bg-gradient-to-r from-white to-purple-50 flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3">
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-black text-xs">
+                                <span
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-black text-xs">
                                     {{ $categoryProducts->count() }}
                                 </span>
-                                <h2 class="text-lg font-extrabold uppercase tracking-wide text-[#1b1b18]">{{ $category }}</h2>
+                                <h2 class="text-lg font-extrabold uppercase tracking-wide text-[#1b1b18]">
+                                    {{ $category }}</h2>
                             </div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-purple-600 group-open:hidden">Mostrar</span>
-                            <span class="text-xs font-bold uppercase tracking-wider text-purple-600 hidden group-open:inline">Ocultar</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-wider text-purple-600 group-open:hidden">Mostrar</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-wider text-purple-600 hidden group-open:inline">Ocultar</span>
                         </summary>
 
                         <div class="px-5 py-5 border-t border-gray-100">
                             <div class="relative">
-                                <button type="button"
-                                    data-carousel-prev
+                                <button type="button" data-carousel-prev
                                     class="hidden md:flex items-center justify-center absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/95 border border-gray-200 text-gray-700 shadow hover:bg-white hover:shadow-md transition"
                                     aria-label="Desplazar carrusel a la izquierda">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                                     </svg>
                                 </button>
 
-                                <button type="button"
-                                    data-carousel-next
+                                <button type="button" data-carousel-next
                                     class="hidden md:flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/95 border border-gray-200 text-gray-700 shadow hover:bg-white hover:shadow-md transition"
                                     aria-label="Desplazar carrusel a la derecha">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                                     </svg>
                                 </button>
 
-                                <div data-carousel-track class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar md:px-10">
-                                @foreach ($categoryProducts as $product)
-                                    <a href="{{ route('products.show', ['product' => $product->slug]) }}"
-                                        data-product-card
-                                        data-product-name="{{ Str::lower($product->name) }}"
-                                        data-product-category="{{ Str::lower($category) }}"
-                                        class="group/card shrink-0 bg-white dark:bg-[#1d1d1d] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col h-full border border-gray-100 dark:border-white/5 snap-start"
-                                        style="width: 220px; min-width: 220px; max-width: 220px; height: 390px;">
+                                <div data-carousel-track
+                                    class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory no-scrollbar md:px-10">
+                                    @foreach ($categoryProducts as $product)
+                                        <a href="{{ route('products.show', ['product' => $product->slug]) }}"
+                                            data-product-card data-product-name="{{ Str::lower($product->name) }}"
+                                            data-product-category="{{ Str::lower($category) }}"
+                                            class="group/card shrink-0 bg-white dark:bg-[#1d1d1d] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all flex flex-col h-full border border-gray-100 dark:border-white/5 snap-start"
+                                            style="width: 220px; min-width: 220px; max-width: 220px; height: 390px;">
 
-                                        <div class="relative bg-gray-100 p-3" style="height: 220px;">
-                                            @if ($product->image)
-                                                <div class="w-full h-full rounded-xl bg-white/80 flex items-center justify-center overflow-hidden">
-                                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                                        class="w-40 h-40 object-contain transition-transform duration-500 group-hover/card:scale-105">
-                                                </div>
-                                            @else
-                                                <div class="w-full h-full rounded-xl bg-white/80 flex items-center justify-center text-gray-400 italic">
-                                                    Sin imagen
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <div class="p-4 flex flex-col" style="height: 170px;">
-                                            <h3 class="text-sm font-extrabold dark:text-white uppercase leading-tight mb-2 line-clamp-2 group-hover/card:text-purple-600 transition-colors"
-                                                style="height: 2.75rem; overflow: hidden;">
-                                                {{ $product->name }}
-                                            </h3>
-
-                                            <div class="mt-auto pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
-                                                <span class="text-lg font-black text-black dark:text-white">
-                                                    ${{ number_format($product->price, 0, ',', '.') }}
-                                                </span>
-                                                <span class="text-[10px] font-bold text-purple-600 uppercase">Ver más</span>
+                                            <div class="relative bg-gray-100 p-3" style="height: 220px;">
+                                                @if ($product->image)
+                                                    <div
+                                                        class="w-full h-full rounded-xl bg-white/80 flex items-center justify-center overflow-hidden">
+                                                        <img src="{{ $product->image_src }}"
+                                                            alt="{{ $product->name }}"
+                                                            class="w-40 h-40 object-contain transition-transform duration-500 group-hover/card:scale-105">
+                                                    </div>
+                                                @else
+                                                    <div
+                                                        class="w-full h-full rounded-xl bg-white/80 flex items-center justify-center text-gray-400 italic">
+                                                        Sin imagen
+                                                    </div>
+                                                @endif
                                             </div>
-                                        </div>
-                                    </a>
-                                @endforeach
+
+                                            <div class="p-4 flex flex-col" style="height: 170px;">
+                                                <h3 class="text-sm font-extrabold dark:text-white uppercase leading-tight mb-2 line-clamp-2 group-hover/card:text-purple-600 transition-colors"
+                                                    style="height: 2.75rem; overflow: hidden;">
+                                                    {{ $product->name }}
+                                                </h3>
+
+                                                <div
+                                                    class="mt-auto pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+                                                    <span class="text-lg font-black text-black dark:text-white">
+                                                        ${{ number_format($product->price, 0, ',', '.') }}
+                                                    </span>
+                                                    <span class="text-[10px] font-bold text-purple-600 uppercase">Ver
+                                                        más</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -183,6 +164,10 @@
 
             <div id="search-empty-state" class="hidden text-center py-14">
                 <p class="text-gray-500 font-semibold">No encontramos productos con esa búsqueda.</p>
+            </div>
+
+            <div class="mt-8">
+                {{ $products->links() }}
             </div>
         @endif
     </main>
@@ -248,7 +233,9 @@
                 if (!a.length) return b.length;
                 if (!b.length) return a.length;
 
-                const matrix = Array.from({ length: a.length + 1 }, () => []);
+                const matrix = Array.from({
+                    length: a.length + 1
+                }, () => []);
                 for (let i = 0; i <= a.length; i += 1) matrix[i][0] = i;
                 for (let j = 0; j <= b.length; j += 1) matrix[0][j] = j;
 
@@ -314,7 +301,8 @@
                 });
 
                 categoryDetails.forEach((section) => {
-                    const visibleInSection = section.querySelectorAll('[data-product-card]:not(.hidden)').length;
+                    const visibleInSection = section.querySelectorAll('[data-product-card]:not(.hidden)')
+                        .length;
                     const hasQuery = tokens.length > 0;
                     section.classList.toggle('hidden', visibleInSection === 0);
 

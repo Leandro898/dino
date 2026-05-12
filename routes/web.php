@@ -20,6 +20,14 @@ Route::middleware('auth')->group(function () {
 // Home principal con catalogo completo
 Route::get('/', [PublicProductController::class, 'index'])->name('home');
 
+// Categoria interna: Supermercados (productos importados desde Carrefour Almacen)
+Route::get('/categoria/supermercados', [PublicProductController::class, 'supermarkets'])
+    ->name('categories.supermarkets');
+
+Route::get('/categoria/{categorySlug}', [PublicProductController::class, 'carrefourCategory'])
+    ->whereIn('categorySlug', ['almacen', 'desayuno-y-merienda'])
+    ->name('categories.carrefour');
+
 // Home paralela estilo menu mobile (prueba)
 Route::view('/home-preview-glovo', 'home-preview-glovo')->name('home.preview.glovo');
 

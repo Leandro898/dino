@@ -17,12 +17,29 @@ class Product extends Model
         'stock',
         'is_active',
         'is_raffle',
+        'external_source',
+        'external_id',
+        'external_category',
+        'external_url',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'is_raffle' => 'boolean',
     ];
+
+    public function getImageSrcAttribute(): ?string
+    {
+        if (blank($this->image)) {
+            return null;
+        }
+
+        if (filter_var($this->image, FILTER_VALIDATE_URL)) {
+            return $this->image;
+        }
+
+        return asset('storage/' . ltrim($this->image, '/'));
+    }
 
     protected static function booted()
     {
@@ -45,8 +62,9 @@ class Product extends Model
         $suffix = 1;
 
         while (static::where('slug', $slug)
-            ->when($exceptId, fn ($query) => $query->where('id', '!=', $exceptId))
-            ->exists()) {
+            ->when($exceptId, fn($query) => $query->where('id', '!=', $exceptId))
+            ->exists()
+        ) {
             $slug = $baseSlug . '-' . $suffix++;
         }
 
@@ -68,5 +86,12 @@ class Product extends Model
     public function isRaffle(): bool
     {
         return (bool) $this->is_raffle;
+    }
+
+    public function scopeCarrefourAlmacen($query)
+    {
+        return $query
+            ->where('external_source', 'carrefour')
+            ->where('external_category', 'almacen');
     }
 }

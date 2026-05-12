@@ -10,15 +10,16 @@
     <meta property="og:type" content="product">
     <meta property="og:site_name" content="Bari Tienda">
     <meta property="og:title" content="{{ $product->name }} — Bari Tienda">
-    <meta property="og:description" content="{{ $product->description ? \Illuminate\Support\Str::limit(strip_tags($product->description), 150) : 'Comprá ' . $product->name . ' con entrega rápida en Bariloche.' }}">
+    <meta property="og:description"
+        content="{{ $product->description ? \Illuminate\Support\Str::limit(strip_tags($product->description), 150) : 'Comprá ' . $product->name . ' con entrega rápida en Bariloche.' }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="{{ $product->image ? asset('storage/' . $product->image) : config('app.url') . '/images/og-image.png' }}">
+    <meta property="og:image" content="{{ $product->image_src ?: config('app.url') . '/images/og-image.png' }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="es_AR">
-    @if($product->price)
-    <meta property="product:price:amount" content="{{ $product->price }}">
-    <meta property="product:price:currency" content="ARS">
+    @if ($product->price)
+        <meta property="product:price:amount" content="{{ $product->price }}">
+        <meta property="product:price:currency" content="ARS">
     @endif
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -26,7 +27,13 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.ga4')
-    <style>#qty-input::-webkit-outer-spin-button,#qty-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}</style>
+    <style>
+        #qty-input::-webkit-outer-spin-button,
+        #qty-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
@@ -37,9 +44,10 @@
         <div class="flex flex-col lg:flex-row gap-12 xl:gap-20 lg:items-start">
 
             <div class="w-full lg:w-5/12 xl:w-[40%]">
-                <div class="max-w-md lg:max-w-lg mx-auto rounded-3xl overflow-hidden bg-gray-100 dark:bg-[#1d1d1d] shadow-2xl">
+                <div
+                    class="max-w-md lg:max-w-lg mx-auto rounded-3xl overflow-hidden bg-gray-100 dark:bg-[#1d1d1d] shadow-2xl">
                     @if ($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                        <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
                             class="w-full h-auto object-contain">
                     @else
                         <div class="aspect-square flex items-center justify-center text-gray-400 italic bg-gray-200">
@@ -65,7 +73,8 @@
                             </span>
                             <span class="text-sm font-bold text-gray-400 uppercase mb-1">ARS</span>
                         </div>
-                        <p class="text-xs text-gray-500 font-bold uppercase tracking-tight">Precio final sin comisiones</p>
+                        <p class="text-xs text-gray-500 font-bold uppercase tracking-tight">Precio final sin comisiones
+                        </p>
                     </div>
 
                     <div class="mb-10">
@@ -81,41 +90,39 @@
 
                             @if ($product->is_raffle)
                                 <div class="mb-5 space-y-2">
-                                    <label for="raffle-number" class="text-sm font-semibold uppercase tracking-wide text-gray-500">Numero del sorteo (000-099)</label>
-                                    <input
-                                        id="raffle-number"
-                                        type="text"
-                                        name="raffle_number"
-                                        inputmode="numeric"
-                                        maxlength="3"
-                                        pattern="[0-9]{3}"
-                                        placeholder="Ej: 007"
-                                        required
-                                        class="w-40 h-11 px-4 rounded-xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#161615] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 font-bold tracking-[0.25em] text-center"
-                                    >
-                                    <button
-                                        type="button"
-                                        id="check-raffle-number"
-                                        class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-semibold hover:bg-gray-50"
-                                    >
+                                    <label for="raffle-number"
+                                        class="text-sm font-semibold uppercase tracking-wide text-gray-500">Numero del
+                                        sorteo (000-099)</label>
+                                    <input id="raffle-number" type="text" name="raffle_number" inputmode="numeric"
+                                        maxlength="3" pattern="[0-9]{3}" placeholder="Ej: 007" required
+                                        class="w-40 h-11 px-4 rounded-xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#161615] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 font-bold tracking-[0.25em] text-center">
+                                    <button type="button" id="check-raffle-number"
+                                        class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-semibold hover:bg-gray-50">
                                         Verificar numero
                                     </button>
                                     <p id="raffle-status" class="text-sm font-semibold min-h-5"></p>
                                     <p class="text-xs text-gray-500">Cada numero solo se puede vender una vez.</p>
                                 </div>
 
-                                <div class="mb-6 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+                                <div
+                                    class="mb-6 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
                                     <p class="font-semibold mb-1">Transparencia del sorteo</p>
-                                    <p>Si no se venden los 100 numeros, el sorteo se realiza igual en la fecha anunciada y participan solo los numeros vendidos.</p>
-                                    <p class="mt-1">Para garantizar ganador, si el primer numero oficial no fue vendido, se toma el siguiente puesto oficial hasta encontrar un numero vendido.</p>
+                                    <p>Si no se venden los 100 numeros, el sorteo se realiza igual en la fecha anunciada
+                                        y participan solo los numeros vendidos.</p>
+                                    <p class="mt-1">Para garantizar ganador, si el primer numero oficial no fue
+                                        vendido, se toma el siguiente puesto oficial hasta encontrar un numero vendido.
+                                    </p>
                                 </div>
                             @else
                                 <div class="mb-5">
-                                    <label class="text-sm font-semibold uppercase tracking-wide text-gray-500">Cantidad</label>
-                                    <div class="mt-2 inline-flex items-center rounded-xl border border-gray-200 dark:border-[#2a2a2a] overflow-hidden">
+                                    <label
+                                        class="text-sm font-semibold uppercase tracking-wide text-gray-500">Cantidad</label>
+                                    <div
+                                        class="mt-2 inline-flex items-center rounded-xl border border-gray-200 dark:border-[#2a2a2a] overflow-hidden">
                                         <button type="button" id="qty-decrease"
                                             class="w-11 h-11 bg-gray-50 dark:bg-[#0f0f0f] hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-xl font-bold">-</button>
-                                        <input id="qty-input" type="number" name="quantity" min="1" value="1"
+                                        <input id="qty-input" type="number" name="quantity" min="1"
+                                            value="1"
                                             class="w-16 h-11 text-center bg-white dark:bg-[#161615] font-bold border-x border-gray-200 dark:border-[#2a2a2a]"
                                             style="-moz-appearance:textfield;appearance:textfield;">
                                         <button type="button" id="qty-increase"
@@ -258,7 +265,9 @@
                 raffleInput.value = normalized;
                 setStatus('Verificando...', null);
 
-                const url = new URL('{{ route('products.raffle.availability', ['product' => $product->slug]) }}', window.location.origin);
+                const url = new URL(
+                    '{{ route('products.raffle.availability', ['product' => $product->slug]) }}',
+                    window.location.origin);
                 url.searchParams.set('raffle_number', normalized);
 
                 try {

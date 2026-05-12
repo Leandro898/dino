@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OrderItem;
 use App\Models\Product;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,44 +13,113 @@ class PublicProductController extends Controller
 {
     public function index(): View
     {
-         // Traemos solo los productos activos y los mas recientes primero
-         $products = Product::where('is_active', true)->latest()->get();
+        // Traemos productos activos paginados para no cargar todo el catalogo en cada request.
+        $products = Product::query()
+            ->where('is_active', true)
+            ->latest()
+            ->paginate(120)
+            ->withQueryString();
 
-         $raffleProduct = Product::query()
-             ->where('is_active', true)
-             ->where('slug', 'sorteo-helado-rapa-nui-1kg')
-             ->first();
+        $supermarketProductsCount = Product::query()
+            ->carrefourAlmacen()
+            ->where('is_active', true)
+            ->count();
 
-         if (!$raffleProduct) {
-             $raffleProduct = Product::query()
-                 ->where('is_active', true)
-                 ->where('is_raffle', true)
-                 ->latest()
-                 ->first();
-         }
+        $breakfastProductsCount = Product::query()
+            ->where('external_source', 'carrefour')
+            ->where('external_category', 'desayuno-y-merienda')
+            ->where('is_active', true)
+            ->count();
 
-         $categoryOrder = [
-             'Cigarrillos',
-             'Bebidas',
-             'Accesorios',
-             'Snacks',
-             'Otros',
-         ];
+        $raffleProduct = Product::query()
+            ->where('is_active', true)
+            ->where('slug', 'sorteo-helado-rapa-nui-1kg')
+            ->first();
 
-         $categorizedProducts = $products
-             ->groupBy(fn (Product $product) => $this->detectCategory($product->name))
-             ->sortBy(fn ($_, $category) => array_search($category, $categoryOrder, true) !== false
-                 ? array_search($category, $categoryOrder, true)
-                 : 999)
-             ->sortKeysUsing(function ($a, $b) use ($categoryOrder) {
-                 $indexA = array_search($a, $categoryOrder, true);
-                 $indexB = array_search($b, $categoryOrder, true);
-                 $indexA = $indexA === false ? 999 : $indexA;
-                 $indexB = $indexB === false ? 999 : $indexB;
-                 return $indexA <=> $indexB;
-             });
+        if (!$raffleProduct) {
+            $raffleProduct = Product::query()
+                ->where('is_active', true)
+                ->where('is_raffle', true)
+                ->latest()
+                ->first();
+        }
 
-            return view('welcome', compact('products', 'categorizedProducts', 'raffleProduct'));
+        $categoryOrder = [
+            'Supermercados',
+            'Desayuno y merienda',
+            'Cigarrillos',
+            'Bebidas',
+            'Accesorios',
+            'Snacks',
+            'Otros',
+        ];
+
+        $categorizedProducts = $products->getCollection()
+            ->groupBy(fn(Product $product) => $this->determineCategoryLabel($product))
+            ->sortBy(fn($_, $category) => array_search($category, $categoryOrder, true) !== false
+                ? array_search($category, $categoryOrder, true)
+                : 999)
+            ->sortKeysUsing(function ($a, $b) use ($categoryOrder) {
+                $indexA = array_search($a, $categoryOrder, true);
+                $indexB = array_search($b, $categoryOrder, true);
+                $indexA = $indexA === false ? 999 : $indexA;
+                $indexB = $indexB === false ? 999 : $indexB;
+                return $indexA <=> $indexB;
+            });
+
+        return view('welcome', compact('products', 'categorizedProducts', 'raffleProduct', 'supermarketProductsCount', 'breakfastProductsCount'));
+    }
+
+    public function supermarkets(Request $request): View
+    {
+        $search = trim((string) $request->string('q'));
+
+        $products = Product::query()
+            ->carrefourAlmacen()
+            ->where('is_active', true)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('categories.supermarkets', [
+            'categoryTitle' => 'Supermercados',
+            'categorySlug' => 'almacen',
+            'products' => $products,
+            'search' => $search,
+        ]);
+    }
+
+    public function carrefourCategory(string $categorySlug, Request $request): View
+    {
+        $categoryMap = [
+            'almacen' => 'Supermercados',
+            'desayuno-y-merienda' => 'Desayuno y merienda',
+        ];
+
+        abort_unless(isset($categoryMap[$categorySlug]), 404);
+
+        $search = trim((string) $request->string('q'));
+
+        $products = Product::query()
+            ->where('external_source', 'carrefour')
+            ->where('external_category', $categorySlug)
+            ->where('is_active', true)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('categories.supermarkets', [
+            'categoryTitle' => $categoryMap[$categorySlug],
+            'categorySlug' => $categorySlug,
+            'products' => $products,
+            'search' => $search,
+        ]);
     }
 
     private function detectCategory(string $name): string
@@ -72,6 +142,19 @@ class PublicProductController extends Controller
         }
 
         return 'Otros';
+    }
+
+    private function determineCategoryLabel(Product $product): string
+    {
+        if ($product->external_source === 'carrefour' && filled($product->external_category)) {
+            return match ($product->external_category) {
+                'almacen' => 'Supermercados',
+                'desayuno-y-merienda' => 'Desayuno y merienda',
+                default => 'Otros',
+            };
+        }
+
+        return $this->detectCategory($product->name);
     }
 
     public function show(Product $product)
