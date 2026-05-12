@@ -46,6 +46,11 @@
 
     <section class="relative w-full bg-[#FDFDFC] pt-8 pb-3 md:pt-10 md:pb-4">
         <div class="max-w-7xl mx-auto px-4 md:px-10 lg:px-20">
+            @php
+                $raffleSalesEnabled = $raffleSalesEnabled ?? (bool) config('raffle.sales_enabled', true);
+                $raffleWinner = $raffleWinner ?? config('raffle.winner', []);
+            @endphp
+
             <div class="max-w-2xl">
                 <label for="home-search" class="block text-sm font-bold uppercase tracking-widest text-gray-500 mb-3">
                     Buscar productos

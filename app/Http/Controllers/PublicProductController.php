@@ -20,6 +20,9 @@ class PublicProductController extends Controller
             ->paginate(120)
             ->withQueryString();
 
+        $raffleSalesEnabled = (bool) config('raffle.sales_enabled', true);
+        $raffleWinner = config('raffle.winner');
+
         $supermarketProductsCount = Product::query()
             ->carrefourAlmacen()
             ->where('is_active', true)
@@ -67,7 +70,15 @@ class PublicProductController extends Controller
                 return $indexA <=> $indexB;
             });
 
-        return view('welcome', compact('products', 'categorizedProducts', 'raffleProduct', 'supermarketProductsCount', 'breakfastProductsCount'));
+        return view('welcome', compact(
+            'products',
+            'categorizedProducts',
+            'raffleProduct',
+            'supermarketProductsCount',
+            'breakfastProductsCount',
+            'raffleSalesEnabled',
+            'raffleWinner'
+        ));
     }
 
     public function supermarkets(Request $request): View
@@ -169,6 +180,14 @@ class PublicProductController extends Controller
             return response()->json([
                 'ok' => false,
                 'message' => 'Este producto no es un sorteo por numero.',
+            ], 422);
+        }
+
+        if (!(bool) config('raffle.sales_enabled', true)) {
+            return response()->json([
+                'ok' => false,
+                'available' => false,
+                'message' => 'La venta de numeros del sorteo esta temporalmente cerrada.',
             ], 422);
         }
 

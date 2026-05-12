@@ -67,3 +67,5 @@
         <span class="hidden sm:inline">Consultas</span>
     </a>
 @endif
+
+@include('partials.voice-fab')

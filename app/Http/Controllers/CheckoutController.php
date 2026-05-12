@@ -40,6 +40,12 @@ class CheckoutController extends Controller
         \Log::info('Cart contents: ' . json_encode($cart));
         if (empty($cart)) return redirect()->back()->with('error', 'El carrito está vacío');
 
+        if (!(bool) config('raffle.sales_enabled', true) && $this->cartContainsRaffle($cart)) {
+            return redirect()->route('cart.index')->withErrors([
+                'cart' => 'La venta de numeros del sorteo esta temporalmente cerrada.',
+            ]);
+        }
+
         $raffleOnlyMercadoPago = $this->cartContainsRaffle($cart);
         $freeShippingForSpecificRaffle = $this->isSpecificRaffleFreeShippingCart($cart);
         $shippingZones = $this->shippingZones();

@@ -27,5 +27,7 @@
                 {{ $slot }}
             </div>
         </div>
+
+        @include('partials.voice-fab')
     </body>
 </html>
