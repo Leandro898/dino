@@ -86,7 +86,8 @@ class PublicProductController extends Controller
         $search = trim((string) $request->string('q'));
 
         $products = Product::query()
-            ->carrefourAlmacen()
+            ->where('external_source', 'carrefour')
+            ->whereIn('external_category', ['almacen', 'desayuno-y-merienda'])
             ->where('is_active', true)
             ->when($search !== '', function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%');
@@ -130,6 +131,70 @@ class PublicProductController extends Controller
             'categorySlug' => $categorySlug,
             'products' => $products,
             'search' => $search,
+        ]);
+    }
+
+    public function pharmacy(Request $request): View
+    {
+        $search = trim((string) $request->string('q'));
+
+        $products = Product::query()
+            ->where('external_source', 'pedidosya')
+            ->where('external_category', 'farmacia')
+            ->where('is_active', true)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('categories.supermarkets', [
+            'categoryTitle' => 'Farmacia',
+            'categorySlug'  => 'farmacia',
+            'products'      => $products,
+            'search'        => $search,
+        ]);
+    }
+
+    public function homeSearchProducts(Request $request): JsonResponse
+    {
+        $search = trim((string) $request->string('q'));
+
+        if (mb_strlen($search) < 2) {
+            return response()->json(['products' => []]);
+        }
+
+        $products = Product::query()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->where(function ($carrefour) {
+                    $carrefour
+                        ->where('external_source', 'carrefour')
+                        ->whereIn('external_category', ['almacen', 'desayuno-y-merienda']);
+                })->orWhere(function ($pharmacy) {
+                    $pharmacy
+                        ->where('external_source', 'pedidosya')
+                        ->where('external_category', 'farmacia');
+                });
+            })
+            ->where('name', 'like', '%' . $search . '%')
+            ->orderBy('name')
+            ->limit(24)
+            ->get();
+
+        $payload = $products->map(function (Product $product) {
+            return [
+                'name' => $product->name,
+                'price' => '$' . number_format((float) $product->adjusted_price, 0, ',', '.'),
+                'image' => $product->image_src,
+                'url' => route('products.show', ['product' => $product->slug]),
+                'category' => $product->external_category === 'farmacia' ? 'Farmacia' : 'Supermercado',
+            ];
+        });
+
+        return response()->json([
+            'products' => $payload,
         ]);
     }
 

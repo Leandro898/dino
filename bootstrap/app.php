@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Añadimos la excepción para que Mercado Pago pueda enviar el POST
         $middleware->validateCsrfTokens(except: [
             'mercadopago/webhook',
+            'admin/login',
+            'panel/login',
+            'baritienda-web/public/admin/login',
+            'baritienda-web/public/panel/login',
         ]);
 
         // Registrar visitas reales de usuarios (filtra bots automáticamente)

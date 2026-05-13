@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Checkout - Marketplace Bariloche</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -61,13 +63,9 @@
                             </div>
 
                             <div>
-                                <label class="text-sm font-semibold">Email</label>
-                                <input type="email" name="email" value="{{ old('email') }}" required
-                                    placeholder="tu@email.com"
+                                <label class="text-sm font-semibold">Teléfono</label>
+                                <input type="text" name="phone" value="{{ old('phone') }}" required
                                     class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                                @error('email')
-                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
                             </div>
 
                             @if(!$raffleOnlyMercadoPago)
@@ -95,16 +93,18 @@
                                 @enderror
                             </div>
 
+                            <div class="md:col-span-2">
+                                <p class="text-sm font-semibold">Ubicación estimada en el mapa</p>
+                                <div id="checkout-map" class="mt-2 h-64 w-full rounded-xl border border-gray-200" style="height: 16rem;"></div>
+                                <p id="checkout-map-status" class="mt-2 text-xs text-gray-500">
+                                    Ingresá calle y altura para ver la ubicación estimada.
+                                </p>
+                            </div>
+
                             {{-- Dirección completa compuesta (oculta, para guardar en BD) --}}
                             <input type="hidden" id="address-hidden" name="address" value="{{ old('address') }}">
                             <input type="hidden" id="shipping-zone-hidden" name="shipping_zone" value="{{ old('shipping_zone') }}">
                             @endif
-
-                            <div>
-                                <label class="text-sm font-semibold">Teléfono</label>
-                                <input type="text" name="phone" value="{{ old('phone') }}" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                            </div>
 
                             <div class="md:col-span-2">
                                 <div id="zone-detection-msg" class="hidden mb-1 p-3 rounded-xl text-sm font-medium"></div>
@@ -127,6 +127,10 @@
                             <div class="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-800 px-4 py-3 text-sm font-medium">
                                 Este pedido incluye un numero de sorteo. Solo está disponible Mercado Pago.
                             </div>
+                        @elseif (empty($onlyMercadoPago))
+                            <div class="mb-4 rounded-xl border border-cyan-200 bg-cyan-50 text-cyan-900 px-4 py-3 text-sm font-medium">
+                                También podés pagar por transferencia. Al finalizar, te mostramos CBU/Alias y botón de WhatsApp para enviar el comprobante.
+                            </div>
                         @endif
 
                         <div class="space-y-4">
@@ -134,7 +138,7 @@
                             <label id="label-mercadopago"
                                 class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
                                 <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="sr-only"
-                                    {{ !empty($raffleOnlyMercadoPago) || old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
+                                    {{ !empty($raffleOnlyMercadoPago) || !empty($onlyMercadoPago) || old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
                                 <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                 <span>
                                     <span class="block font-semibold dark:text-white">Mercado Pago</span>
@@ -142,44 +146,16 @@
                                 </span>
                             </label>
 
-                            @if (empty($raffleOnlyMercadoPago))
-                                <div id="manual-payment-card"
-                                    class="rounded-2xl border border-gray-200 dark:border-[#2a2a2a] overflow-hidden transition-colors">
-                                    <button type="button" id="manual-payment-toggle"
-                                        class="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 dark:hover:bg-[#1a1a1a] transition-colors">
-                                        <span id="manual-indicator"
-                                            class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 transition-colors mt-0.5" style="box-sizing:border-box;"></span>
-                                        <span>
-                                            <span class="block font-semibold dark:text-white">Pago al recibir</span>
-                                            <span class="block text-sm text-gray-500 dark:text-gray-400">Reservamos tu pedido y coordinamos el pago cuando te lo entreguemos.</span>
-                                        </span>
-                                    </button>
-
-                                    <div id="manual-payment-options"
-                                        class="{{ in_array(old('payment_method'), ['efectivo', 'transferencia']) ? '' : 'hidden' }} border-t border-gray-100 dark:border-[#2a2a2a] px-4 pb-4 pt-3 space-y-3">
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">¿Cómo preferís pagar?</p>
-
-                                        <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                            <input type="radio" name="payment_method" id="pm-efectivo" value="efectivo" class="sr-only"
-                                                {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
-                                            <span id="dot-efectivo" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
-                                            <span>
-                                                <span class="block font-semibold text-sm dark:text-white">Efectivo</span>
-                                                <span class="block text-xs text-gray-500 dark:text-gray-400">Abonás en efectivo al momento de la entrega.</span>
-                                            </span>
-                                        </label>
-
-                                        <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                            <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
-                                                {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
-                                            <span id="dot-transferencia" class="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
-                                            <span>
-                                                <span class="block font-semibold text-sm dark:text-white">Transferencia bancaria</span>
-                                                <span class="block text-xs text-gray-500 dark:text-gray-400">Te mostramos los datos para transferir desde cualquier app bancaria o billetera.</span>
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
+                            @if (empty($raffleOnlyMercadoPago) && empty($onlyMercadoPago))
+                                <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
+                                    <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
+                                        {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
+                                    <span id="dot-transferencia" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
+                                    <span>
+                                        <span class="block font-semibold dark:text-white">Transferencia bancaria (manual)</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">El pedido queda pendiente de pago. Te mostramos CBU/Alias y botón de WhatsApp para enviar el comprobante.</span>
+                                    </span>
+                                </label>
                             @endif
 
                             @if (!empty($raffleOnlyMercadoPago))
@@ -279,19 +255,16 @@
 
     </main>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <script>
             (() => {
-                const toggle       = document.getElementById('manual-payment-toggle');
-                const options      = document.getElementById('manual-payment-options');
-                const indicator    = document.getElementById('manual-indicator');
-                const card         = document.getElementById('manual-payment-card');
                 const mpInput      = document.getElementById('pm-mercadopago');
                 const dotMP        = document.getElementById('dot-mercadopago');
-                const dotEfectivo  = document.getElementById('dot-efectivo');
                 const dotTransf    = document.getElementById('dot-transferencia');
-                if (!toggle || !options || !indicator || !card) return;
-
-                const manualInputs = options.querySelectorAll('input[type="radio"]');
+                const transferInput = document.getElementById('pm-transferencia');
+                if (!mpInput) return;
 
                 function setDot(el, active) {
                     if (!el) return;
@@ -306,50 +279,23 @@
 
                 function syncAll() {
                     const mpChecked     = mpInput && mpInput.checked;
-                    const efecChecked   = document.getElementById('pm-efectivo')?.checked;
-                    const transfChecked = document.getElementById('pm-transferencia')?.checked;
-                    const anyManual     = efecChecked || transfChecked;
+                    const transfChecked = transferInput && transferInput.checked;
 
                     setDot(dotMP, mpChecked);
-                    setDot(dotEfectivo, efecChecked);
                     setDot(dotTransf, transfChecked);
-
-                    // indicador del botón "Pago al recibir"
-                    if (anyManual) {
-                        indicator.style.borderColor = '#9333ea';
-                        indicator.style.backgroundColor = '#9333ea';
-                        card.classList.add('border-purple-500');
-                        card.classList.remove('border-gray-200');
-                    } else {
-                        indicator.style.borderColor = '';
-                        indicator.style.backgroundColor = '';
-                        card.classList.remove('border-purple-500');
-                        card.classList.add('border-gray-200');
-                    }
                 }
-
-                // Abrir/cerrar sub-opciones
-                toggle.addEventListener('click', () => {
-                    const isHidden = options.classList.toggle('hidden');
-                    if (!isHidden && mpInput && mpInput.checked) {
-                        mpInput.checked = false;
-                    }
-                    syncAll();
-                });
-
-                // Al seleccionar sub-opción
-                manualInputs.forEach(input => {
-                    input.addEventListener('change', () => {
-                        if (mpInput) mpInput.checked = false;
-                        syncAll();
-                    });
-                });
 
                 // Al seleccionar MP
                 if (mpInput) {
                     mpInput.addEventListener('change', () => {
-                        manualInputs.forEach(i => { i.checked = false; });
-                        options.classList.add('hidden');
+                        if (transferInput) transferInput.checked = false;
+                        syncAll();
+                    });
+                }
+
+                if (transferInput) {
+                    transferInput.addEventListener('change', () => {
+                        if (mpInput) mpInput.checked = false;
                         syncAll();
                     });
                 }
@@ -368,10 +314,70 @@
             const msgBox        = document.getElementById('zone-detection-msg');
             const addressHidden = document.getElementById('address-hidden');
             const datalist      = document.getElementById('street-suggestions-list');
+            const mapElement    = document.getElementById('checkout-map');
+            const mapStatus     = document.getElementById('checkout-map-status');
             const shippingZones = @json($shippingZones);
             const freeShippingForSpecificRaffle = @json(!empty($freeShippingForSpecificRaffle));
 
             if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden || !datalist) return;
+
+            let map = null;
+            let marker = null;
+            let geocodeTimeout = null;
+            let geocodeController = null;
+
+            function setMapStatus(text, isError = false) {
+                if (!mapStatus) return;
+
+                if (!text) {
+                    mapStatus.classList.add('hidden');
+                    return;
+                }
+
+                mapStatus.textContent = text;
+                mapStatus.classList.remove('hidden');
+                mapStatus.classList.toggle('text-red-500', isError);
+                mapStatus.classList.toggle('text-gray-500', !isError);
+            }
+
+            function ensureMap() {
+                if (!mapElement || map) return;
+
+                if (typeof window.L === 'undefined') {
+                    setMapStatus('No se pudo cargar el mapa en este momento.', true);
+                    return;
+                }
+
+                map = L.map(mapElement, {
+                    zoomControl: true,
+                }).setView([-41.1335, -71.3103], 12);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap',
+                    maxZoom: 19,
+                }).addTo(map);
+
+                setTimeout(() => map.invalidateSize(), 0);
+            }
+
+            function updateMapPin(lat, lon, label) {
+                ensureMap();
+                if (!map) return;
+
+                const coords = [lat, lon];
+
+                if (!marker) {
+                    marker = L.marker(coords).addTo(map);
+                } else {
+                    marker.setLatLng(coords);
+                }
+
+                if (label) {
+                    marker.bindPopup(label);
+                }
+
+                map.setView(coords, 16);
+            }
 
             function updateAddressHidden() {
                 const s = streetInput.value.trim();
@@ -485,6 +491,68 @@
                 }, 600);
             }
 
+            async function geocodeAddress() {
+                const street = streetInput.value.trim();
+                const number = numberInput.value.trim();
+
+                if (street.length < 3 || number.length < 1) {
+                    setMapStatus('Ingresá calle y altura para ver la ubicación estimada.');
+                    return;
+                }
+
+                // Con dirección completa, ocultamos la leyenda de ayuda.
+                setMapStatus('');
+
+                clearTimeout(geocodeTimeout);
+                geocodeTimeout = setTimeout(async () => {
+                    if (geocodeController) {
+                        geocodeController.abort();
+                    }
+
+                    geocodeController = new AbortController();
+                    const query = `${street} ${number}, San Carlos de Bariloche, Rio Negro, Argentina`;
+
+                    try {
+                        const url = new URL('https://nominatim.openstreetmap.org/search');
+                        url.searchParams.set('format', 'json');
+                        url.searchParams.set('limit', '1');
+                        url.searchParams.set('countrycodes', 'ar');
+                        url.searchParams.set('q', query);
+
+                        const res = await fetch(url.toString(), {
+                            headers: { Accept: 'application/json' },
+                            signal: geocodeController.signal,
+                        });
+
+                        if (!res.ok) {
+                            throw new Error('geocode-failed');
+                        }
+
+                        const places = await res.json();
+                        const match = Array.isArray(places) ? places[0] : null;
+
+                        if (!match) {
+                            setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
+                            return;
+                        }
+
+                        const lat = parseFloat(match.lat);
+                        const lon = parseFloat(match.lon);
+
+                        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+                            setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
+                            return;
+                        }
+
+                        updateMapPin(lat, lon, match.display_name || `${street} ${number}`);
+                        setMapStatus('');
+                    } catch (error) {
+                        if (error.name === 'AbortError') return;
+                        setMapStatus('No se pudo actualizar el mapa en este momento.', true);
+                    }
+                }, 800);
+            }
+
             const initialZoneKey = zoneHidden.value;
             if (initialZoneKey && shippingZones[initialZoneKey]) {
                 updateTotals(shippingZones[initialZoneKey].price);
@@ -493,10 +561,17 @@
             streetInput.addEventListener('input', () => {
                 fetchStreetSuggestions();
                 detectZone();
+                geocodeAddress();
             });
-            numberInput.addEventListener('input', detectZone);
+            numberInput.addEventListener('input', () => {
+                detectZone();
+                geocodeAddress();
+            });
             streetInput.addEventListener('blur',  updateAddressHidden);
             numberInput.addEventListener('blur',  updateAddressHidden);
+
+            ensureMap();
+            geocodeAddress();
         })();
     </script>
 

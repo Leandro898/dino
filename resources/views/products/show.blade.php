@@ -17,8 +17,8 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="es_AR">
-    @if ($product->price)
-        <meta property="product:price:amount" content="{{ $product->price }}">
+    @if ($product->adjusted_price)
+        <meta property="product:price:amount" content="{{ $product->adjusted_price }}">
         <meta property="product:price:currency" content="ARS">
     @endif
 
@@ -73,7 +73,7 @@
                         class="bg-gray-50 dark:bg-[#161615] p-6 rounded-3xl mb-8 border border-gray-100 dark:border-white/5">
                         <div class="flex items-end gap-2 mb-2">
                             <span class="text-4xl font-black text-black dark:text-white">
-                                ${{ number_format($product->price, 0, ',', '.') }}
+                                ${{ number_format($product->adjusted_price, 0, ',', '.') }}
                             </span>
                             <span class="text-sm font-bold text-gray-400 uppercase mb-1">ARS</span>
                         </div>
@@ -94,32 +94,24 @@
 
                             @if ($product->is_raffle)
                                 @if (!$raffleSalesEnabled)
-                                    <div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                                        <p class="font-semibold">La venta de numeros del sorteo esta cerrada temporalmente.</p>
+                                    <div
+                                        class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                                        <p class="font-semibold">La venta de numeros del sorteo esta cerrada
+                                            temporalmente.</p>
                                         <p class="mt-1">En breve se habilitara nuevamente.</p>
                                     </div>
                                 @endif
 
                                 <div class="mb-5 space-y-2">
-                                    <label for="raffle-number" class="text-sm font-semibold uppercase tracking-wide text-gray-500">Numero del sorteo (000-099)</label>
-                                    <input
-                                        id="raffle-number"
-                                        type="text"
-                                        name="raffle_number"
-                                        inputmode="numeric"
-                                        maxlength="3"
-                                        pattern="[0-9]{3}"
-                                        placeholder="Ej: 007"
-                                        required
+                                    <label for="raffle-number"
+                                        class="text-sm font-semibold uppercase tracking-wide text-gray-500">Numero del
+                                        sorteo (000-099)</label>
+                                    <input id="raffle-number" type="text" name="raffle_number" inputmode="numeric"
+                                        maxlength="3" pattern="[0-9]{3}" placeholder="Ej: 007" required
                                         @disabled(!$raffleSalesEnabled)
-                                        class="w-40 h-11 px-4 rounded-xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#161615] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 font-bold tracking-[0.25em] text-center"
-                                    >
-                                    <button
-                                        type="button"
-                                        id="check-raffle-number"
-                                        @disabled(!$raffleSalesEnabled)
-                                        class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-semibold hover:bg-gray-50"
-                                    >
+                                        class="w-40 h-11 px-4 rounded-xl border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#161615] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 font-bold tracking-[0.25em] text-center">
+                                    <button type="button" id="check-raffle-number" @disabled(!$raffleSalesEnabled)
+                                        class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm font-semibold hover:bg-gray-50">
                                         Verificar numero
                                     </button>
                                     <p id="raffle-status" class="text-sm font-semibold min-h-5"></p>

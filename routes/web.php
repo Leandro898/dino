@@ -9,6 +9,10 @@ use App\Http\Controllers\ShippingZoneController;
 use App\Models\Product;
 use Illuminate\Support\Str;
 
+// Evita MethodNotAllowed cuando ngrok muestra su interstitial y envía POST a rutas de login.
+Route::post('/admin/login', fn() => redirect()->to(url('/admin/login')));
+Route::post('/panel/login', fn() => redirect()->to(url('/panel/login')));
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -19,12 +23,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Home principal con catalogo completo
-Route::get('/', [PublicProductController::class, 'index'])->name('home');
+// Home principal con catalogo completo (disponible en /catalogo)
+Route::get('/catalogo', [PublicProductController::class, 'index'])->name('catalog');
+
+// Home activa: home-mic
+Route::view('/', 'home-mic')->name('home');
+Route::get('/home/buscar-productos', [PublicProductController::class, 'homeSearchProducts'])
+    ->name('home.search.products');
 
 // Categoria interna: Supermercados (productos importados desde Carrefour Almacen)
 Route::get('/categoria/supermercados', [PublicProductController::class, 'supermarkets'])
     ->name('categories.supermarkets');
+
+// Categoria interna: Farmacia (productos importados desde PedidosYa)
+Route::get('/categoria/farmacia', [PublicProductController::class, 'pharmacy'])
+    ->name('categories.pharmacy');
 
 Route::get('/categoria/{categorySlug}', [PublicProductController::class, 'carrefourCategory'])
     ->whereIn('categorySlug', ['almacen', 'desayuno-y-merienda'])
@@ -43,7 +56,7 @@ Route::get('/categoria/{slug}', function ($slug) {
         'lo-que-sea' => 'Lo que sea',
         'retira-envia' => 'Retirá y envía',
     ];
-    
+
     $categoryName = $categories[$slug] ?? null;
     if (!$categoryName) {
         abort(404);
@@ -89,8 +102,21 @@ Route::get('/pedido-voz', function () {
     $normalizedPedido = $normalize($pedido);
     $pedidoTokens = array_values(array_filter(
         preg_split('/\s+/', $normalizedPedido) ?: [],
-        fn (string $token) => mb_strlen($token) >= 3 && !in_array($token, [
-            'que', 'con', 'para', 'por', 'del', 'las', 'los', 'una', 'uno', 'unos', 'unas', 'quiero', 'necesito', 'dame',
+        fn(string $token) => mb_strlen($token) >= 3 && !in_array($token, [
+            'que',
+            'con',
+            'para',
+            'por',
+            'del',
+            'las',
+            'los',
+            'una',
+            'uno',
+            'unos',
+            'unas',
+            'quiero',
+            'necesito',
+            'dame',
         ], true)
     ));
 
@@ -168,7 +194,7 @@ Route::get('/pedido-voz', function () {
                 'score' => $score,
             ];
         })
-        ->filter(fn (array $item) => $item['score'] > 0)
+        ->filter(fn(array $item) => $item['score'] > 0)
         ->sortByDesc('score')
         ->take(6)
         ->pluck('product')

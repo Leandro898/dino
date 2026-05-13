@@ -72,6 +72,7 @@
         const voiceFab = document.getElementById('globalVoiceFab');
         if (!voiceFab) return;
 
+        const voiceOrderResultUrl = @json(route('voice.order.result'));
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
         let isListening = false;
@@ -84,7 +85,7 @@
         const goToVoiceResult = (query) => {
             const text = (query || '').trim();
             if (!text) return;
-            window.location.href = '/pedido-voz?pedido=' + encodeURIComponent(text);
+            window.location.href = voiceOrderResultUrl + '?pedido=' + encodeURIComponent(text);
         };
 
         const stopListening = () => {

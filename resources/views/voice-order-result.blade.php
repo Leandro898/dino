@@ -18,7 +18,9 @@
             --border: #e5dbff;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -138,7 +140,9 @@
             transition: transform 180ms ease, box-shadow 180ms ease;
         }
 
-        .btn:hover { transform: translateY(-1px); }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
 
         .primary {
             color: #fff;
@@ -302,14 +306,16 @@
         </section>
 
         <div class="actions">
-            <a class="btn primary" href="{{ route('home.parallel') }}?q={{ urlencode($pedido) }}#productos">Buscar esto en el catálogo</a>
+            <a class="btn primary" href="{{ route('home.parallel') }}?q={{ urlencode($pedido) }}#productos">Buscar esto
+                en el catálogo</a>
             <a class="btn secondary" href="{{ route('home.parallel') }}">Dictar otro pedido</a>
         </div>
 
         <section class="suggestions" aria-label="Productos sugeridos">
             <div class="suggestions-head">
                 <h2 class="suggestions-title">Algunos productos que coinciden</h2>
-                <span class="suggestions-count">{{ isset($suggestedProducts) ? $suggestedProducts->count() : 0 }} sugerencias</span>
+                <span class="suggestions-count">{{ isset($suggestedProducts) ? $suggestedProducts->count() : 0 }}
+                    sugerencias</span>
             </div>
 
             @if (!empty($suggestedProducts) && $suggestedProducts->isNotEmpty())
@@ -326,7 +332,8 @@
                             <div class="product-body">
                                 <p class="product-name">{{ $product->name }}</p>
                                 <div class="product-price">
-                                    <span class="price">${{ number_format($product->price, 0, ',', '.') }}</span>
+                                    <span
+                                        class="price">${{ number_format($product->adjusted_price, 0, ',', '.') }}</span>
                                     <span class="view-more">Ver</span>
                                 </div>
                             </div>
@@ -335,15 +342,16 @@
                 </div>
             @else
                 <div class="no-suggestions">
-                    Todavía no encontré productos claros para ese pedido. Probá decir una bebida, un snack, farmacia o algo de súper.
+                    Todavía no encontré productos claros para ese pedido. Probá decir una bebida, un snack, farmacia o
+                    algo de súper.
                 </div>
             @endif
         </section>
 
-        <p class="meta">Si querés, en el siguiente paso puedo hacer que este texto se convierta automáticamente en categorías o productos concretos de tu tienda.</p>
+        <p class="meta">Si querés, en el siguiente paso puedo hacer que este texto se convierta automáticamente en
+            categorías o productos concretos de tu tienda.</p>
     </main>
 
-    @include('partials.voice-fab')
 </body>
 
 </html>

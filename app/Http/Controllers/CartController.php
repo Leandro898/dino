@@ -11,7 +11,9 @@ class CartController extends Controller
 {
     public function index()
     {
-        $cart = session()->get('cart', []);
+        $cart = $this->syncCartPrices(session()->get('cart', []));
+        session()->put('cart', $cart);
+
         return view('cart', compact('cart'));
     }
 
@@ -44,7 +46,7 @@ class CartController extends Controller
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'quantity' => 1,
-                'price' => $product->price,
+                'price' => $product->adjusted_price,
                 'image' => $product->image,
                 'is_raffle' => true,
                 'raffle_number' => $raffleNumber,
@@ -72,7 +74,7 @@ class CartController extends Controller
                 'product_id' => $product->id,
                 'name' => $product->name,
                 'quantity' => $requestedQuantity,
-                'price' => $product->price,
+                'price' => $product->adjusted_price,
                 'image' => $product->image,
                 'is_raffle' => false,
             ];
@@ -166,5 +168,36 @@ class CartController extends Controller
         }
 
         return redirect()->back()->withErrors(['raffle_number' => $message]);
+    }
+
+    private function syncCartPrices(array $cart): array
+    {
+        $productIds = collect($cart)
+            ->map(fn(array $item, string|int $key) => (int) ($item['product_id'] ?? $key))
+            ->filter(fn(int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($productIds->isEmpty()) {
+            return $cart;
+        }
+
+        $products = Product::query()
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        foreach ($cart as $key => $item) {
+            $productId = (int) ($item['product_id'] ?? $key);
+            $product = $products->get($productId);
+
+            if (!$product) {
+                continue;
+            }
+
+            $cart[$key]['price'] = $product->adjusted_price;
+        }
+
+        return $cart;
     }
 }

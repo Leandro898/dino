@@ -21,16 +21,6 @@
     </a>
 
     <nav class="flex gap-6 items-center">
-
-        <a href="{{ route('categories.supermarkets') }}" class="text-sm font-medium hover:text-purple-200">
-            Supermercados
-        </a>
-
-        <a href="{{ route('categories.carrefour', ['categorySlug' => 'desayuno-y-merienda']) }}"
-            class="text-sm font-medium hover:text-purple-200">
-            Desayuno y merienda
-        </a>
-
         <a href="{{ route('cart.index') }}" class="relative text-xl">
             🛒
             @if ($cartCount > 0)
@@ -39,17 +29,6 @@
                 </span>
             @endif
         </a>
-
-        @auth
-            <a href="{{ url('/dashboard') }}" class="text-sm font-medium hover:text-purple-200">
-                Dashboard
-            </a>
-        @else
-            <a href="{{ route('login') }}" class="text-sm font-medium hover:text-purple-200">
-                Entrar
-            </a>
-        @endauth
-
     </nav>
 
 </header>
@@ -67,5 +46,3 @@
         <span class="hidden sm:inline">Consultas</span>
     </a>
 @endif
-
-@include('partials.voice-fab')

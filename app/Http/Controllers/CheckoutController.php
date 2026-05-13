@@ -14,6 +14,7 @@ use App\Services\OrderNotificationService;
 use App\Services\ZoneDetectionService;
 use App\Models\ShippingZone;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 // Importaciones de Mercado Pago SDK v3
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
@@ -25,19 +26,25 @@ class CheckoutController extends Controller
 
     public function index()
     {
-        $cart = session()->get('cart', []);
+        $cart = $this->syncCartPrices(session()->get('cart', []));
+        session()->put('cart', $cart);
+
+        $onlyMercadoPago = false;
 
         return view('checkout.index', [
             'shippingZones' => $this->shippingZones(),
             'raffleOnlyMercadoPago' => $this->cartContainsRaffle($cart),
+            'onlyMercadoPago' => $onlyMercadoPago,
             'freeShippingForSpecificRaffle' => $this->isSpecificRaffleFreeShippingCart($cart),
         ]);
     }
 
     public function process(Request $request)
     {
-        $cart = session()->get('cart', []);
-        \Log::info('Cart contents: ' . json_encode($cart));
+        $cart = $this->syncCartPrices(session()->get('cart', []));
+        session()->put('cart', $cart);
+
+        Log::info('Cart contents: ' . json_encode($cart));
         if (empty($cart)) return redirect()->back()->with('error', 'El carrito está vacío');
 
         if (!(bool) config('raffle.sales_enabled', true) && $this->cartContainsRaffle($cart)) {
@@ -47,15 +54,16 @@ class CheckoutController extends Controller
         }
 
         $raffleOnlyMercadoPago = $this->cartContainsRaffle($cart);
+        $onlyMercadoPago = false;
         $freeShippingForSpecificRaffle = $this->isSpecificRaffleFreeShippingCart($cart);
         $shippingZones = $this->shippingZones();
         $allowedPaymentMethods = $raffleOnlyMercadoPago
             ? ['mercadopago']
-            : ['mercadopago', 'efectivo', 'transferencia'];
+            : ['mercadopago', 'transferencia'];
 
         $request->validate([
             'name'          => 'required|string|max:255',
-            'email'         => 'required|email|max:255',
+            'email'         => 'nullable|email|max:255',
             'street_name'   => $raffleOnlyMercadoPago ? 'nullable|string|max:255' : 'required|string|max:255',
             'street_number' => $raffleOnlyMercadoPago ? 'nullable|integer|min:1' : 'required|integer|min:1',
             'phone'         => 'required',
@@ -65,9 +73,9 @@ class CheckoutController extends Controller
                 : ['nullable', 'string', Rule::in(array_keys($shippingZones))],
         ]);
 
-        if ($raffleOnlyMercadoPago && $request->string('payment_method')->toString() !== 'mercadopago') {
+        if (($raffleOnlyMercadoPago || $onlyMercadoPago) && $request->string('payment_method')->toString() !== 'mercadopago') {
             return redirect()->back()->withErrors([
-                'payment_method' => 'Para productos de sorteo solo esta disponible Mercado Pago.',
+                'payment_method' => 'Por el momento solo esta disponible Mercado Pago para este pedido.',
             ])->withInput();
         }
 
@@ -109,10 +117,11 @@ class CheckoutController extends Controller
 
             $productsSubtotal = 0;
             $itemsMP = []; // Array para Mercado Pago
+            $preparedItems = [];
 
             $productIds = collect($cart)
-                ->map(fn (array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
-                ->filter(fn (int $id) => $id > 0)
+                ->map(fn(array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+                ->filter(fn(int $id) => $id > 0)
                 ->unique()
                 ->values();
 
@@ -162,15 +171,22 @@ class CheckoutController extends Controller
                     }
                 }
 
-                $subtotal = $details['price'] * $details['quantity'];
+                $unitPrice = (float) $product->adjusted_price;
+                $subtotal = $unitPrice * $quantity;
                 $productsSubtotal += $subtotal;
+                $preparedItems[$id] = [
+                    'unit_price' => $unitPrice,
+                    'quantity' => $quantity,
+                    'subtotal' => $subtotal,
+                    'raffle_number' => $product->isRaffle() ? $raffleNumber : null,
+                ];
 
                 // Preparar items para MP
                 $itemsMP[] = [
                     "id" => (string) $productId,
-                    "title" => $details['name'] ?? "Producto $id", // Asegúrate de tener el nombre en el carro
+                    "title" => $details['name'] ?? $product->name ?? "Producto $id",
                     "quantity" => $quantity,
-                    "unit_price" => (float) $details['price'],
+                    "unit_price" => $unitPrice,
                     "currency_id" => "ARS"
                 ];
             }
@@ -198,7 +214,7 @@ class CheckoutController extends Controller
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'name' => $request->name,
-                'email' => $request->email,
+                'email' => $this->resolveOrderEmail($request),
                 'address' => $request->address,
                 'phone' => $request->phone,
                 'total' => $totalGeneral,
@@ -210,18 +226,19 @@ class CheckoutController extends Controller
 
             foreach ($cart as $id => $details) {
                 $productId = (int) ($details['product_id'] ?? $id);
-                $product = $products->get($productId);
-                $raffleNumber = isset($details['raffle_number'])
-                    ? $this->normalizeRaffleNumber((string) $details['raffle_number'])
-                    : null;
+                $preparedItem = $preparedItems[$id] ?? null;
+
+                if (!$preparedItem) {
+                    continue;
+                }
 
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $productId,
-                    'price'      => $details['price'],
-                    'quantity'   => $details['quantity'],
-                    'subtotal'   => $details['price'] * $details['quantity'],
-                    'raffle_number' => $product && $product->isRaffle() ? $raffleNumber : null,
+                    'price'      => $preparedItem['unit_price'],
+                    'quantity'   => $preparedItem['quantity'],
+                    'subtotal'   => $preparedItem['subtotal'],
+                    'raffle_number' => $preparedItem['raffle_number'],
                 ]);
             }
 
@@ -235,7 +252,7 @@ class CheckoutController extends Controller
                 try {
                     app(OrderNotificationService::class)->notifyNewOrder($order);
                 } catch (\Throwable $e) {
-                    \Log::error('Error notifying admin about offline payment order.', [
+                    Log::error('Error notifying admin about offline payment order.', [
                         'order_id' => $order->id,
                         'payment_method' => $paymentMethod,
                         'error' => $e->getMessage(),
@@ -274,11 +291,11 @@ class CheckoutController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Checkout error: ' . $e->getMessage());
+            Log::error('Checkout error: ' . $e->getMessage());
             if (method_exists($e, 'getApiResponse')) {
                 $response = $e->getApiResponse();
-                \Log::error('Mercado Pago API Response Status: ' . $response->getStatusCode());
-                \Log::error('Mercado Pago API Response Content: ' . json_encode($response->getContent()));
+                Log::error('Mercado Pago API Response Status: ' . $response->getStatusCode());
+                Log::error('Mercado Pago API Response Content: ' . json_encode($response->getContent()));
             }
             return back()->with('error', 'Error al procesar: ' . $e->getMessage());
         }
@@ -302,6 +319,48 @@ class CheckoutController extends Controller
         }
 
         return str_pad((string) $number, 3, '0', STR_PAD_LEFT);
+    }
+
+    private function resolveOrderEmail(Request $request): string
+    {
+        $email = trim((string) $request->input('email', ''));
+
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return mb_strtolower($email);
+        }
+
+        return 'pedido-' . now()->timestamp . '-' . random_int(100, 999) . '@baritienda.local';
+    }
+
+    private function syncCartPrices(array $cart): array
+    {
+        $productIds = collect($cart)
+            ->map(fn(array $item, string|int $key) => (int) ($item['product_id'] ?? $key))
+            ->filter(fn(int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($productIds->isEmpty()) {
+            return $cart;
+        }
+
+        $products = Product::query()
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        foreach ($cart as $key => $item) {
+            $productId = (int) ($item['product_id'] ?? $key);
+            $product = $products->get($productId);
+
+            if (!$product) {
+                continue;
+            }
+
+            $cart[$key]['price'] = $product->adjusted_price;
+        }
+
+        return $cart;
     }
 
     public function handleMercadoPagoCallback(Request $request)
@@ -328,21 +387,47 @@ class CheckoutController extends Controller
     {
         $checkout = session('checkout', []);
         $bankTransfer = config('services.bank_transfer');
+        $supportWhatsApp = preg_replace('/\D+/', '', (string) (config('services.support.whatsapp_number') ?: ''));
+        $orderItems = [];
+
+        if (!empty($checkout['order_id'])) {
+            $order = Order::query()
+                ->with(['items.product:id,name'])
+                ->find($checkout['order_id']);
+
+            if ($order) {
+                $checkout = $this->checkoutSuccessPayload($order, $checkout['status'] ?? null);
+                $orderItems = $order->items
+                    ->map(function (OrderItem $item) {
+                        return [
+                            'name' => $item->product?->name ?? 'Producto',
+                            'quantity' => (int) $item->quantity,
+                            'price' => (float) $item->price,
+                            'subtotal' => (float) $item->subtotal,
+                            'raffle_number' => $item->raffle_number,
+                        ];
+                    })
+                    ->values()
+                    ->all();
+            }
+        }
 
         $whatsAppUrl = null;
-        $whatsAppNumber = preg_replace('/\D+/', '', (string) ($bankTransfer['whatsapp_number'] ?? ''));
+        $whatsAppNumber = preg_replace('/\D+/', '', (string) ($bankTransfer['whatsapp_number'] ?? '')) ?: $supportWhatsApp;
 
         if (($checkout['payment_method'] ?? null) === 'transferencia' && !empty($checkout['order_id']) && !empty($whatsAppNumber)) {
             $customerName = $checkout['name'] ?? 'Cliente';
             $customerEmail = $checkout['email'] ?? 'sin-email';
+            $customerAddress = $checkout['address'] ?? 'sin direccion';
             $total = isset($checkout['total']) ? number_format((float) $checkout['total'], 0, ',', '.') : '0';
 
             $message = sprintf(
-                "Hola, quiero confirmar el pedido #%s por $%s y coordinar el pago por transferencia. Nombre: %s. Email: %s.",
+                "Hola, envio el comprobante de transferencia del pedido #%s por $%s. Nombre: %s. Email: %s. Direccion: %s. Por favor confirmen la recepcion del pago.",
                 $checkout['order_id'],
                 $total,
                 $customerName,
                 $customerEmail,
+                $customerAddress,
             );
 
             $whatsAppUrl = 'https://wa.me/' . $whatsAppNumber . '?text=' . urlencode($message);
@@ -350,6 +435,7 @@ class CheckoutController extends Controller
 
         return view('checkout.thankyou', [
             'checkout' => $checkout,
+            'orderItems' => $orderItems,
             'bankTransfer' => $bankTransfer,
             'whatsAppUrl' => $whatsAppUrl,
         ]);
@@ -371,7 +457,7 @@ class CheckoutController extends Controller
         $paymentId = $request->input('data.id') ?? $request->input('id');
 
         if (!$paymentId) {
-            \Log::warning('Webhook de Mercado Pago recibido sin payment ID.');
+            Log::warning('Webhook de Mercado Pago recibido sin payment ID.');
             return response()->json(['status' => 'ok'], 200);
         }
 
@@ -381,7 +467,7 @@ class CheckoutController extends Controller
         try {
             $payment = $paymentClient->get((int) $paymentId);
         } catch (\Exception $e) {
-            \Log::error('Error al consultar el pago de Mercado Pago desde el webhook.', [
+            Log::error('Error al consultar el pago de Mercado Pago desde el webhook.', [
                 'payment_id' => $paymentId,
                 'error' => $e->getMessage(),
             ]);
@@ -390,7 +476,7 @@ class CheckoutController extends Controller
 
         $externalReference = $payment->external_reference ?? null;
         if (!$externalReference) {
-            \Log::warning('Pago de Mercado Pago sin external_reference.', [
+            Log::warning('Pago de Mercado Pago sin external_reference.', [
                 'payment_id' => $paymentId,
             ]);
             return response()->json(['status' => 'ok'], 200);
@@ -398,7 +484,7 @@ class CheckoutController extends Controller
 
         $order = Order::where('id', $externalReference)->first();
         if (!$order) {
-            \Log::warning('Orden no encontrada para el webhook de Mercado Pago.', [
+            Log::warning('Orden no encontrada para el webhook de Mercado Pago.', [
                 'payment_id' => $paymentId,
                 'external_reference' => $externalReference,
             ]);
@@ -412,7 +498,7 @@ class CheckoutController extends Controller
             $order->save();
 
             $orderEmailService->sendOrderConfirmation($order);
-            \Log::info('Orden marcada como completada y email enviado.', [
+            Log::info('Orden marcada como completada y email enviado.', [
                 'order_id' => $order->id,
                 'payment_id' => $paymentId,
             ]);
@@ -420,7 +506,7 @@ class CheckoutController extends Controller
             try {
                 app(OrderNotificationService::class)->notifyMercadoPagoApprovedPayment($order);
             } catch (\Throwable $e) {
-                \Log::error('Error notifying Telegram bot about approved Mercado Pago payment.', [
+                Log::error('Error notifying Telegram bot about approved Mercado Pago payment.', [
                     'order_id' => $order->id,
                     'error' => $e->getMessage(),
                 ]);
@@ -438,14 +524,20 @@ class CheckoutController extends Controller
 
     private function flashCheckoutSuccess(Order $order, ?string $paymentStatus = null): void
     {
-        $hasRaffleItems = $order->items()
-            ->whereNotNull('raffle_number')
-            ->exists();
+        session()->put('checkout', $this->checkoutSuccessPayload($order, $paymentStatus));
+    }
 
-        session()->put('checkout', [
+    private function checkoutSuccessPayload(Order $order, ?string $paymentStatus = null): array
+    {
+        $hasRaffleItems = $order->relationLoaded('items')
+            ? $order->items->contains(fn (OrderItem $item) => !is_null($item->raffle_number))
+            : $order->items()->whereNotNull('raffle_number')->exists();
+
+        return [
             'order_id' => $order->id,
             'name' => $order->name,
             'email' => $order->email,
+            'address' => $order->address,
             'payment_method' => $order->payment_method,
             'payment_method_label' => $this->paymentMethodLabel($order->payment_method),
             'status' => $paymentStatus ?? $order->status,
@@ -453,9 +545,9 @@ class CheckoutController extends Controller
             'shipping_zone_label' => $this->shippingZoneLabel($order->shipping_zone),
             'shipping_cost' => (float) $order->shipping_cost,
             'subtotal_products' => (float) $order->total - (float) $order->shipping_cost,
-            'total' => $order->total,
+            'total' => (float) $order->total,
             'has_raffle' => $hasRaffleItems,
-        ]);
+        ];
     }
 
     private function shippingZones(): array
@@ -465,7 +557,7 @@ class CheckoutController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get(['zone_key', 'label', 'price'])
-            ->mapWithKeys(fn ($zone) => [
+            ->mapWithKeys(fn($zone) => [
                 $zone->zone_key => [
                     'label' => $zone->label,
                     'price' => (int) $zone->price,
@@ -508,8 +600,8 @@ class CheckoutController extends Controller
         }
 
         $productIds = collect($cart)
-            ->map(fn (array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
-            ->filter(fn (int $id) => $id > 0)
+            ->map(fn(array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+            ->filter(fn(int $id) => $id > 0)
             ->unique()
             ->values();
 
@@ -530,8 +622,8 @@ class CheckoutController extends Controller
         }
 
         $productIds = collect($cart)
-            ->map(fn (array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
-            ->filter(fn (int $id) => $id > 0)
+            ->map(fn(array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+            ->filter(fn(int $id) => $id > 0)
             ->unique()
             ->values();
 

@@ -152,7 +152,7 @@
                                                 <div
                                                     class="mt-auto pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
                                                     <span class="text-lg font-black text-black dark:text-white">
-                                                        ${{ number_format($product->price, 0, ',', '.') }}
+                                                        ${{ number_format($product->adjusted_price, 0, ',', '.') }}
                                                     </span>
                                                     <span class="text-[10px] font-bold text-purple-600 uppercase">Ver
                                                         más</span>

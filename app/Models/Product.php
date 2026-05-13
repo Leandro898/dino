@@ -41,6 +41,11 @@ class Product extends Model
         return asset('storage/' . ltrim($this->image, '/'));
     }
 
+    public function getAdjustedPriceAttribute(): float
+    {
+        return round((float) $this->price + StoreSetting::globalPriceAdjustment(), 2);
+    }
+
     protected static function booted()
     {
         static::saving(function (Product $product) {

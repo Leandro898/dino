@@ -4,25 +4,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bari Tienda | Home Mic</title>
+    <title>Bari Tienda | Inicio</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,700|outfit:300,400,600,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         :root {
-            --bg-1: #f3f5fb;
-            --bg-2: #eef1fb;
-            --panel: #ffffff;
-            --panel-soft: #f8f9ff;
-            --brand: #5b2bc9;
-            --brand-strong: #3f1f92;
-            --brand-soft: #ece6ff;
-            --ink: #1f2937;
-            --ink-muted: #5f6781;
-            --line: #e3e7f4;
-            --line-brand: #d7cdf9;
-            --accent: #16a34a;
-            --shadow: 0 18px 38px rgba(37, 50, 86, 0.12);
+            --bg-top: #f2f3ff;
+            --bg-bottom: #e9edff;
+            --card: #ffffff;
+            --line: #dde3fb;
+            --text: #1e2442;
+            --muted: #657099;
+            --brand: #6a31df;
+            --brand-strong: #3f2194;
+            --brand-soft: #eee8ff;
+            --shadow: 0 18px 34px rgba(40, 49, 92, 0.14);
         }
 
         * {
@@ -32,655 +30,737 @@
         body {
             margin: 0;
             font-family: 'Outfit', sans-serif;
-            color: var(--ink);
-            background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 10%, rgba(121, 86, 225, 0.14), transparent 42%),
+                radial-gradient(circle at 84% 20%, rgba(95, 157, 255, 0.12), transparent 38%),
+                linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
             min-height: 100vh;
-        }
-
-        .page {
-            width: min(100%, 940px);
-            margin: 0 auto;
-            min-height: calc(100vh - 60px);
-            display: grid;
-            align-content: start;
-            padding: 1rem;
-            gap: 1rem;
+            overflow-x: hidden;
         }
 
         #globalVoiceFab {
             display: none !important;
         }
 
-        .menu-shell {
-            background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
-            border: 1px solid var(--line);
-            border-radius: 32px;
-            padding: 1rem;
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(2px);
-        }
-
-        .voice-strip {
+        main {
+            width: min(100%, 860px);
+            margin: 0 auto;
+            min-height: calc(100vh - 84px);
             display: grid;
-            gap: 0.75rem;
-            margin-bottom: 0.9rem;
+            align-content: center;
+            padding: 1.2rem 1rem 2rem;
         }
 
-        .voice-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.65rem;
-            flex-wrap: wrap;
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            padding: 1.35rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
-        .voice-status {
-            font-size: 0.88rem;
-            color: var(--ink-muted);
+        .title {
+            margin: 0 0 1rem;
+            font-size: clamp(1.05rem, 2.3vw, 1.28rem);
             font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--muted);
+            text-wrap: balance;
         }
 
-        .voice-transcript {
-            padding: 0.8rem 0.95rem;
-            border-radius: 16px;
+        .subtitle {
+            margin: 0.35rem 0 1rem;
+            color: var(--muted);
+            font-size: 0.97rem;
+            font-weight: 500;
+        }
+
+        .search-wrap {
+            position: relative;
+            margin-bottom: 0.65rem;
+        }
+
+        .results-space {
+            height: 232px;
+            margin-bottom: 1.05rem;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .results-space.is-empty {
+            border: 1px dashed #e5e9f7;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #fbfcff 0%, #f7f9ff 100%);
+        }
+
+        .results-status {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.35rem 0.2rem;
+        }
+
+        .results-track {
+            display: flex;
+            gap: 0.7rem;
+            overflow-x: auto;
+            padding: 0.15rem 0.1rem 0.3rem;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .results-track.is-placeholder {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .results-track::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .results-track::-webkit-scrollbar-thumb {
+            background: #ccd6f3;
+            border-radius: 999px;
+        }
+
+        .result-card {
+            flex: 0 0 176px;
+            min-width: 176px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
             background: #fff;
-            border: 1px solid #e3ddfa;
-            color: #35295d;
-            min-height: 56px;
-            line-height: 1.45;
-            font-size: 0.95rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 6px 14px rgba(52, 69, 116, 0.08);
+            scroll-snap-align: start;
+            transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
         }
 
-        .voice-transcript strong {
-            color: var(--brand);
+        .result-card:hover {
+            transform: translateY(-2px);
+            border-color: #cfd8f4;
+            box-shadow: 0 10px 18px rgba(52, 69, 116, 0.12);
+        }
+
+        .result-image {
+            width: 100%;
+            height: 118px;
+            border-bottom: 1px solid #edf1fc;
+            border-radius: 14px 14px 0 0;
+            background: #f8faff;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+        }
+
+        .result-image img {
+            width: 102px;
+            height: 102px;
+            object-fit: contain;
+        }
+
+        .result-meta {
+            padding: 0.56rem 0.6rem 0.62rem;
+            text-align: center;
+        }
+
+        .result-name {
+            margin: 0;
+            font-size: 0.83rem;
             font-weight: 700;
+            line-height: 1.24;
+            min-height: 2.05rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .result-price {
+            margin: 0.36rem 0 0;
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: var(--brand-strong);
+        }
+
+        /* Voice transcript display */
+        .voice-transcript {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 1rem 1.2rem;
+            text-align: center;
+            gap: 0.55rem;
+        }
+
+        .voice-transcript .voice-text {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin: 0;
+            line-height: 1.25;
+            letter-spacing: -0.01em;
+        }
+
+        .voice-transcript.is-interim .voice-text {
+            color: #8a97c4;
+        }
+
+        .voice-transcript .voice-status {
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .voice-transcript .voice-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            margin: 0;
+            letter-spacing: 0.01em;
+        }
+
+        .voice-transcript .voice-hint.is-pending {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+        }
+
+        .voice-transcript .voice-hint.is-paused {
+            background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
         }
 
         .voice-actions {
             display: flex;
+            gap: 0.5rem;
             flex-wrap: wrap;
-            gap: 0.65rem;
+            justify-content: center;
         }
 
-        .voice-secondary {
-            border: 1px solid #d6cef4;
-            .voice-primary-action {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-                border: 0;
-                border-radius: 999px;
-                width: 88px;
-                height: 88px;
-                font-family: inherit;
-                font-size: 1.4rem;
-                font-weight: 800;
-                letter-spacing: 0.01em;
-                cursor: pointer;
-                color: #fff;
-                background: linear-gradient(160deg, #6a35e1 0%, #4620a5 100%);
-                box-shadow: 0 18px 40px rgba(70, 32, 165, 0.35);
-                transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
-                animation: pulse-ring 2.5s ease-in-out infinite;
-            }
-
-            .voice-primary-action:hover {
-                transform: scale(1.08);
-                box-shadow: 0 24px 48px rgba(70, 32, 165, 0.45);
-            }
-
-            .voice-primary-action:active {
-                transform: scale(0.96);
-            }
-
-            .voice-primary-action.is-listening {
-                background: linear-gradient(160deg, #ef4444 0%, #b91c1c 100%);
-                box-shadow: 0 18px 40px rgba(185, 28, 28, 0.35);
-                animation: pulse-ring-active 1.2s ease-in-out infinite;
-            }
-
-            @keyframes pulse-ring {
-                0% {
-                    box-shadow: 0 18px 40px rgba(70, 32, 165, 0.35), 0 0 0 0 rgba(106, 53, 225, 0.4);
-                }
-                50% {
-                    box-shadow: 0 18px 40px rgba(70, 32, 165, 0.35), 0 0 0 12px rgba(106, 53, 225, 0);
-                }
-                100% {
-                    box-shadow: 0 18px 40px rgba(70, 32, 165, 0.35), 0 0 0 0 rgba(106, 53, 225, 0);
-                }
-            }
-
-            @keyframes pulse-ring-active {
-                0%, 100% {
-                    box-shadow: 0 18px 40px rgba(185, 28, 28, 0.35), 0 0 0 0 rgba(239, 68, 68, 0.6);
-                }
-                50% {
-                    box-shadow: 0 18px 40px rgba(185, 28, 28, 0.35), 0 0 0 16px rgba(239, 68, 68, 0);
-                }
-            }
-
-            border-radius: 13px;
-            padding: 0.68rem 0.95rem;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 700;
-            letter-spacing: 0.01em;
-            cursor: pointer;
-            color: #34286b;
-            background: #f5f2ff;
-            transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-        }
-
-        .voice-secondary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(72, 45, 145, 0.12);
-            background: #f0ebff;
-        }
-
-        .voice-hint-chip {
+        .voice-action-btn {
             display: inline-flex;
             align-items: center;
-            width: fit-content;
+            gap: 0.3rem;
+            border: none;
             border-radius: 999px;
-            padding: 0.42rem 0.7rem;
-            border: 1px solid #d8ccff;
-            background: #ece6ff;
-            color: #534293;
-            font-size: 0.8rem;
+            padding: 0.35rem 1rem;
+            font-size: 0.78rem;
             font-weight: 700;
+            cursor: pointer;
             letter-spacing: 0.01em;
+            transition: transform 120ms ease, box-shadow 120ms ease;
         }
 
-        .search-wrap {
-            margin-top: 0.4rem;
+        .voice-action-btn:active {
+            transform: scale(0.96);
+        }
+
+        .voice-action-btn.is-new {
+            background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(76, 29, 149, 0.28);
+        }
+
+        .voice-action-btn.is-resume {
+            background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(6, 95, 70, 0.28);
+        }
+
+        .voice-countdown {
+            font-size: 1rem;
+            font-weight: 900;
+            opacity: 0.9;
+        }
+
+        /* Mic button inside results area */
+        .results-wrapper {
+            position: relative;
+        }
+
+        .results-mic-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 58px;
+            height: 58px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #7c3aed 0%, #4c1d95 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(76, 29, 149, 0.32);
+            transition: transform 140ms ease, box-shadow 140ms ease;
+            outline: 3px solid rgba(255, 255, 255, 0.9);
+            outline-offset: 0;
+        }
+
+        .results-mic-btn:hover {
+            transform: translate(-50%, -52%);
+            box-shadow: 0 12px 30px rgba(76, 29, 149, 0.42);
+        }
+
+        .results-mic-btn.is-listening {
+            background: linear-gradient(145deg, #ef4444 0%, #b91c1c 100%);
+            box-shadow: 0 8px 24px rgba(185, 28, 28, 0.32);
+        }
+
+        .results-mic-btn.is-pending {
+            background: linear-gradient(145deg, #f59e0b 0%, #b45309 100%);
+            box-shadow: 0 8px 24px rgba(180, 83, 9, 0.30);
+        }
+
+        /* Hide center mic when results or transcript are shown */
+        .results-space:not(.is-empty)~.results-mic-btn,
+        .results-mic-btn.is-hidden {
+            display: none;
+        }
+
+        .voice-pulse {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #e8edfd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: voice-pulse-anim 1.2s ease-in-out infinite;
+            font-size: 1.2rem;
+        }
+
+        @keyframes voice-pulse-anim {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.95rem;
+            color: #7b85a8;
+            pointer-events: none;
         }
 
         .search {
             width: 100%;
-            border: 1px solid #d6def2;
-            outline: none;
+            border: 1px solid #d5dcf7;
             border-radius: 999px;
-            background: #fff;
-            color: #2f3650;
-            padding: 0.9rem 1.1rem;
-            font-size: 1.02rem;
-            font-family: inherit;
+            padding: 0.88rem 1rem 0.88rem 2.35rem;
+            font: inherit;
+            font-size: 1rem;
+            color: var(--text);
+            outline: none;
             transition: border-color 180ms ease, box-shadow 180ms ease;
         }
 
         .search:focus {
-            border-color: #bca9f1;
-            box-shadow: 0 0 0 4px rgba(91, 43, 201, 0.13);
+            border-color: #b9c6f1;
+            box-shadow: 0 0 0 4px rgba(106, 49, 223, 0.13);
         }
 
-        .search::placeholder {
-            color: #8a93ac;
-        }
-
-        .bubble-grid {
-            margin: 1.35rem auto 0.2rem;
-            width: min(100%, 640px);
+        .tiles {
+            margin-top: 0.2rem;
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            grid-template-rows: repeat(3, minmax(126px, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
         }
 
-        .bubble {
-            border: 1px solid #edf0fa;
-            border-radius: 28px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
-            box-shadow: 0 14px 30px rgba(33, 51, 99, 0.1);
-            color: #2f3650;
-            display: grid;
-            place-items: center;
+        .tile {
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: #ffffff;
+            color: var(--text);
+            padding: 1rem 0.75rem;
             text-align: center;
-            padding: 0.85rem 0.6rem;
             cursor: pointer;
-            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-            animation: rise 520ms ease both;
+            box-shadow: 0 8px 18px rgba(58, 72, 116, 0.06);
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
         }
 
-        .bubble:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 34px rgba(37, 55, 108, 0.16);
-            border-color: #dde4f7;
+        .tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(50, 63, 104, 0.12);
+            border-color: #cfd8f4;
         }
 
-        .bubble:active {
-            transform: translateY(0);
+        .tile-primary {
+            background: linear-gradient(180deg, #ffffff 0%, #f7f9ff 100%);
+            color: var(--text);
+            border-color: #d7def4;
+            box-shadow: 0 10px 22px rgba(52, 72, 128, 0.08);
         }
 
-        .bubble.is-selected {
-            border-color: rgba(91, 43, 201, 0.4);
-            box-shadow: 0 0 0 3px rgba(91, 43, 201, 0.16), 0 20px 34px rgba(37, 55, 108, 0.16);
-        }
-
-        .bubble.is-voice-match {
-            border-color: rgba(22, 163, 74, 0.4);
-            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.13), 0 20px 34px rgba(37, 55, 108, 0.16);
-        }
-
-        .bubble-1 { grid-column: 2; grid-row: 1; animation-delay: 50ms; }
-        .bubble-2 { grid-column: 1; grid-row: 2; animation-delay: 110ms; }
-        .bubble-3 { grid-column: 3; grid-row: 2; animation-delay: 170ms; }
-        .bubble-4 { grid-column: 1; grid-row: 3; animation-delay: 230ms; }
-        .bubble-5 { grid-column: 2; grid-row: 2; animation-delay: 290ms; }
-        .bubble-6 { grid-column: 3; grid-row: 3; animation-delay: 350ms; }
-
-        .bubble-main {
-            background: linear-gradient(160deg, #6a35e1 0%, #4620a5 100%);
-            color: #fff;
-            border-color: rgba(106, 53, 225, 0.52);
-            transform: scale(1.07);
-            box-shadow: 0 22px 34px rgba(70, 32, 165, 0.35);
-        }
-
-        .icon {
-            width: 62px;
-            height: 62px;
+        .tile-icon-wrap {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto;
             border-radius: 999px;
             display: grid;
             place-items: center;
-            background: #ebe6ff;
-            margin: 0 auto 0.65rem;
-            font-size: 1.75rem;
-            line-height: 1;
+            background: var(--brand-soft);
+            box-shadow: inset 0 0 0 1px rgba(105, 85, 174, 0.08);
         }
 
-        .bubble-main .icon {
-            width: 66px;
-            height: 66px;
+        .tile-primary .tile-icon-wrap {
+            background: linear-gradient(160deg, #eef2ff 0%, #e3ebff 100%);
+            box-shadow: 0 10px 18px rgba(76, 105, 180, 0.10);
+        }
+
+        .tile-primary:hover {
+            border-color: #c9d4f1;
+            box-shadow: 0 16px 26px rgba(52, 72, 128, 0.12);
+        }
+
+        .tile-icon {
             font-size: 1.95rem;
-            background: rgba(255, 255, 255, 0.2);
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--brand-strong);
         }
 
-        .bubble-label {
+        .tile-icon svg {
+            width: 34px;
+            height: 34px;
             display: block;
-            line-height: 1.15;
-            font-size: 1.09rem;
+            fill: currentColor;
+        }
+
+        .tile-primary .tile-icon {
+            color: var(--brand);
+        }
+
+        .tile-label {
+            margin-top: 0.62rem;
+            font-size: 1.03rem;
             font-weight: 700;
         }
 
-        .hint {
-            margin: 1.1rem auto 0;
-            width: min(100%, 640px);
-            background: var(--panel-soft);
-            border: 1px solid var(--line);
-            color: #4d5673;
-            border-radius: 14px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 0.65rem 0.8rem;
-            text-align: center;
-        }
-
-        .mic-menu {
+        .quick-menu-backdrop {
             position: fixed;
-            right: 36px;
-            bottom: 90px;
-            z-index: 85;
-            width: 172px;
-            height: 270px;
+            inset: 0;
+            z-index: 88;
+            background: transparent;
+            opacity: 0;
             pointer-events: none;
-            filter: drop-shadow(0 14px 24px rgba(48, 37, 94, 0.12));
+            transition: opacity 180ms ease;
         }
 
-        .mic-menu button {
+        .quick-menu-backdrop.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .quick-menu {
+            position: fixed;
+            right: 20px;
+            bottom: 22px;
+            z-index: 89;
+            width: 170px;
+            height: 200px;
+            pointer-events: none;
+        }
+
+        .quick-menu button {
             border: 0;
             cursor: pointer;
             font: inherit;
         }
 
-        .mic-menu-trigger,
-        .mic-menu-item {
+        .quick-menu-trigger,
+        .quick-menu-item {
             position: absolute;
+            right: 0;
+            bottom: 0;
+            border-radius: 999px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 999px;
-            box-shadow: 0 10px 22px rgba(43, 34, 92, 0.24);
+            box-shadow: 0 10px 22px rgba(48, 37, 94, 0.22);
         }
 
-        .mic-menu-trigger {
-            right: 0;
-            top: 50%;
-            width: 68px;
-            height: 68px;
-            transform: translateY(-50%);
+        .quick-menu-trigger {
+            width: 62px;
+            height: 62px;
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.24);
-            background: linear-gradient(160deg, #5f2fd4 0%, #3f2194 100%);
+            background: linear-gradient(160deg, var(--brand) 0%, var(--brand-strong) 100%);
             pointer-events: auto;
             transition: transform 180ms ease, box-shadow 180ms ease;
         }
 
-        .mic-menu-trigger:hover {
-            transform: translateY(-50%) scale(1.04);
-            box-shadow: 0 18px 30px rgba(63, 33, 148, 0.38);
+        .quick-menu-trigger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 14px 26px rgba(48, 37, 94, 0.28);
         }
 
-        .mic-menu-trigger svg {
-            width: 28px;
-            height: 28px;
-        }
-
-        .mic-menu-item {
-            right: 12px;
-            top: 50%;
-            width: 58px;
-            height: 58px;
-            color: #513595;
-            border: 1px solid #d7cdf9;
-            background: linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%);
-            pointer-events: none;
+        .quick-menu-item {
+            width: 52px;
+            height: 52px;
+            color: var(--brand-strong);
+            background: #fff;
+            border: 1px solid #d9def3;
             opacity: 0;
-            transform: translate3d(0, -50%, 0) scale(0.7);
+            pointer-events: none;
+            transform: translate3d(0, 0, 0) scale(0.7);
             transition: transform 220ms ease, opacity 220ms ease, box-shadow 220ms ease;
         }
 
-        .mic-menu-item:hover {
-            box-shadow: 0 14px 24px rgba(63, 33, 148, 0.22);
+        .quick-menu-item:hover {
+            box-shadow: 0 14px 24px rgba(48, 37, 94, 0.2);
         }
 
-        .mic-menu-item.is-primary {
+        .quick-menu-item.is-listening {
             color: #fff;
             border-color: rgba(255, 255, 255, 0.24);
-            background: linear-gradient(145deg, #6a35e1 0%, #4521a5 100%);
-        }
-
-        .mic-menu-item.is-listening {
             background: linear-gradient(145deg, #ef4444 0%, #b91c1c 100%);
-            box-shadow: 0 18px 30px rgba(185, 28, 28, 0.35);
+            box-shadow: 0 14px 24px rgba(185, 28, 28, 0.35);
         }
 
-        .mic-menu[data-open='true'] .mic-menu-item {
-            opacity: 1;
-            pointer-events: auto;
+        .quick-menu-item.is-voice {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.22);
+            background: linear-gradient(160deg, var(--brand) 0%, var(--brand-strong) 100%);
         }
 
-        .mic-menu[data-open='true'] .mic-menu-item[data-index='1'] {
-            transform: translate3d(-30px, -132px, 0) scale(1);
+        .quick-menu-item-icon {
+            font-size: 1.35rem;
+            line-height: 1;
         }
 
-        .mic-menu[data-open='true'] .mic-menu-item[data-index='2'] {
-            transform: translate3d(-84px, -94px, 0) scale(1);
-        }
-
-        .mic-menu[data-open='true'] .mic-menu-item[data-index='3'] {
-            transform: translate3d(-108px, -22px, 0) scale(1);
-        }
-
-        .mic-menu[data-open='true'] .mic-menu-item[data-index='4'] {
-            transform: translate3d(-88px, 46px, 0) scale(1);
-        }
-
-        .mic-menu[data-open='true'] .mic-menu-item[data-index='5'] {
-            transform: translate3d(-48px, 104px, 0) scale(1);
-        }
-
-        .mic-menu[data-open='true'] .mic-menu-trigger {
-            transform: translateY(-50%) scale(0.96);
-        }
-
-        .mic-menu-icon {
-            width: 28px;
-            height: 28px;
-            display: block;
-            stroke: currentColor;
-            stroke-width: 1.9;
-        }
-
-        .mic-menu-label {
+        .quick-menu-label {
             position: absolute;
             right: 58px;
-            top: 50%;
-            transform: translateY(-50%);
             white-space: nowrap;
-            padding: 0.42rem 0.62rem;
+            padding: 0.35rem 0.55rem;
             border-radius: 999px;
-            border: 1px solid #d8cdfa;
+            border: 1px solid #dde3f6;
             background: rgba(255, 255, 255, 0.98);
-            color: #3f2e78;
-            font-size: 0.74rem;
+            color: #3f4a72;
+            font-size: 0.72rem;
             font-weight: 700;
-            letter-spacing: 0.02em;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 160ms ease;
+            transition: opacity 140ms ease;
         }
 
-        .mic-menu-item:hover .mic-menu-label,
-        .mic-menu-item:focus-visible .mic-menu-label {
+        .quick-menu-item:hover .quick-menu-label,
+        .quick-menu-item:focus-visible .quick-menu-label {
             opacity: 1;
         }
 
-        .mic-menu-backdrop {
-            position: fixed;
-            inset: 0;
-            z-index: 84;
-            background: transparent;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .mic-menu-backdrop.is-active {
+        .quick-menu.is-open .quick-menu-item {
             opacity: 1;
             pointer-events: auto;
         }
 
-        @keyframes rise {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .quick-menu.is-open .quick-menu-item[data-index='1'] {
+            transform: translate3d(0, -104px, 0) scale(1);
         }
 
-        @media (min-width: 900px) {
-            .page {
-                padding: 2.3rem 1.2rem 4rem;
-            }
+        .quick-menu.is-open .quick-menu-item[data-index='2'] {
+            transform: translate3d(-74px, -74px, 0) scale(1);
+        }
 
-            .menu-shell {
-                padding: 1.45rem;
-            }
-
-            .mic-menu {
-                right: 46px;
-                bottom: 96px;
-            }
+        .quick-menu.is-open .quick-menu-item[data-index='3'] {
+            transform: translate3d(-104px, 0, 0) scale(1);
         }
 
         @media (max-width: 720px) {
-            .page {
-                padding: 1.1rem 0.8rem 2.8rem;
+            main {
+                width: 100%;
+                align-content: start;
+                padding: 1rem 0.8rem 1.7rem;
             }
 
-            .menu-shell {
-                border-radius: 26px;
-                padding: 0.95rem;
+            .panel {
+                border-radius: 20px;
+                padding: 1rem;
             }
 
-            .bubble-grid {
-                width: min(100%, 520px);
-                grid-template-rows: repeat(3, minmax(110px, 1fr));
-                gap: 0.8rem;
-            }
-
-            .bubble-label {
+            .search {
                 font-size: 0.98rem;
             }
 
-            .hint {
-                width: min(100%, 520px);
-                font-size: 0.83rem;
+            .search-wrap {
+                margin-bottom: 0.55rem;
             }
 
-            .mic-menu {
-                right: 22px;
-                bottom: 78px;
-                width: 136px;
-                height: 218px;
+            .results-space {
+                height: 224px;
+                margin-bottom: 0.95rem;
             }
 
-            .mic-menu-trigger {
-                width: 62px;
-                height: 62px;
+            .result-card {
+                flex: 0 0 164px;
+                min-width: 164px;
             }
 
-            .mic-menu-item {
-                width: 48px;
-                height: 48px;
+            .result-image {
+                height: 110px;
             }
 
-            .mic-menu[data-open='true'] .mic-menu-item[data-index='1'] {
-                transform: translate3d(-22px, -102px, 0) scale(1);
+            .result-image img {
+                width: 90px;
+                height: 90px;
             }
 
-            .mic-menu[data-open='true'] .mic-menu-item[data-index='2'] {
-                transform: translate3d(-58px, -80px, 0) scale(1);
+            .result-name {
+                font-size: 0.8rem;
+                min-height: 1.95rem;
             }
 
-            .mic-menu[data-open='true'] .mic-menu-item[data-index='3'] {
-                transform: translate3d(-80px, -20px, 0) scale(1);
+            .tiles {
+                gap: 0.75rem;
             }
 
-            .mic-menu[data-open='true'] .mic-menu-item[data-index='4'] {
-                transform: translate3d(-66px, 32px, 0) scale(1);
+            .tile {
+                border-radius: 18px;
+                padding: 0.9rem 0.6rem;
             }
 
-            .mic-menu[data-open='true'] .mic-menu-item[data-index='5'] {
-                transform: translate3d(-38px, 82px, 0) scale(1);
+            .tile-icon-wrap {
+                width: 64px;
+                height: 64px;
+            }
+
+            .tile-icon {
+                font-size: 1.7rem;
+            }
+
+            .tile-label {
+                margin-top: 0.5rem;
+                font-size: 0.95rem;
+            }
+
+            .quick-menu {
+                right: 14px;
+                bottom: 14px;
+                width: 150px;
+                height: 180px;
+            }
+
+            .quick-menu-trigger {
+                width: 58px;
+                height: 58px;
+            }
+
+            .quick-menu-item {
+                width: 46px;
+                height: 46px;
+            }
+
+            .quick-menu.is-open .quick-menu-item[data-index='1'] {
+                transform: translate3d(0, -86px, 0) scale(1);
+            }
+
+            .quick-menu.is-open .quick-menu-item[data-index='2'] {
+                transform: translate3d(-62px, -62px, 0) scale(1);
+            }
+
+            .quick-menu.is-open .quick-menu-item[data-index='3'] {
+                transform: translate3d(-86px, 0, 0) scale(1);
             }
         }
     </style>
 </head>
 
 <body>
-    <div id="micMenuBackdrop" class="mic-menu-backdrop" hidden></div>
-
     @include('partials.header')
 
-    <main class="page">
-        <section class="menu-shell">
-            <section class="voice-strip" aria-label="Pedido por voz">
-                <div class="voice-top">
-                    <div class="voice-status" id="voiceStatus">Listo para escuchar</div>
-                    <span class="voice-hint-chip">Usá el menú de la derecha</span>
-                </div>
-
-                <div id="voiceTranscript" class="voice-transcript">
-                    Decí algo como: <strong>quiero una coca, pan y farmacia</strong>
-                </div>
-
-                <div style="display: flex; justify-content: center; margin: 1rem 0;">
-                    <button id="voiceStartButton" class="voice-primary-action" type="button">🎤</button>
-                </div>
-                </div>
-
-                <div class="voice-actions">
-                    <button id="voiceApply" class="voice-secondary" type="button">Usar este pedido</button>
-                    <button id="voiceReset" class="voice-secondary" type="button">Limpiar</button>
-                </div>
-            </section>
+    <main>
+        <section class="panel">
+            <p class="title">Buscá lo que necesitas</p>
 
             <div class="search-wrap">
-                <input id="quickSearch" class="search" type="search" placeholder="¿Qué necesitás hoy?" aria-label="Buscar en Bari Tienda">
+                <span class="search-icon">🔎</span>
+                <input id="quickSearch" class="search" type="search" placeholder="Ej: azucar, ibuprofeno, yerba"
+                    aria-label="Buscar categoria">
             </div>
 
-            <div class="bubble-grid">
-                <button class="bubble bubble-1" type="button" data-query="comida">
-                    Comida
-                </button>
-
-                <button class="bubble bubble-2" type="button" data-query="regalos">
-                    Regalos y más
-                </button>
-
-                <button class="bubble bubble-3" type="button" data-query="super hogar">
-                    Super y hogar
-                </button>
-
-                <button class="bubble bubble-4" type="button" data-query="farmacia">
-                    Farmacia
-                </button>
-
-                <button class="bubble bubble-5 bubble-main" type="button" data-query="lo que sea">
-                    Lo que sea
-                </button>
-
-                <button class="bubble bubble-6" type="button" data-query="retira envia">
-                    Retirá y envía
+            <div class="results-wrapper">
+                <div id="searchResultsGallery" class="results-space is-empty" aria-live="polite">
+                    <div class="results-track is-placeholder"></div>
+                </div>
+                <button type="button" id="galleryMicBtn" class="results-mic-btn" aria-label="Buscar por voz">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22"
+                        height="22">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z" />
+                    </svg>
                 </button>
             </div>
 
-            <p class="hint">Tocá una categoría para autocompletar la búsqueda o escribí y presioná Enter.</p>
+            <div class="tiles">
+                <button class="tile tile-primary" type="button" data-query="supermercado">
+                    <span class="tile-icon-wrap">
+                        <span class="tile-icon" aria-hidden="true">🛒</span>
+                    </span>
+                    <span class="tile-label">Supermercado</span>
+                </button>
+
+                <button class="tile" type="button" data-query="farmacia">
+                    <span class="tile-icon-wrap">
+                        <span class="tile-icon">💊</span>
+                    </span>
+                    <span class="tile-label">Farmacia</span>
+                </button>
+            </div>
         </section>
     </main>
 
-    <aside id="micMenu" class="mic-menu" data-open="false" aria-label="Menú radial de accesos rápidos">
-        <button id="micMenuTrigger" class="mic-menu-trigger" type="button" aria-label="Abrir accesos rápidos" aria-expanded="false" aria-controls="micMenuActions">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                <path d="M5 7h14"></path>
-                <path d="M5 12h14"></path>
-                <path d="M5 17h14"></path>
-            </svg>
+    <div id="quickMenuBackdrop" class="quick-menu-backdrop" hidden></div>
+
+    <aside id="quickMenu" class="quick-menu" aria-label="Accesos rapidos">
+        <button id="quickMenuTrigger" class="quick-menu-trigger" type="button" aria-label="Abrir accesos rapidos"
+            aria-expanded="false" aria-controls="quickMenuItems">
+            ☰
         </button>
 
-        <div id="micMenuActions">
-            <button id="micMenuVoiceAction" class="mic-menu-item is-primary" type="button" data-index="1" data-action="voice" aria-label="Pedir con voz">
-                <svg class="mic-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 14c1.7 0 3-1.3 3-3V6a3 3 0 1 0-6 0v5c0 1.7 1.3 3 3 3Z"></path>
-                    <path d="M7 11a5 5 0 0 0 10 0"></path>
-                    <path d="M12 16v4"></path>
-                    <path d="M9 20h6"></path>
-                </svg>
-                <span class="mic-menu-label">Pedir con voz</span>
+        <div id="quickMenuItems">
+            <button id="quickMenuVoiceAction" class="quick-menu-item is-voice" type="button" data-index="1"
+                data-action="voice" aria-label="Buscar por voz">
+                <span class="quick-menu-item-icon" aria-hidden="true">🎙️</span>
+                <span class="quick-menu-label">Buscar por voz</span>
             </button>
 
-            <button class="mic-menu-item" type="button" data-index="2" data-menu-query="comida" aria-label="Abrir comida">
-                <svg class="mic-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 8h16"></path>
-                    <path d="M6 8c0 5 2.7 9 6 9s6-4 6-9"></path>
-                    <path d="M12 17v3"></path>
-                    <path d="M9 20h6"></path>
-                </svg>
-                <span class="mic-menu-label">Comida</span>
+            <button class="quick-menu-item" type="button" data-index="2" data-menu-query="supermercado"
+                aria-label="Ir a Supermercado">
+                🛒
+                <span class="quick-menu-label">Supermercado</span>
             </button>
 
-            <button class="mic-menu-item" type="button" data-index="3" data-menu-query="super hogar" aria-label="Abrir super y hogar">
-                <svg class="mic-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 7h16l-1.5 9H6L4 7Z"></path>
-                    <path d="M9 11h6"></path>
-                    <path d="M9 15h6"></path>
-                </svg>
-                <span class="mic-menu-label">Super</span>
-            </button>
-
-            <button class="mic-menu-item" type="button" data-index="4" data-menu-query="farmacia" aria-label="Abrir farmacia">
-                <svg class="mic-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 5v14"></path>
-                    <path d="M5 12h14"></path>
-                    <path d="M12 3v18"></path>
-                </svg>
-                <span class="mic-menu-label">Farmacia</span>
-            </button>
-
-            <button class="mic-menu-item" type="button" data-index="5" data-menu-query="regalos" aria-label="Abrir regalos">
-                <svg class="mic-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9h18"></path>
-                    <path d="M5 9v10h14V9"></path>
-                    <path d="M12 9v10"></path>
-                    <path d="M7 6a2 2 0 1 1 4 0v3H7z"></path>
-                    <path d="M13 6a2 2 0 1 1 4 0v3h-4z"></path>
-                </svg>
-                <span class="mic-menu-label">Regalos</span>
+            <button class="quick-menu-item" type="button" data-index="3" data-menu-query="farmacia"
+                aria-label="Ir a Farmacia">
+                💊
+                <span class="quick-menu-label">Farmacia</span>
             </button>
         </div>
     </aside>
@@ -688,22 +768,47 @@
     <script>
         (() => {
             const searchInput = document.getElementById('quickSearch');
-            const buttons = document.querySelectorAll('.bubble-grid [data-query]');
-            const voiceApply = document.getElementById('voiceApply');
-            const voiceReset = document.getElementById('voiceReset');
-            const voiceStartButton = document.getElementById('voiceStartButton');
-            const voiceStatus = document.getElementById('voiceStatus');
-            const voiceTranscript = document.getElementById('voiceTranscript');
-            const micMenu = document.getElementById('micMenu');
-            const micMenuTrigger = document.getElementById('micMenuTrigger');
-            const micMenuBackdrop = document.getElementById('micMenuBackdrop');
-            const micMenuVoiceAction = document.getElementById('micMenuVoiceAction');
-            const micMenuItems = document.querySelectorAll('.mic-menu-item');
+            const tiles = document.querySelectorAll('[data-query]');
+            const resultsGallery = document.getElementById('searchResultsGallery');
+            const searchEndpoint = '{{ route('home.search.products') }}';
+            const pharmacyUrl = @json(route('categories.pharmacy'));
+            const supermarketsUrl = @json(route('categories.supermarkets'));
+            const quickMenu = document.getElementById('quickMenu');
+            const quickMenuTrigger = document.getElementById('quickMenuTrigger');
+            const quickMenuBackdrop = document.getElementById('quickMenuBackdrop');
+            const quickMenuItems = document.querySelectorAll('.quick-menu-item');
+            const quickMenuVoiceAction = document.getElementById('quickMenuVoiceAction');
+            const galleryMicBtn = document.getElementById('galleryMicBtn');
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            let searchTimer = null;
+            let activeController = null;
+            let isQuickMenuOpen = false;
             let recognition = null;
             let isListening = false;
-            let isMenuOpen = false;
+            let isVoiceMode = false;
+            let voiceSearchTimer = null;
+            let isPaused = false;
+
+            const showVoiceToast = (message) => {
+                let toast = document.getElementById('voiceToast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'voiceToast';
+                    toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);' +
+                        'background:rgba(30,30,30,0.92);color:#fff;padding:10px 18px;border-radius:20px;' +
+                        'font-size:14px;z-index:9999;max-width:88vw;text-align:center;pointer-events:none;' +
+                        'transition:opacity .3s;';
+                    document.body.appendChild(toast);
+                }
+                toast.textContent = message;
+                toast.style.opacity = '1';
+                clearTimeout(toast._timer);
+                toast._timer = setTimeout(() => {
+                    toast.style.opacity = '0';
+                }, 3500);
+            };
 
             const normalize = (value) => (value || '')
                 .toString()
@@ -712,130 +817,287 @@
                 .replace(/[\u0300-\u036f]/g, '')
                 .trim();
 
-            const categories = [
-                { key: 'comida', button: document.querySelector('[data-query="comida"]') },
-                { key: 'regalos', button: document.querySelector('[data-query="regalos"]') },
-                { key: 'super hogar', button: document.querySelector('[data-query="super hogar"]') },
-                { key: 'super', button: document.querySelector('[data-query="super hogar"]') },
-                { key: 'hogar', button: document.querySelector('[data-query="super hogar"]') },
-                { key: 'farmacia', button: document.querySelector('[data-query="farmacia"]') },
-                { key: 'lo que sea', button: document.querySelector('[data-query="lo que sea"]') },
-                { key: 'retira', button: document.querySelector('[data-query="retira envia"]') },
-                { key: 'envia', button: document.querySelector('[data-query="retira envia"]') },
-            ].filter((item) => item.button);
+            const goToCatalog = (query) => {
+                const text = normalize(query);
 
-            const clearMatches = () => {
-                buttons.forEach((item) => item.classList.remove('is-selected', 'is-voice-match'));
+                if (text.includes('farmacia') || text.includes('remedio') || text.includes('medicamento')) {
+                    window.location.href = pharmacyUrl;
+                    return;
+                }
+
+                window.location.href = supermarketsUrl;
             };
 
-            const markMatch = (query) => {
-                const text = normalize(query);
-                clearMatches();
+            const escapeHtml = (value) => (value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
 
-                buttons.forEach((item) => {
-                    const itemQuery = normalize(item.getAttribute('data-query'));
-                    if (itemQuery && text.includes(itemQuery)) {
-                        item.classList.add('is-voice-match');
-                    }
-                });
+            let voiceCountdownInterval = null;
 
-                categories.forEach(({ key, button }) => {
-                    if (text.includes(key)) {
-                        button.classList.add('is-voice-match');
-                    }
-                });
-
-                if (!buttons.length) return;
-
-                if (text.includes('lo que sea') || text.length === 0) {
-                    const main = document.querySelector('[data-query="lo que sea"]');
-                    if (main) main.classList.add('is-voice-match');
+            const clearVoiceSearchTimer = () => {
+                if (voiceSearchTimer) {
+                    clearTimeout(voiceSearchTimer);
+                    voiceSearchTimer = null;
+                }
+                if (voiceCountdownInterval) {
+                    clearInterval(voiceCountdownInterval);
+                    voiceCountdownInterval = null;
                 }
             };
 
-            const updateTranscript = (text, final = false) => {
-                if (!voiceTranscript) return;
-                voiceTranscript.innerHTML = final
-                    ? `Te entendí: <strong>${text || 'nada todavía'}</strong>`
-                    : `Escuchando: <strong>${text || '...'}</strong>`;
-                if (searchInput) searchInput.value = text;
-                markMatch(text);
+            const hasPendingVoiceSearch = () => Boolean(voiceSearchTimer);
+
+            const cancelPendingVoiceSearch = () => {
+                if (!hasPendingVoiceSearch()) return;
+
+                clearVoiceSearchTimer();
+                setMicState('paused');
+                const query = searchInput ? searchInput.value.trim() : '';
+                if (query && resultsGallery) {
+                    resultsGallery.classList.remove('is-empty');
+                    if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
+                    resultsGallery.innerHTML =
+                        '<div class="voice-transcript is-final">' +
+                        '<p class="voice-text">' + escapeHtml(query) + '</p>' +
+                        '<div class="voice-actions">' +
+                        '<button class="voice-action-btn is-new" data-voice-action="new">🎤 Buscar de nuevo</button>' +
+                        '<button class="voice-action-btn is-resume" data-voice-action="resume">▶️ Continuar</button>' +
+                        '</div>' +
+                        '</div>';
+                }
             };
 
-            const goToVoiceResult = (query) => {
-                const target = '/pedido-voz?pedido=' + encodeURIComponent(query || '');
-                window.location.href = target;
+            const renderResults = (products, query) => {
+                if (!resultsGallery) return;
+
+                if (!query || query.length < 2) {
+                    resultsGallery.classList.add('is-empty');
+                    resultsGallery.innerHTML = '<div class="results-track is-placeholder"></div>';
+                    if (galleryMicBtn) galleryMicBtn.classList.remove('is-hidden');
+                    return;
+                }
+
+                if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
+
+                if (!products.length) {
+                    resultsGallery.classList.remove('is-empty');
+                    resultsGallery.innerHTML = '<p class="results-status">No encontramos resultados para "' +
+                        escapeHtml(query) + '".</p>';
+                    return;
+                }
+
+                const cards = products.map((product) => {
+                    const imageHtml = product.image ?
+                        '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.name) +
+                        '">' :
+                        '<span class="results-status">Sin imagen</span>';
+
+                    return '<a class="result-card" href="' + escapeHtml(product.url) + '">' +
+                        '<div class="result-image">' + imageHtml + '</div>' +
+                        '<div class="result-meta">' +
+                        '<p class="result-name">' + escapeHtml(product.name) + '</p>' +
+                        '<p class="result-price">' + escapeHtml(product.price) + '</p>' +
+                        '</div>' +
+                        '</a>';
+                }).join('');
+
+                resultsGallery.classList.remove('is-empty');
+                resultsGallery.innerHTML = '<div class="results-track">' + cards + '</div>';
+            };
+
+            const renderVoiceTranscript = (text, isFinal, hintText = 'Tocá el micrófono para pausar') => {
+                if (!resultsGallery) return;
+                resultsGallery.classList.remove('is-empty');
+                if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
+
+                if (!text) {
+                    resultsGallery.innerHTML = '<div class="voice-transcript is-listening">' +
+                        '<span class="voice-pulse">🎙️</span>' +
+                        '</div>';
+                    return;
+                }
+
+                const escaped = escapeHtml(text);
+                if (isFinal) {
+                    resultsGallery.innerHTML = '<div class="voice-transcript is-final">' +
+                        '<p class="voice-text">' + escaped + '</p>' +
+                        '<p class="voice-hint" id="voiceHintLabel">' + escapeHtml(hintText) + '</p>' +
+                        '</div>';
+                } else {
+                    resultsGallery.innerHTML = '<div class="voice-transcript is-interim">' +
+                        '<p class="voice-text">' + escaped + '</p>' +
+                        '<p class="voice-hint" id="voiceHintLabel">🎤 Tocá para pausar</p>' +
+                        '</div>';
+                }
+            };
+
+            const scheduleVoiceResults = (query) => {
+                const cleaned = (query || '').trim();
+                clearVoiceSearchTimer();
+
+                if (cleaned.length < 2) return;
+
+                setMicState('pending');
+
+                let secs = 3;
+
+                const updateHint = () => {
+                    const hint = document.getElementById('voiceHintLabel');
+                    if (hint) {
+                        hint.className = 'voice-hint is-pending';
+                        hint.innerHTML = '⏳ Buscando en <span class="voice-countdown">' + secs +
+                            '</span>s · tocá para pausar';
+                    }
+                };
+
+                renderVoiceTranscript(cleaned, true, '');
+                updateHint();
+
+                voiceCountdownInterval = setInterval(() => {
+                    secs -= 1;
+                    if (secs > 0) {
+                        updateHint();
+                    } else {
+                        clearVoiceSearchTimer();
+                        isVoiceMode = false;
+                        setMicState('idle');
+                        fetchLiveResults(cleaned, 5);
+                    }
+                }, 1000);
+
+                voiceSearchTimer = setTimeout(() => {
+                    // fallback — should already be triggered by interval
+                }, 3200);
+            };
+
+            const fetchLiveResults = (query, limit = null) => {
+                if (activeController) {
+                    activeController.abort();
+                }
+
+                if (!resultsGallery) return;
+
+                activeController = new AbortController();
+                resultsGallery.classList.remove('is-empty');
+                resultsGallery.innerHTML = '<p class="results-status">Buscando...</p>';
+
+                fetch(searchEndpoint + '?q=' + encodeURIComponent(query), {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        signal: activeController.signal
+                    })
+                    .then((response) => {
+                        if (!response.ok) throw new Error('search-error');
+                        return response.json();
+                    })
+                    .then((data) => {
+                        const products = Array.isArray(data.products) ? data.products : [];
+                        renderResults(limit ? products.slice(0, limit) : products, query);
+                    })
+                    .catch((error) => {
+                        if (error.name === 'AbortError') return;
+                        resultsGallery.innerHTML = '<p class="results-status">No se pudo buscar ahora.</p>';
+                    });
+            };
+
+            const setQuickMenuOpen = (open) => {
+                isQuickMenuOpen = open;
+                if (quickMenu) {
+                    quickMenu.classList.toggle('is-open', open);
+                }
+
+                if (quickMenuTrigger) {
+                    quickMenuTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+                }
+
+                if (quickMenuBackdrop) {
+                    quickMenuBackdrop.hidden = !open;
+                    quickMenuBackdrop.classList.toggle('is-open', open);
+                }
+            };
+
+            const setMicState = (state) => {
+                // state: 'idle' | 'listening' | 'pending' | 'paused'
+                isPaused = (state === 'paused');
+                const micBtns = [quickMenuVoiceAction, galleryMicBtn].filter(Boolean);
+
+                micBtns.forEach((btn) => {
+                    btn.classList.remove('is-listening', 'is-pending');
+                    if (state === 'listening') btn.classList.add('is-listening');
+                    if (state === 'pending') btn.classList.add('is-pending');
+                });
+
+                if (quickMenuVoiceAction) {
+                    const label = quickMenuVoiceAction.querySelector('.quick-menu-label');
+                    if (state === 'listening') {
+                        quickMenuVoiceAction.setAttribute('aria-label', 'Detener búsqueda por voz');
+                        if (label) label.textContent = 'Escuchando';
+                    } else if (state === 'pending') {
+                        quickMenuVoiceAction.setAttribute('aria-label', 'Pausar búsqueda por voz');
+                        if (label) label.textContent = 'Pausar';
+                    } else if (state === 'paused') {
+                        quickMenuVoiceAction.setAttribute('aria-label', 'Reanudar búsqueda');
+                        if (label) label.textContent = 'Reanudar';
+                    } else {
+                        quickMenuVoiceAction.setAttribute('aria-label', 'Buscar por voz');
+                        if (label) label.textContent = 'Buscar por voz';
+                    }
+                }
+
+                if (galleryMicBtn) {
+                    if (state === 'listening') galleryMicBtn.setAttribute('aria-label', 'Detener escucha');
+                    else if (state === 'pending') galleryMicBtn.setAttribute('aria-label', 'Pausar búsqueda');
+                    else if (state === 'paused') galleryMicBtn.setAttribute('aria-label', 'Reanudar búsqueda');
+                    else galleryMicBtn.setAttribute('aria-label', 'Buscar por voz');
+                }
             };
 
             const stopListening = () => {
                 if (recognition && isListening) {
                     recognition.stop();
                 }
+
                 isListening = false;
-                if (micMenuVoiceAction) {
-                    micMenuVoiceAction.classList.remove('is-listening');
-                    micMenuVoiceAction.setAttribute('aria-label', 'Pedir con voz');
-                    const label = micMenuVoiceAction.querySelector('.mic-menu-label');
-                    if (label) label.textContent = 'Pedir con voz';
-                }
-                if (voiceStartButton) {
-                    voiceStartButton.classList.remove('is-listening');
-                }
-                if (voiceStatus) voiceStatus.textContent = 'Listo para escuchar';
+                setMicState('idle');
             };
 
             const startListening = () => {
                 if (!recognition || isListening) return;
+
+                clearVoiceSearchTimer();
+
                 try {
                     recognition.start();
                 } catch (error) {
-                    if (voiceStatus) voiceStatus.textContent = 'El navegador bloqueó el micrófono.';
                     stopListening();
                 }
             };
 
-            const setMenuOpen = (open) => {
-                isMenuOpen = open;
-                if (micMenu) {
-                    micMenu.dataset.open = open ? 'true' : 'false';
-                }
-                if (micMenuTrigger) {
-                    micMenuTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-                }
-                if (micMenuBackdrop) {
-                    micMenuBackdrop.hidden = !open;
-                    micMenuBackdrop.classList.toggle('is-active', open);
-                }
-            };
-
-            const goToCatalog = (query) => {
-                const categoryMap = {
-                    'comida': '/categoria/comida',
-                    'regalos': '/categoria/regalos',
-                    'super hogar': '/categoria/super-hogar',
-                    'super': '/categoria/super-hogar',
-                    'hogar': '/categoria/super-hogar',
-                    'farmacia': '/categoria/farmacia',
-                    'lo que sea': '/categoria/lo-que-sea',
-                    'retira envia': '/categoria/retira-envia'
-                };
-                const categorySlug = categoryMap[query] || '/';
-                window.location.href = categorySlug;
-            };
-
-            const applyQuery = (query, shouldNavigate = true) => {
-                if (!searchInput) return;
-                searchInput.value = query;
-                markMatch(query);
-                buttons.forEach((item) => {
-                    item.classList.toggle('is-selected', item.getAttribute('data-query') === query);
-                });
-                if (shouldNavigate) {
+            tiles.forEach((tile) => {
+                tile.addEventListener('click', () => {
+                    const query = tile.getAttribute('data-query') || '';
+                    if (searchInput) searchInput.value = query;
                     goToCatalog(query);
-                }
-            };
+                });
+            });
 
-            if (SpeechRecognition) {
+            quickMenuItems.forEach((item) => {
+                item.addEventListener('click', () => {
+                    const query = item.getAttribute('data-menu-query');
+                    if (!query) return;
+                    setQuickMenuOpen(false);
+                    if (searchInput) searchInput.value = query;
+                    goToCatalog(query);
+                });
+            });
+
+            if (SpeechRecognition && quickMenuVoiceAction) {
                 recognition = new SpeechRecognition();
                 recognition.lang = 'es-AR';
                 recognition.interimResults = true;
@@ -843,16 +1105,9 @@
 
                 recognition.onstart = () => {
                     isListening = true;
-                    if (micMenuVoiceAction) {
-                        micMenuVoiceAction.classList.add('is-listening');
-                        micMenuVoiceAction.setAttribute('aria-label', 'Detener grabación');
-                        const label = micMenuVoiceAction.querySelector('.mic-menu-label');
-                        if (label) label.textContent = 'Escuchando';
-                    }
-                    if (voiceStartButton) {
-                        voiceStartButton.classList.add('is-listening');
-                    }
-                    if (voiceStatus) voiceStatus.textContent = 'Escuchando tu pedido...';
+                    isVoiceMode = true;
+                    setMicState('listening');
+                    renderVoiceTranscript('', false);
                 };
 
                 recognition.onresult = (event) => {
@@ -864,107 +1119,152 @@
 
                     const cleaned = transcript.trim();
                     const lastResult = event.results[event.results.length - 1];
-                    updateTranscript(cleaned, lastResult.isFinal);
 
-                    if (lastResult.isFinal && cleaned) {
+                    if (searchInput) {
+                        searchInput.value = cleaned;
+                        // Do NOT dispatch input event — voice mode shows transcript, not products
+                    }
+
+                    renderVoiceTranscript(cleaned, lastResult.isFinal);
+
+                    if (lastResult.isFinal) {
                         stopListening();
-                        goToVoiceResult(cleaned);
+                        scheduleVoiceResults(cleaned);
                     }
                 };
 
-                recognition.onerror = () => {
-                    if (voiceStatus) voiceStatus.textContent = 'No se pudo escuchar. Probá de nuevo.';
+                recognition.onerror = (event) => {
                     stopListening();
+                    const code = event.error || '';
+                    if (code === 'not-allowed' || code === 'service-not-allowed' || code === 'network') {
+                        showVoiceToast('El micrófono requiere HTTPS. Usá la versión en línea.');
+                    } else if (code === 'no-speech') {
+                        showVoiceToast('No se escuchó nada. Intentá de nuevo.');
+                    } else {
+                        showVoiceToast('No se pudo iniciar el micrófono.');
+                    }
                 };
 
                 recognition.onend = () => {
                     stopListening();
                 };
 
-                if (micMenuVoiceAction) {
-                    micMenuVoiceAction.addEventListener('click', () => {
-                        setMenuOpen(false);
-                        if (isListening) {
-                            stopListening();
-                            return;
-                        }
-                        startListening();
-                    });
-                }
+                const handleVoiceBtnClick = () => {
+                    if (isListening) {
+                        stopListening();
+                        return;
+                    }
+                    if (hasPendingVoiceSearch()) {
+                        cancelPendingVoiceSearch();
+                        return;
+                    }
+                    const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location
+                        .hostname === '127.0.0.1';
+                    if (!isSecure) {
+                        showVoiceToast('El micrófono necesita HTTPS. Funciona en la versión en línea.');
+                        return;
+                    }
+                    startListening();
+                };
 
-                if (voiceStartButton) {
-                    voiceStartButton.addEventListener('click', () => {
-                        if (isListening) {
-                            stopListening();
-                            return;
-                        }
-                        startListening();
-                    });
+                quickMenuVoiceAction.addEventListener('click', () => {
+                    setQuickMenuOpen(false);
+                    handleVoiceBtnClick();
+                });
+
+                if (galleryMicBtn) {
+                    galleryMicBtn.addEventListener('click', handleVoiceBtnClick);
                 }
-            } else if (micMenuVoiceAction) {
-                micMenuVoiceAction.disabled = true;
-                const label = micMenuVoiceAction.querySelector('.mic-menu-label');
+            } else if (quickMenuVoiceAction) {
+                quickMenuVoiceAction.addEventListener('click', () => {
+                    setQuickMenuOpen(false);
+                    showVoiceToast('Tu navegador no soporta búsqueda por voz.');
+                });
+                const label = quickMenuVoiceAction.querySelector('.quick-menu-label');
                 if (label) label.textContent = 'Sin voz';
-                if (voiceStatus) voiceStatus.textContent = 'Tu navegador no soporta reconocimiento de voz';
             }
 
-            if (!searchInput || !buttons.length) return;
-
-            buttons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    const query = button.getAttribute('data-query') || '';
-                    applyQuery(query);
-                });
-            });
-
-            micMenuItems.forEach((item) => {
-                item.addEventListener('click', () => {
-                    const query = item.getAttribute('data-menu-query');
-                    if (!query) return;
-                    setMenuOpen(false);
-                    applyQuery(query);
-                });
-            });
-
-            if (micMenuTrigger) {
-                micMenuTrigger.addEventListener('click', () => {
-                    setMenuOpen(!isMenuOpen);
+            if (quickMenuTrigger) {
+                quickMenuTrigger.addEventListener('click', () => {
+                    setQuickMenuOpen(!isQuickMenuOpen);
                 });
             }
 
-            if (micMenuBackdrop) {
-                micMenuBackdrop.addEventListener('click', () => {
-                    setMenuOpen(false);
+            if (quickMenuBackdrop) {
+                quickMenuBackdrop.addEventListener('click', () => {
+                    setQuickMenuOpen(false);
+                });
+            }
+
+            if (resultsGallery) {
+                resultsGallery.addEventListener('click', (event) => {
+                    const actionBtn = event.target.closest('[data-voice-action]');
+                    if (actionBtn) {
+                        const action = actionBtn.getAttribute('data-voice-action');
+                        if (action === 'resume') {
+                            const query = searchInput ? searchInput.value.trim() : '';
+                            if (query.length >= 2) scheduleVoiceResults(query);
+                        } else if (action === 'new') {
+                            if (searchInput) searchInput.value = '';
+                            renderResults([], '');
+                            const isSecure = location.protocol === 'https:' || location.hostname ===
+                                'localhost' || location.hostname === '127.0.0.1';
+                            if (!isSecure) {
+                                showVoiceToast('El micrófono necesita HTTPS. Funciona en la versión en línea.');
+                                return;
+                            }
+                            startListening();
+                        }
+                        return;
+                    }
+
+                    // click on transcript during countdown → pause
+                    const transcript = event.target.closest('.voice-transcript');
+                    if (!transcript || !hasPendingVoiceSearch()) return;
+                    cancelPendingVoiceSearch();
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    isVoiceMode = false; // Manual typing resets voice mode
+                    clearVoiceSearchTimer();
+                    const query = searchInput.value.trim();
+
+                    if (searchTimer) {
+                        clearTimeout(searchTimer);
+                    }
+
+                    if (query.length < 2) {
+                        renderResults([], '');
+                        return;
+                    }
+
+                    searchTimer = setTimeout(() => {
+                        fetchLiveResults(query);
+                    }, 260);
+                });
+
+                searchInput.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter') return;
+                    if (isVoiceMode) {
+                        // Voice mode: show products for the transcribed text
+                        clearVoiceSearchTimer();
+                        isVoiceMode = false;
+                        const query = searchInput.value.trim();
+                        if (query.length >= 2) {
+                            fetchLiveResults(query);
+                        }
+                    } else {
+                        goToCatalog(searchInput.value);
+                    }
                 });
             }
 
             document.addEventListener('keydown', (event) => {
                 if (event.key === 'Escape') {
-                    setMenuOpen(false);
+                    setQuickMenuOpen(false);
                 }
-            });
-
-            if (voiceApply) {
-                voiceApply.addEventListener('click', () => {
-                    goToVoiceResult(searchInput.value.trim());
-                });
-            }
-
-            if (voiceReset) {
-                voiceReset.addEventListener('click', () => {
-                    searchInput.value = '';
-                    clearMatches();
-                    if (voiceTranscript) {
-                        voiceTranscript.innerHTML = 'Decí algo como: <strong>quiero una coca, pan y farmacia</strong>';
-                    }
-                    if (voiceStatus) voiceStatus.textContent = 'Listo para escuchar';
-                    stopListening();
-                });
-            }
-
-            searchInput.addEventListener('keydown', (event) => {
-                if (event.key !== 'Enter') return;
-                goToCatalog(searchInput.value.trim());
             });
         })();
     </script>
