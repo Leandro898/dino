@@ -19,6 +19,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'name',
         'email',
         'password',
+        'role',
     ];
 
     protected $hidden = [
@@ -37,8 +38,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     // 3. Añade este método obligatorio abajo del todo
     public function canAccessPanel(Panel $panel): bool
     {
-        // Por ahora devuelve true para poder entrar y probar.
-        // Más adelante puedes poner algo como: return str_ends_with($this->email, '@tudominio.com');
-        return true;
+        if ($panel->getId() === 'admin') {
+            return $this->role === 'admin';
+        }
+
+        // Panel de vendedores (/panel): admin y vendor pueden entrar
+        return in_array($this->role, ['admin', 'vendor']);
     }
 }

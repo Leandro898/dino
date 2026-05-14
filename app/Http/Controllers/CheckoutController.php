@@ -530,7 +530,7 @@ class CheckoutController extends Controller
     private function checkoutSuccessPayload(Order $order, ?string $paymentStatus = null): array
     {
         $hasRaffleItems = $order->relationLoaded('items')
-            ? $order->items->contains(fn (OrderItem $item) => !is_null($item->raffle_number))
+            ? $order->items->contains(fn(OrderItem $item) => !is_null($item->raffle_number))
             : $order->items()->whereNotNull('raffle_number')->exists();
 
         return [

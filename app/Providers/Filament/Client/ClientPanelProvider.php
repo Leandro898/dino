@@ -25,6 +25,7 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('panel')
             ->login()
+            ->brandName('Baritienda — Panel de Vendedor')
             ->colors([
                 'primary' => Color::Emerald,
             ])

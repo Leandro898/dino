@@ -33,32 +33,11 @@ class ClientProductResource extends Resource
                     ->label('Nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->label('Descripcion')
-                    ->rows(5)
-                    ->required(),
                 Forms\Components\TextInput::make('price')
                     ->label('Precio')
                     ->numeric()
                     ->prefix('$')
                     ->required(),
-                Forms\Components\TextInput::make('stock')
-                    ->label('Stock')
-                    ->numeric()
-                    ->default(1)
-                    ->required(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Publicado')
-                    ->default(true),
-                Forms\Components\Toggle::make('is_raffle')
-                    ->label('Producto de sorteo')
-                    ->default(false),
-                Forms\Components\FileUpload::make('image')
-                    ->label('Imagen')
-                    ->image()
-                    ->disk('public')
-                    ->directory('products')
-                    ->visibility('public'),
             ]);
     }
 
@@ -66,8 +45,6 @@ class ClientProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image')
-                    ->label('Imagen'),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
@@ -76,12 +53,6 @@ class ClientProductResource extends Resource
                     ->label('Precio')
                     ->money('ARS')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('stock')
-                    ->label('Stock')
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Publicado')
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Actualizado')
                     ->since(),
