@@ -326,9 +326,74 @@
             box-shadow: 0 8px 24px rgba(180, 83, 9, 0.30);
         }
 
+        .results-mic-label {
+            position: absolute;
+            top: calc(50% + 48px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 0.84rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            color: #5b617e;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid #dbe1f6;
+            border-radius: 999px;
+            padding: 0.26rem 0.65rem;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .mic-stop-loader {
+            position: absolute;
+            inset: 0;
+            z-index: 24;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(247, 250, 255, 0.92);
+            border: 1px solid #dbe3fb;
+            border-radius: 14px;
+            pointer-events: all;
+        }
+
+        .mic-stop-loader.is-active {
+            display: flex;
+        }
+
+        .mic-stop-loader-inner {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.45rem 0.78rem;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid #dbe3fb;
+            color: #4f5680;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .mic-stop-loader-spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #cfdbff;
+            border-top-color: #6a31df;
+            animation: mic-stop-spin 0.7s linear infinite;
+        }
+
+        @keyframes mic-stop-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         /* Hide center mic when results or transcript are shown */
         .results-space:not(.is-empty)~.results-mic-btn,
-        .results-mic-btn.is-hidden {
+        .results-mic-btn.is-hidden,
+        .results-space:not(.is-empty)~.results-mic-label,
+        .results-mic-btn.is-hidden~.results-mic-label {
             display: none;
         }
 
@@ -716,6 +781,13 @@
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z" />
                     </svg>
                 </button>
+                <p class="results-mic-label" aria-hidden="true">Apretá y pedí</p>
+                <div id="micStopLoader" class="mic-stop-loader" aria-hidden="true">
+                    <div class="mic-stop-loader-inner">
+                        <span class="mic-stop-loader-spinner" aria-hidden="true"></span>
+                        <span>Apagando mic...</span>
+                    </div>
+                </div>
             </div>
 
             <div class="tiles">
@@ -779,6 +851,7 @@
             const quickMenuItems = document.querySelectorAll('.quick-menu-item');
             const quickMenuVoiceAction = document.getElementById('quickMenuVoiceAction');
             const galleryMicBtn = document.getElementById('galleryMicBtn');
+            const micStopLoader = document.getElementById('micStopLoader');
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -790,6 +863,7 @@
             let isVoiceMode = false;
             let voiceSearchTimer = null;
             let isPaused = false;
+            let micStopTimer = null;
 
             const showVoiceToast = (message) => {
                 let toast = document.getElementById('voiceToast');
@@ -849,6 +923,39 @@
             };
 
             const hasPendingVoiceSearch = () => Boolean(voiceSearchTimer);
+
+            const setMicStoppingState = (active) => {
+                if (micStopTimer) {
+                    clearTimeout(micStopTimer);
+                    micStopTimer = null;
+                }
+
+                if (micStopLoader) {
+                    micStopLoader.classList.toggle('is-active', active);
+                }
+
+                if (galleryMicBtn) {
+                    galleryMicBtn.disabled = active;
+                }
+
+                if (quickMenuVoiceAction) {
+                    quickMenuVoiceAction.disabled = active;
+                }
+
+                if (active) {
+                    micStopTimer = setTimeout(() => {
+                        setMicStoppingState(false);
+                    }, 560);
+                }
+            };
+
+            const resetMicToInitialState = () => {
+                clearVoiceSearchTimer();
+                isVoiceMode = false;
+                isListening = false;
+                setMicState('idle');
+                renderResults([], '');
+            };
 
             const cancelPendingVoiceSearch = () => {
                 if (!hasPendingVoiceSearch()) return;
@@ -1147,14 +1254,30 @@
 
                 recognition.onend = () => {
                     stopListening();
+                    setMicStoppingState(false);
+
+                    const query = searchInput ? searchInput.value.trim() : '';
+                    if (!hasPendingVoiceSearch() && query.length < 2) {
+                        resetMicToInitialState();
+                    }
                 };
 
                 const handleVoiceBtnClick = () => {
                     if (isListening) {
+                        setMicStoppingState(true);
                         stopListening();
+                        const query = searchInput ? searchInput.value.trim() : '';
+                        if (query.length < 2) {
+                            resetMicToInitialState();
+                        }
                         return;
                     }
                     if (hasPendingVoiceSearch()) {
+                        const query = searchInput ? searchInput.value.trim() : '';
+                        if (query.length < 2) {
+                            resetMicToInitialState();
+                            return;
+                        }
                         cancelPendingVoiceSearch();
                         return;
                     }
