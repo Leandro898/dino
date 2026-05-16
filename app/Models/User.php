@@ -45,4 +45,10 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         // Panel de vendedores (/panel): admin y vendor pueden entrar
         return in_array($this->role, ['admin', 'vendor']);
     }
+
+    // Relación: Un usuario (vendedor) tiene muchos productos
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

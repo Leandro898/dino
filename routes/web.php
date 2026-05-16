@@ -6,7 +6,10 @@ use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ShippingZoneController;
+use App\Http\Controllers\FoodVendorController;
+use App\Http\Controllers\DeliveryAppController;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Str;
 
 // Evita MethodNotAllowed cuando ngrok muestra su interstitial y envía POST a rutas de login.
@@ -46,6 +49,13 @@ Route::get('/categoria/{categorySlug}', [PublicProductController::class, 'carref
 // Home paralela estilo menu mobile (prueba)
 Route::view('/home-paralela', 'home-preview-glovo')->name('home.parallel');
 Route::view('/home-mic', 'home-mic')->name('home.mic');
+
+// Sección de Comidas - Vendedores y menú
+Route::get('/comidas', [FoodVendorController::class, 'index'])->name('food-vendors.index');
+Route::get('/comidas/{user}', [FoodVendorController::class, 'show'])
+    ->where('user', '[0-9]+')
+    ->name('food-vendors.show');
+
 // Categorías desde home-mic
 Route::get('/categoria/{slug}', function ($slug) {
     $categories = [
@@ -245,5 +255,14 @@ Route::post('/nave/webhook', [CheckoutController::class, 'handleNaveWebhook'])->
 
 // Esta es a la que vuelve el usuario después de pagar
 Route::get('/nave/callback', [CheckoutController::class, 'handleNaveCallback'])->name('nave.callback');
+
+// App de repartidores (MVP instalable tipo PWA)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/repartidor/app', [DeliveryAppController::class, 'index'])
+        ->name('delivery.app');
+
+    Route::get('/repartidor/pedidos/ultimo', [DeliveryAppController::class, 'latest'])
+        ->name('delivery.orders.latest');
+});
 
 require __DIR__ . '/auth.php';

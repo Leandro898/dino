@@ -25,9 +25,11 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('panel')
             ->login()
-            ->brandName('Baritienda — Panel de Vendedor')
+            ->brandName(fn () => auth()->check()
+                ? auth()->user()->name . ' — Panel de Vendedor'
+                : 'Baritienda — Panel de Vendedor')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => Color::Orange,
             ])
             ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\\Filament\\Client\\Resources')
             ->pages([

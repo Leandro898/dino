@@ -15,9 +15,9 @@ class ClientProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static ?string $navigationIcon = 'heroicon-o-fire';
 
-    protected static ?string $navigationLabel = 'Mis productos';
+    protected static ?string $navigationLabel = 'Mi menu';
 
     protected static ?string $modelLabel = 'Producto';
 
@@ -29,15 +29,33 @@ class ClientProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Nombre')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('price')
-                    ->label('Precio')
-                    ->numeric()
-                    ->prefix('$')
-                    ->required(),
+                Forms\Components\Section::make('Datos de la comida')
+                    ->description('Carga una foto, nombre y precio para publicar en la web.')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nombre')
+                            ->placeholder('Ej: Empanadas de carne x12')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('price')
+                            ->label('Precio')
+                            ->numeric()
+                            ->prefix('$')
+                            ->required(),
+                        Forms\Components\Textarea::make('description')
+                            ->label('Descripcion')
+                            ->placeholder('Ingredientes, cantidad y cualquier detalle importante del plato.')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Forms\Components\FileUpload::make('image')
+                            ->label('Foto del producto')
+                            ->image()
+                            ->disk('public')
+                            ->directory('products')
+                            ->visibility('public')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -45,10 +63,19 @@ class ClientProductResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Foto')
+                    ->square(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nombre')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('stock')
+                    ->label('Stock')
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Publicado')
+                    ->boolean(),
                 Tables\Columns\TextColumn::make('price')
                     ->label('Precio')
                     ->money('ARS')
