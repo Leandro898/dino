@@ -49,12 +49,14 @@
 
             <div class="w-full lg:w-5/12 xl:w-[40%]">
                 <div
-                    class="max-w-md lg:max-w-lg mx-auto rounded-3xl overflow-hidden bg-gray-100 dark:bg-[#1d1d1d] shadow-2xl">
+                    class="max-w-[360px] md:max-w-[420px] lg:max-w-[460px] mx-auto rounded-3xl overflow-hidden bg-gray-100 dark:bg-[#1d1d1d] shadow-2xl p-4 md:p-6">
                     @if ($product->image)
-                        <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
-                            class="w-full h-auto object-contain">
+                        <div class="h-[300px] md:h-[380px] lg:h-[440px] rounded-2xl bg-white/70 dark:bg-[#131313] flex items-center justify-center">
+                            <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
+                                class="max-h-[86%] max-w-[86%] w-auto h-auto object-contain">
+                        </div>
                     @else
-                        <div class="aspect-square flex items-center justify-center text-gray-400 italic bg-gray-200">
+                        <div class="h-[300px] md:h-[380px] lg:h-[440px] flex items-center justify-center text-gray-400 italic bg-gray-200 rounded-2xl">
                             Sin imagen disponible
                         </div>
                     @endif

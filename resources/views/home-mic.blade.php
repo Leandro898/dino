@@ -808,35 +808,6 @@
         </section>
     </main>
 
-    <div id="quickMenuBackdrop" class="quick-menu-backdrop" hidden></div>
-
-    <aside id="quickMenu" class="quick-menu" aria-label="Accesos rapidos">
-        <button id="quickMenuTrigger" class="quick-menu-trigger" type="button" aria-label="Abrir accesos rapidos"
-            aria-expanded="false" aria-controls="quickMenuItems">
-            ☰
-        </button>
-
-        <div id="quickMenuItems">
-            <button id="quickMenuVoiceAction" class="quick-menu-item is-voice" type="button" data-index="1"
-                data-action="voice" aria-label="Buscar por voz">
-                <span class="quick-menu-item-icon" aria-hidden="true">🎙️</span>
-                <span class="quick-menu-label">Buscar por voz</span>
-            </button>
-
-            <button class="quick-menu-item" type="button" data-index="2" data-menu-query="supermercado"
-                aria-label="Ir a Supermercado">
-                🛒
-                <span class="quick-menu-label">Supermercado</span>
-            </button>
-
-            <button class="quick-menu-item" type="button" data-index="3" data-menu-query="farmacia"
-                aria-label="Ir a Farmacia">
-                💊
-                <span class="quick-menu-label">Farmacia</span>
-            </button>
-        </div>
-    </aside>
-
     <script>
         (() => {
             const searchInput = document.getElementById('quickSearch');
@@ -844,7 +815,7 @@
             const resultsGallery = document.getElementById('searchResultsGallery');
             const searchEndpoint = '{{ route('home.search.products') }}';
             const pharmacyUrl = @json(route('categories.pharmacy'));
-            const supermarketsUrl = @json(route('categories.supermarkets'));
+            const almacenUrl = @json(route('categories.almacen'));
             const quickMenu = document.getElementById('quickMenu');
             const quickMenuTrigger = document.getElementById('quickMenuTrigger');
             const quickMenuBackdrop = document.getElementById('quickMenuBackdrop');
@@ -899,7 +870,7 @@
                     return;
                 }
 
-                window.location.href = supermarketsUrl;
+                window.location.href = almacenUrl;
             };
 
             const escapeHtml = (value) => (value || '')

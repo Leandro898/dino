@@ -29,21 +29,25 @@ Route::middleware('auth')->group(function () {
 // Home principal con catalogo completo (disponible en /catalogo)
 Route::get('/catalogo', [PublicProductController::class, 'index'])->name('catalog');
 
-// Home activa: home-mic
-Route::view('/', 'home-mic')->name('home');
+// Home principal: vista tipo app con accesos rápidos
+Route::view('/', 'home-preview-glovo')->name('home');
 Route::get('/home/buscar-productos', [PublicProductController::class, 'homeSearchProducts'])
     ->name('home.search.products');
 
-// Categoria interna: Supermercados (productos importados desde Carrefour Almacen)
-Route::get('/categoria/supermercados', [PublicProductController::class, 'supermarkets'])
-    ->name('categories.supermarkets');
+// Categoria interna: Almacén
+Route::get('/categoria/almacen', [PublicProductController::class, 'almacen'])
+    ->name('categories.almacen');
 
 // Categoria interna: Farmacia (productos importados desde PedidosYa)
 Route::get('/categoria/farmacia', [PublicProductController::class, 'pharmacy'])
     ->name('categories.pharmacy');
 
+// Bebidas de almacén.
+Route::get('/categoria/almacen/bebidas', [PublicProductController::class, 'almacenBeverages'])
+    ->name('categories.almacen.beverages');
+
 Route::get('/categoria/{categorySlug}', [PublicProductController::class, 'carrefourCategory'])
-    ->whereIn('categorySlug', ['almacen', 'desayuno-y-merienda'])
+    ->whereIn('categorySlug', ['desayuno-y-merienda'])
     ->name('categories.carrefour');
 
 // Home paralela estilo menu mobile (prueba)
@@ -56,7 +60,7 @@ Route::get('/comidas/{user}', [FoodVendorController::class, 'show'])
     ->where('user', '[0-9]+')
     ->name('food-vendors.show');
 
-// Categorías desde home-mic
+// Categorías desde la home principal
 Route::get('/categoria/{slug}', function ($slug) {
     $categories = [
         'comida' => 'Comida',
@@ -75,7 +79,7 @@ Route::get('/categoria/{slug}', function ($slug) {
     $categoryKeywords = [
         'comida' => ['comida', 'pan', 'pizza', 'empanada', 'hamburguesa', 'pollo', 'pastel', 'snack'],
         'regalos' => ['regalo', 'torta', 'cumpleaños', 'detalle', 'confitería'],
-        'super-hogar' => ['super', 'hogar', 'limpieza', 'almacén', 'leche', 'café', 'azúcar', 'aceite'],
+        'super-hogar' => ['super', 'hogar', 'limpieza', 'almacen', 'leche', 'cafe', 'azucar', 'aceite'],
         'farmacia' => ['farmacia', 'medicina', 'vitamina', 'analgésico', 'ibuprofeno', 'paracetamol'],
         'lo-que-sea' => [],
         'retira-envia' => ['envío', 'retiro'],

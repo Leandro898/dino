@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OrderItem;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
@@ -104,10 +105,29 @@ class PublicProductController extends Controller
         ]);
     }
 
+    public function almacen(Request $request): View
+    {
+        $search = trim((string) $request->string('q'));
+
+        $products = $this->masivoCatalogQuery(false)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('categories.almacen', [
+            'categoryTitle' => 'Almacén',
+            'categorySlug' => 'almacen',
+            'products' => $products,
+            'search' => $search,
+        ]);
+    }
+
     public function carrefourCategory(string $categorySlug, Request $request): View
     {
         $categoryMap = [
-            'almacen' => 'Supermercados',
             'desayuno-y-merienda' => 'Desayuno y merienda',
         ];
 
@@ -157,6 +177,24 @@ class PublicProductController extends Controller
         ]);
     }
 
+    public function almacenBeverages(Request $request): View
+    {
+        $search = trim((string) $request->string('q'));
+
+        $products = $this->masivoCatalogQuery(true)
+            ->when($search !== '', function (Builder $query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderBy('name')
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('categories.almacen-beverages', [
+            'products' => $products,
+            'search' => $search,
+        ]);
+    }
+
     public function homeSearchProducts(Request $request): JsonResponse
     {
         $search = trim((string) $request->string('q'));
@@ -201,7 +239,6 @@ class PublicProductController extends Controller
     private function detectCategory(string $name): string
     {
         $normalized = mb_strtolower($name);
-
         $rules = [
             'Cigarrillos' => ['cigarr', 'marlboro', 'box', '20', 'parisiennes', 'camel', 'philip morris'],
             'Bebidas' => ['coca', 'gaseosa', 'fernet', 'cerveza', 'vino', 'agua', 'sprite', 'pepsi', 'combo'],
@@ -220,6 +257,69 @@ class PublicProductController extends Controller
         return 'Otros';
     }
 
+    private function almacenBeverageKeywords(): array
+    {
+        return [
+            'agua',
+            'agua con gas',
+            'agua saborizada',
+            'aquarius',
+            'aperol',
+            'bebida',
+            'bebida deportiva',
+            'bebida energizante',
+            'bonaqua',
+            'branca',
+            'campari',
+            'cerveza',
+            'cinzano',
+            'coca',
+            'coca cola',
+            'coca-cola',
+            'coñac',
+            'cognac',
+            'energético',
+            'energetico',
+            'espumante',
+            'fanta',
+            'fernet',
+            'gancia',
+            'gaseosa',
+            'gaseos',
+            'gatorade',
+            'gin',
+            'isotonica',
+            'isotónica',
+            'jugo',
+            'licor',
+            'monster',
+            'moster',
+            'néctar',
+            'nectar',
+            'pepsi',
+            'powerade',
+            'red bull',
+            'refresco',
+            'ron',
+            'saborizada',
+            'schweppes',
+            'seven up',
+            'sidra',
+            'skyy',
+            'smirnoff',
+            'soda',
+            'sprite',
+            'tequila',
+            'tonica',
+            'tónica',
+            'vodka',
+            'vino',
+            'whiskey',
+            'whisky',
+            '7up',
+        ];
+    }
+
     private function determineCategoryLabel(Product $product): string
     {
         if ($product->external_source === 'carrefour' && filled($product->external_category)) {
@@ -233,9 +333,47 @@ class PublicProductController extends Controller
         return $this->detectCategory($product->name);
     }
 
+    private function masivoCatalogQuery(bool $beverages): Builder
+    {
+        $keywords = $this->almacenBeverageKeywords();
+
+        return Product::query()
+            ->where('user_id', 6)
+            ->where('is_active', true)
+            ->where(function (Builder $query) use ($keywords, $beverages) {
+                if ($beverages) {
+                    $query->whereIn('external_category', ['bebidas', 'drinks']);
+
+                    foreach ($keywords as $keyword) {
+                        $pattern = '%' . mb_strtolower($keyword) . '%';
+
+                        $query->orWhere(function (Builder $keywordQuery) use ($pattern) {
+                            $keywordQuery->whereRaw('LOWER(COALESCE(name, "")) LIKE ?', [$pattern])
+                                ->orWhereRaw('LOWER(COALESCE(description, "")) LIKE ?', [$pattern]);
+                        });
+                    }
+
+                    return;
+                }
+
+                $query->where(function (Builder $categoryQuery) {
+                    $categoryQuery->whereNull('external_category')
+                        ->orWhereNotIn('external_category', ['bebidas', 'drinks']);
+                });
+
+                foreach ($keywords as $keyword) {
+                    $pattern = '%' . mb_strtolower($keyword) . '%';
+
+                    $query->where(function (Builder $keywordQuery) use ($pattern) {
+                        $keywordQuery->whereRaw('LOWER(COALESCE(name, "")) NOT LIKE ?', [$pattern])
+                            ->whereRaw('LOWER(COALESCE(description, "")) NOT LIKE ?', [$pattern]);
+                    });
+                }
+            });
+    }
+
     public function show(Product $product)
     {
-        // Esto cargará automáticamente el producto por su ID gracias al Route Model Binding
         return view('products.show', compact('product'));
     }
 

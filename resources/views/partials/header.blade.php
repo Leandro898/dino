@@ -33,6 +33,8 @@
 
 </header>
 
+@include('partials.quick-menu')
+
 @if (!empty($supportWhatsAppUrl))
     <a href="{{ $supportWhatsAppUrl }}" target="_blank" rel="noopener noreferrer"
         aria-label="Contactar soporte por WhatsApp"

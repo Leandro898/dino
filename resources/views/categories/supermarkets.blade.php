@@ -23,7 +23,7 @@
             <h1 class="text-3xl font-black uppercase md:text-4xl">{{ $categoryTitle ?? 'Categoria' }}</h1>
 
             <form id="search-form" method="GET"
-                action="{{ $categorySlug === 'almacen' ? route('categories.supermarkets') : route('categories.carrefour', ['categorySlug' => $categorySlug]) }}"
+                action="{{ $categorySlug === 'almacen' ? route('categories.almacen') : route('categories.carrefour', ['categorySlug' => $categorySlug]) }}"
                 class="mt-5 max-w-xl">
                 <label for="supermarket-search" class="sr-only">Buscar productos de supermercado</label>
                 <div class="flex">
