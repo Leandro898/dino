@@ -241,7 +241,7 @@ class PublicProductController extends Controller
         $normalized = mb_strtolower($name);
         $rules = [
             'Cigarrillos' => ['cigarr', 'marlboro', 'box', '20', 'parisiennes', 'camel', 'philip morris'],
-            'Bebidas' => ['coca', 'gaseosa', 'fernet', 'cerveza', 'vino', 'agua', 'sprite', 'pepsi', 'combo'],
+            'Bebidas' => ['coca', 'gaseosa', 'fernet', 'cerveza', 'vino', 'agua', 'sprite', 'pepsi', 'gin', 'terma', 'combo'],
             'Accesorios' => ['encendedor', 'filtro', 'sedas', 'papelillo', 'pouch', 'boquilla', 'hielo'],
             'Snacks' => ['snack', 'papas', 'chocolate', 'caramelo', 'gallet', 'alfajor'],
         ];
@@ -310,6 +310,7 @@ class PublicProductController extends Controller
             'soda',
             'sprite',
             'tequila',
+            'terma',
             'tonica',
             'tónica',
             'vodka',

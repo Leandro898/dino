@@ -844,7 +844,7 @@
             const tiles = document.querySelectorAll('[data-query]');
             const resultsGallery = document.getElementById('searchResultsGallery');
             const searchEndpoint = '{{ route('home.search.products') }}';
-            const bebidasUrl = @json(route('catalog', ['q' => 'bebidas']));
+            const bebidasUrl = @json(route('categories.almacen.beverages'));
             const pharmacyUrl = @json(route('categories.pharmacy'));
             const almacenUrl = @json(route('categories.almacen'));
             const comidasUrl = @json(route('food-vendors.index'));
