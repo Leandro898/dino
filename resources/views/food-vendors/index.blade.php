@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $categoryName }} - {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        @media (max-width: 768px) {
+            .category-mobile-scroll-safe {
+                padding-bottom: calc(9rem + env(safe-area-inset-bottom)) !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 text-gray-900">
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="category-mobile-scroll-safe max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <a href="{{ route('home.mic') }}"

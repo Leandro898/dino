@@ -12,9 +12,16 @@ class EditOrder extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
+        $actions = [
             Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
+
+        // Agregar acción de confirmación si el pedido está pendiente
+        if ($this->record && $this->record->status === 'pending') {
+            $actions[] = \App\Filament\Resources\OrderResource\Actions\ConfirmOrderAction::make();
+        }
+
+        return $actions;
     }
 }

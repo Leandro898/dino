@@ -13,6 +13,11 @@ use Filament\Tables\Table;
 
 class StreetZoneResource extends Resource
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     protected static ?string $model = StreetZone::class;
 
     protected static ?string $navigationIcon  = 'heroicon-o-map-pin';

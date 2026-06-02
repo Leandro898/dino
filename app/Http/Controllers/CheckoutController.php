@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\Client\Payment\PaymentClient;
+use App\Events\NewOrderForVendor;
 
 class CheckoutController extends Controller
 {
@@ -29,11 +30,14 @@ class CheckoutController extends Controller
         $cart = $this->syncCartPrices(session()->get('cart', []));
         session()->put('cart', $cart);
 
-        $onlyMercadoPago = false;
+        $raffleOnlyMercadoPago = $this->cartContainsRaffle($cart);
+        $manualWhatsAppPaymentEnabled = !$raffleOnlyMercadoPago && $this->cartBelongsToMasivo($cart);
+        $onlyMercadoPago = !$raffleOnlyMercadoPago && !$manualWhatsAppPaymentEnabled;
 
         return view('checkout.index', [
             'shippingZones' => $this->shippingZones(),
-            'raffleOnlyMercadoPago' => $this->cartContainsRaffle($cart),
+            'raffleOnlyMercadoPago' => $raffleOnlyMercadoPago,
+            'manualWhatsAppPaymentEnabled' => $manualWhatsAppPaymentEnabled,
             'onlyMercadoPago' => $onlyMercadoPago,
             'freeShippingForSpecificRaffle' => $this->isSpecificRaffleFreeShippingCart($cart),
         ]);
@@ -54,12 +58,13 @@ class CheckoutController extends Controller
         }
 
         $raffleOnlyMercadoPago = $this->cartContainsRaffle($cart);
-        $onlyMercadoPago = false;
+        $manualWhatsAppPaymentEnabled = !$raffleOnlyMercadoPago && $this->cartBelongsToMasivo($cart);
+        $onlyMercadoPago = !$raffleOnlyMercadoPago && !$manualWhatsAppPaymentEnabled;
         $freeShippingForSpecificRaffle = $this->isSpecificRaffleFreeShippingCart($cart);
         $shippingZones = $this->shippingZones();
         $allowedPaymentMethods = $raffleOnlyMercadoPago
             ? ['mercadopago']
-            : ['mercadopago', 'transferencia'];
+            : ($manualWhatsAppPaymentEnabled ? ['mercadopago', 'transferencia'] : ['mercadopago']);
 
         $request->validate([
             'name'          => 'required|string|max:255',
@@ -207,9 +212,9 @@ class CheckoutController extends Controller
             }
 
             // Crear la Orden
-            $orderStatus = $paymentMethod === 'transferencia'
-                ? 'pending_transfer'
-                : 'pending';
+
+            // Todos los pedidos nuevos quedan como 'pending' (solo admin los ve)
+            $orderStatus = 'pending';
 
             $order = Order::create([
                 'user_id' => Auth::id(),
@@ -261,6 +266,13 @@ class CheckoutController extends Controller
 
                 session()->forget('cart');
                 $this->flashCheckoutSuccess($order);
+
+                if ($paymentMethod === 'transferencia') {
+                    $whatsAppUrl = $this->buildManualPaymentWhatsAppUrl($order);
+                    if ($whatsAppUrl) {
+                        session()->put('whatsAppUrl', $whatsAppUrl);
+                    }
+                }
 
                 return redirect()->route('checkout.success');
             }
@@ -582,9 +594,57 @@ class CheckoutController extends Controller
         return match ($paymentMethod) {
             'mercadopago' => 'Mercado Pago',
             'efectivo' => 'Efectivo al entregar',
-            'transferencia' => 'Transferencia bancaria',
+            'transferencia' => 'Efectivo o transferencia por WhatsApp',
             default => 'No informado',
         };
+    }
+
+    private function cartBelongsToMasivo(array $cart): bool
+    {
+        // Ahora habilitado para todos los vendedores
+        return true;
+    }
+
+    private function buildManualPaymentWhatsAppUrl(Order $order): ?string
+    {
+        $supportWhatsApp = preg_replace('/\D+/', '', (string) (config('services.support.whatsapp_number') ?: ''));
+        $bankTransferWhatsApp = preg_replace('/\D+/', '', (string) (config('services.bank_transfer.whatsapp_number') ?: ''));
+        $whatsAppNumber = $bankTransferWhatsApp ?: $supportWhatsApp;
+
+        if (empty($whatsAppNumber)) {
+            return null;
+        }
+
+        $order->loadMissing('items.product');
+
+        $lines = [
+            'Hola! Quiero confirmar mi pedido #' . $order->id . '.',
+            'Quiero coordinar el pago por efectivo o transferencia.',
+            '',
+            'Detalle del carrito:',
+        ];
+
+        foreach ($order->items as $item) {
+            $name = $item->product?->name ?? 'Producto';
+            $quantity = (int) $item->quantity;
+            $subtotal = number_format((float) $item->subtotal, 0, ',', '.');
+            $lines[] = '- ' . $name . ' x' . $quantity . ' ($' . $subtotal . ')';
+        }
+
+        $subtotalProducts = number_format((float) $order->total - (float) $order->shipping_cost, 0, ',', '.');
+        $shippingCost = number_format((float) $order->shipping_cost, 0, ',', '.');
+        $total = number_format((float) $order->total, 0, ',', '.');
+
+        $lines[] = '';
+        $lines[] = 'Subtotal productos: $' . $subtotalProducts;
+        $lines[] = 'Envio: $' . $shippingCost;
+        $lines[] = 'Total: $' . $total;
+        $lines[] = '';
+        $lines[] = 'Nombre: ' . $order->name;
+        $lines[] = 'Telefono: ' . $order->phone;
+        $lines[] = 'Direccion: ' . ($order->address ?: 'Sin direccion');
+
+        return 'https://wa.me/' . $whatsAppNumber . '?text=' . urlencode(implode("\n", $lines));
     }
 
     private function cartContainsRaffle(array $cart): bool

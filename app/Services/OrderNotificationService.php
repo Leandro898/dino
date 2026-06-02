@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Notifications\FilamentOrderNotification;
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -10,6 +13,33 @@ use App\Mail\AdminOrderNotification;
 
 class OrderNotificationService
 {
+    /**
+     * Notifica al vendedor cuando el admin confirma el pedido.
+     */
+    public function notifyVendorOrderAssigned(Order $order): void
+    {
+        Log::info('Notificando asignacion de pedido', ['order_id' => $order->id, 'vendor_id' => $order->user_id]);
+        
+        if ($order->user) {
+            // Usamos nuestra clase de notificación personalizada
+            $order->user->notify(new FilamentOrderNotification($order));
+        }
+
+        // Aquí puedes implementar la lógica de notificación al vendedor (email, Telegram, etc.)
+        // Ejemplo: enviar email al usuario dueño del producto
+        if ($order->user && !empty($order->user->email)) {
+            try {
+                Mail::to($order->user->email)
+                    ->send(new \App\Mail\VendorOrderAssigned($order));
+            } catch (\Throwable $e) {
+                Log::error('Error enviando notificación de pedido asignado al vendedor.', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+        // Aquí podrías agregar notificación por Telegram, push, etc.
+    }
     public function notifyNewOrder(Order $order): void
     {
         if ($this->canSendSms()) {

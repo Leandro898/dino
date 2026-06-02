@@ -8,6 +8,11 @@ use Filament\Widgets\Widget;
 
 class OrderNotificationWidget extends Widget
 {
+    public static function shouldRegister(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     protected static string $view = 'filament.widgets.order-notification-widget';
 
     public int $pendingOrdersCount = 0;

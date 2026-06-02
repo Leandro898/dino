@@ -15,11 +15,9 @@
 
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20">
+    <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20 pb-36 md:pb-10">
 
-        <h1 class="text-4xl font-black dark:text-white uppercase mb-10 tracking-tighter">
-            Checkout
-        </h1>
+
 
         @php $total = 0; @endphp
 
@@ -123,15 +121,7 @@
                             Método de pago
                         </h2>
 
-                        @if (!empty($raffleOnlyMercadoPago))
-                            <div class="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-800 px-4 py-3 text-sm font-medium">
-                                Este pedido incluye un numero de sorteo. Solo está disponible Mercado Pago.
-                            </div>
-                        @elseif (empty($onlyMercadoPago))
-                            <div class="mb-4 rounded-xl border border-cyan-200 bg-cyan-50 text-cyan-900 px-4 py-3 text-sm font-medium">
-                                También podés pagar por transferencia. Al finalizar, te mostramos CBU/Alias y botón de WhatsApp para enviar el comprobante.
-                            </div>
-                        @endif
+
 
                         <div class="space-y-4">
 
@@ -142,18 +132,18 @@
                                 <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                 <span>
                                     <span class="block font-semibold dark:text-white">Mercado Pago</span>
-                                    <span class="block text-sm text-gray-500 dark:text-gray-400">Pagás online en el momento y la orden queda confirmada cuando Mercado Pago aprueba el pago.</span>
+                                    <span class="block text-sm text-gray-500 dark:text-gray-400">Pagás online en el momento con tarjeta, débito, crédito o dinero en cuenta. La orden queda confirmada cuando Mercado Pago aprueba el pago.</span>
                                 </span>
                             </label>
 
-                            @if (empty($raffleOnlyMercadoPago) && empty($onlyMercadoPago))
+                            @if (empty($raffleOnlyMercadoPago) && !empty($manualWhatsAppPaymentEnabled))
                                 <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
                                     <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
                                         {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
                                     <span id="dot-transferencia" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                     <span>
-                                        <span class="block font-semibold dark:text-white">Transferencia bancaria (manual)</span>
-                                        <span class="block text-sm text-gray-500 dark:text-gray-400">El pedido queda pendiente de pago. Te mostramos CBU/Alias y botón de WhatsApp para enviar el comprobante.</span>
+                                        <span class="block font-semibold dark:text-white">Efectivo o transferencia por WhatsApp</span>
+                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Te redirigimos a WhatsApp con el detalle del pedido para coordinar el pago y la entrega.</span>
                                     </span>
                                 </label>
                             @endif
@@ -241,7 +231,7 @@
                         </div>
 
                         <button type="submit"
-                            class="w-full mt-8 bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm">
+                            class="w-full mt-8 bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm mb-36 md:mb-0">
                             Confirmar pedido
                         </button>
 

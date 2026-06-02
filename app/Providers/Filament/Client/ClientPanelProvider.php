@@ -12,6 +12,7 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Http\Middleware\InjectFilamentNotificationScripts;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
@@ -21,33 +22,14 @@ class ClientPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // Mínima expresión: solo lo esencial para login y dashboard
         return $panel
+            //->default() // Ya no es default, así / no es del panel
             ->id('client')
-            ->path('panel')
+            ->path('panel') // Ahora el panel de vendors está en /panel
             ->login()
-            ->brandName(fn () => auth()->check()
-                ? auth()->user()->name . ' — Panel de Vendedor'
-                : 'Baritienda — Panel de Vendedor')
-            ->colors([
-                'primary' => Color::Orange,
-            ])
-            ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\\Filament\\Client\\Resources')
             ->pages([
                 Pages\Dashboard::class,
-            ])
-            ->middleware([
-                EncryptCookies::class,
-                AddQueuedCookiesToResponse::class,
-                StartSession::class,
-                AuthenticateSession::class,
-                ShareErrorsFromSession::class,
-                VerifyCsrfToken::class,
-                SubstituteBindings::class,
-                DisableBladeIconComponents::class,
-                DispatchServingFilamentEvent::class,
-            ])
-            ->authMiddleware([
-                Authenticate::class,
             ]);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
@@ -15,6 +14,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProductResource extends Resource
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        // Mostrar productos solo a admin y vendors
+        return $user && in_array($user->role, ['admin', 'vendor']);
+    }
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -59,7 +64,7 @@ class ProductResource extends Resource
                 // Muestra el precio formateado
                 Tables\Columns\TextColumn::make('price')
                     ->label('Precio')
-                    ->money('usd')
+                    ->money('ARS')
                     ->sortable(),
 
                 // Muestra el stock
@@ -102,5 +107,14 @@ class ProductResource extends Resource
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
+    }
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        $query = parent::getEloquentQuery();
+        if ($user && $user->role === 'vendor') {
+            return $query->where('user_id', $user->id);
+        }
+        return $query;
     }
 }

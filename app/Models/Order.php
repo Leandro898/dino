@@ -30,4 +30,13 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    protected static function booted()
+    {
+        static::updated(function ($order) {
+            if ($order->wasChanged('status') && $order->status === 'assigned') {
+                app(\App\Services\OrderNotificationService::class)->notifyVendorOrderAssigned($order);
+            }
+        });
+    }
 }

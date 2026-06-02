@@ -12,6 +12,11 @@ use Filament\Pages\Page;
 
 class PriceControl extends Page implements HasForms
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';

@@ -41,8 +41,8 @@ class ClientOrderResource extends Resource
                         Forms\Components\Select::make('status')
                             ->label('Estado')
                             ->options([
-                                'pending' => 'Pendiente',
-                                'processing' => 'En preparacion',
+                                'assigned' => 'Asignado',
+                                'processing' => 'En preparación',
                                 'completed' => 'Completado',
                                 'cancelled' => 'Cancelado',
                             ])
@@ -99,7 +99,7 @@ class ClientOrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return $table->poll('2s')
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('#')
@@ -111,7 +111,7 @@ class ClientOrderResource extends Resource
                     ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
+                        'assigned' => 'info',
                         'processing' => 'info',
                         'completed' => 'success',
                         'cancelled' => 'danger',
@@ -132,8 +132,8 @@ class ClientOrderResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'pending' => 'Pendiente',
-                        'processing' => 'En preparacion',
+                        'assigned' => 'Asignado',
+                        'processing' => 'En preparación',
                         'completed' => 'Completado',
                         'cancelled' => 'Cancelado',
                     ]),
@@ -148,7 +148,10 @@ class ClientOrderResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('user_id', auth()->id());
+            ->where('status', 'assigned')
+            ->whereHas('items.product', function ($q) {
+                $q->where('user_id', auth()->id());
+            });
     }
 
     public static function getPages(): array

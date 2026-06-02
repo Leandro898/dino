@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 class OrderResource extends Resource
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        // Solo vendors y admin ven ventas
+        return $user && in_array($user->role, ['admin', 'vendor']);
+    }
     protected static ?string $model = Order::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
@@ -29,110 +35,41 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Group::make()
-                    ->schema([
-                        Forms\Components\Section::make('Order Details')
-                            ->schema([
-                                Forms\Components\Select::make('user_id')
-                                    ->relationship('user', 'name')
-                                    ->disabled(),
-
-                                Forms\Components\Select::make('status')
-                                    ->options([
-                                        'pending' => 'Pending',
-                                        'pending_transfer' => 'Pendiente de transferencia',
-                                        'proof_sent' => 'Comprobante enviado',
-                                        'processing' => 'Processing',
-                                        'paid_confirmed' => 'Pago confirmado',
-                                        'completed' => 'Completed',
-                                        'shipped' => 'Shipped',
-                                        'cancelled' => 'Cancelled',
-                                    ])
-                                    ->required(),
-                                
-                                Forms\Components\TextInput::make('total')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->disabled(),
-
-                                Forms\Components\TextInput::make('payment_method')
-                                    ->label('Payment Method')
-                                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                                        'mercadopago' => 'Mercado Pago',
-                                        'efectivo' => 'Efectivo al entregar',
-                                        'transferencia' => 'Transferencia bancaria',
-                                        default => $state ?? 'No informado',
-                                    })
-                                    ->disabled(),
-
-                                Forms\Components\TextInput::make('shipping_zone')
-                                    ->label('Shipping Zone')
-                                    ->disabled(),
-
-                                Forms\Components\TextInput::make('shipping_cost')
-                                    ->label('Shipping Cost')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->disabled(),
-
-                                Forms\Components\Textarea::make('address')
-                                    ->columnSpanFull()
-                                    ->disabled(),
-                            ])->columns(2),
-
-                        Forms\Components\Section::make('Order Items')
-                            ->schema([
-                                Forms\Components\Repeater::make('items')
-                                    ->relationship()
-                                    ->schema([
-                                        Forms\Components\Select::make('product_id')
-                                            ->relationship('product', 'name')
-                                            ->disabled(),
-                                        Forms\Components\TextInput::make('quantity')
-                                            ->numeric()
-                                            ->disabled(),
-                                        Forms\Components\TextInput::make('price')
-                                            ->numeric()
-                                            ->prefix('$')
-                                            ->disabled(),
-                                    ])
-                                    ->columns(3)
-                                    ->disabled(),
-                            ]),
-                    ])->columnSpanFull()
+                Forms\Components\TextInput::make('id')->label('ID')->disabled(),
+                Forms\Components\Select::make('status')
+                    ->options(function () {
+                        $user = auth()->user();
+                        if ($user && $user->role === 'admin') {
+                            return [
+                                'pending' => 'Pendiente',
+                                'assigned' => 'Asignado',
+                                'pending_transfer' => 'Pendiente de transferencia',
+                                'proof_sent' => 'Comprobante enviado',
+                                'processing' => 'En preparación',
+                                'paid_confirmed' => 'Pago confirmado',
+                                'completed' => 'Completado',
+                                'shipped' => 'Enviado',
+                                'cancelled' => 'Cancelado',
+                            ];
+                        }
+                        
+                        // Opciones para el Vendedor
+                        return [
+                            'assigned' => 'Asignado',
+                            'processing' => 'En preparación',
+                            'shipped' => 'Listo para retirar/enviado',
+                        ];
+                    })
+                    ->disabled(fn ($record) => auth()->user()->role !== 'admin' && $record?->status === 'pending')
+                    ->required(),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->poll('10s')
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('Order ID')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Customer')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pending_transfer' => 'Pendiente transferencia',
-                        'proof_sent' => 'Comprobante enviado',
-                        'paid_confirmed' => 'Pago confirmado',
-                        default => str_replace('_', ' ', ucfirst($state)),
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'pending_transfer' => 'warning',
-                        'proof_sent' => 'info',
-                        'processing' => 'info',
-                        'paid_confirmed' => 'success',
-                        'completed' => 'success',
-                        'shipped' => 'primary',
-                        'cancelled' => 'danger',
-                        default => 'gray',
-                    })
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('payment_method')
                     ->label('Payment')
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
@@ -156,9 +93,8 @@ class OrderResource extends Resource
                     ->money('ARS')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total')
-                    ->numeric()
                     ->sortable()
-                    ->money('USD'),
+                    ->money('ARS'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -167,18 +103,47 @@ class OrderResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\SelectColumn::make('status')
+                    ->label('Estado')
+                    ->options(function () {
+                        $user = auth()->user();
+                        if ($user && $user->role === 'admin') {
+                            return [
+                                'pending' => 'Pendiente',
+                                'assigned' => 'Asignado',
+                                'pending_transfer' => 'Pendiente de transferencia',
+                                'proof_sent' => 'Comprobante enviado',
+                                'processing' => 'En preparación',
+                                'paid_confirmed' => 'Pago confirmado',
+                                'completed' => 'Completado',
+                                'shipped' => 'Enviado',
+                                'cancelled' => 'Cancelado',
+                            ];
+                        }
+                        
+                        return [
+                            'assigned' => 'Asignado',
+                            'processing' => 'En preparación',
+                            'shipped' => 'Listo para retirar/enviado',
+                        ];
+                    })
+                    ->selectablePlaceholder(false)
+                    ->disabled(fn ($record) => auth()->user()->role !== 'admin' && $record?->status === 'pending')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
-                        'pending' => 'Pending',
+                        'pending' => 'Pendiente',
+                        'assigned' => 'Asignado',
                         'pending_transfer' => 'Pendiente de transferencia',
                         'proof_sent' => 'Comprobante enviado',
-                        'processing' => 'Processing',
+                        'processing' => 'En preparación',
                         'paid_confirmed' => 'Pago confirmado',
-                        'completed' => 'Completed',
-                        'shipped' => 'Shipped',
-                        'cancelled' => 'Cancelled',
+                        'completed' => 'Completado',
+                        'shipped' => 'Enviado',
+                        'cancelled' => 'Cancelado',
                     ]),
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->options([
@@ -213,5 +178,20 @@ class OrderResource extends Resource
             'view' => Pages\ViewOrder::route('/{record}'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        // Si es admin, ve todos los pedidos
+        if ($user && $user->role === 'admin') {
+            return parent::getEloquentQuery();
+        }
+        // Si es vendedor, ve solo los pedidos que ya están ASIGNADOS y le pertenecen
+        return parent::getEloquentQuery()
+            ->where('status', '!=', 'pending')
+            ->whereHas('items.product', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
     }
 }

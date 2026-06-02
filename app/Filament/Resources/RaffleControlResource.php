@@ -14,6 +14,11 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RaffleControlResource extends Resource
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     protected static ?string $model = OrderItem::class;
 
     protected static ?string $modelLabel = 'Venta de sorteo';

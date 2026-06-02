@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OrderItemResource extends Resource
 {
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     protected static ?string $modelLabel = 'Venta';
     protected static ?string $pluralModelLabel = 'Ventas';
     protected static ?string $navigationLabel = 'Ventas';

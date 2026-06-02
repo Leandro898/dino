@@ -11,10 +11,11 @@ use App\Http\Controllers\DeliveryAppController;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Str;
+use App\Events\NewOrderForVendor;
 
 // Evita MethodNotAllowed cuando ngrok muestra su interstitial y envía POST a rutas de login.
 Route::post('/admin/login', fn() => redirect()->to(url('/admin/login')));
-Route::post('/panel/login', fn() => redirect()->to(url('/panel/login')));
+// Route::post('/panel/login', fn() => redirect()->to(url('/panel/login'))); // ¡NO ACTIVAR! Esto rompe el login de Filament Panel
 
 Route::get('/dashboard', function () {
     return view('dashboard');

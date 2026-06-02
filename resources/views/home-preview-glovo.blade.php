@@ -49,7 +49,7 @@
             min-height: calc(100vh - 84px);
             display: grid;
             align-content: center;
-            padding: 1.2rem 1rem 2rem;
+            padding: 1.2rem 1rem calc(6.5rem + env(safe-area-inset-bottom));
         }
 
         .panel {
@@ -670,7 +670,7 @@
             main {
                 width: 100%;
                 align-content: start;
-                padding: 1rem 0.8rem 1.7rem;
+                padding: 1rem 0.8rem calc(10rem + env(safe-area-inset-bottom));
             }
 
             .panel {
@@ -809,7 +809,7 @@
             <div class="tiles">
                 <button class="tile tile-primary" type="button" data-query="bebidas">
                     <span class="tile-icon-wrap">
-                        <span class="tile-icon" aria-hidden="true">🥤</span>
+                        <span class="tile-icon" aria-hidden="true">🍾</span>
                     </span>
                     <span class="tile-label">Bebidas</span>
                 </button>

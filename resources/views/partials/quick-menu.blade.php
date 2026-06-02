@@ -27,7 +27,7 @@
         @unless ($isBebidas)
             <a href="{{ route('categories.almacen.beverages') }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
                 aria-label="Ir a Bebidas">
-                <span class="quick-menu-item-icon" aria-hidden="true">🥤</span>
+                <span class="quick-menu-item-icon" aria-hidden="true">🍾</span>
                 <span class="quick-menu-label">Bebidas</span>
             </a>
         @endunless

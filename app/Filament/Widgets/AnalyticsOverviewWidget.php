@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\DB;
 
 class AnalyticsOverviewWidget extends Widget
 {
+    public static function shouldRegister(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     protected static string $view = 'filament.widgets.analytics-overview-widget';
 
     protected static ?int $sort = 1;

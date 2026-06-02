@@ -11,7 +11,7 @@
 <body class="bg-gray-100 text-gray-900">
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-[calc(13rem+env(safe-area-inset-bottom))] md:pb-10">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <a href="{{ route('home.mic') }}"

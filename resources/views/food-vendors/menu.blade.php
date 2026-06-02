@@ -11,7 +11,7 @@
 <body class="bg-gray-100 text-gray-900">
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-[calc(13rem+env(safe-area-inset-bottom))] md:pb-10">
         <!-- Header compacto del lugar -->
         <div class="mb-6">
             <a href="{{ route('food-vendors.index') }}"
@@ -25,11 +25,11 @@
         <!-- Grid de productos/menú -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse ($products as $product)
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                <a href="{{ route('products.show', $product->slug) }}" class="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500">
                     <!-- Imagen del producto -->
                     <div class="aspect-square bg-gray-200 flex items-center justify-center overflow-hidden">
                         @if ($product->image)
-                            <img src="{{ $product->image }}" alt="{{ $product->name }}"
+                            <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
                                 class="w-full h-full object-cover hover:scale-110 transition duration-300">
                         @else
                             <div class="text-gray-400 text-center">
@@ -53,15 +53,11 @@
                         @endif
 
                         <div class="flex items-center justify-between">
-                            <span
-                                class="text-purple-600 font-bold text-lg">${{ number_format($product->price, 0, ',', '.') }}</span>
-                            <a href="{{ route('products.show', $product->slug) }}"
-                                class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
-                                Pedir
-                            </a>
+                            <span class="text-purple-600 font-bold text-lg">${{ number_format($product->price, 0, ',', '.') }}</span>
+                            <span class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer select-none">Pedir</span>
                         </div>
                     </div>
-                </div>
+                </a>
             @empty
                 <div class="col-span-full text-center py-12">
                     <p class="text-gray-500 text-lg">No hay productos disponibles</p>

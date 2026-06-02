@@ -13,7 +13,7 @@
 
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20">
+    <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20 pb-36 md:pb-10">
 
         <h1 class="text-4xl font-black dark:text-white uppercase mb-10 tracking-tighter">
             Tu Carrito
@@ -131,7 +131,7 @@
                     </div>
 
                     <a href="{{ route('checkout.index') }}"
-                        class="checkout-button block w-full text-center bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm">
+                        class="checkout-button block w-full text-center bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm mb-36 md:mb-0">
                         Finalizar Compra
                     </a>
 

@@ -11,13 +11,21 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.ga4')
+
+    <style>
+        @media (max-width: 768px) {
+            .category-mobile-scroll-safe {
+                padding-bottom: calc(9rem + env(safe-area-inset-bottom)) !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
 
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-4 py-8 md:px-10 lg:px-20 md:py-10">
+    <main class="category-mobile-scroll-safe max-w-7xl mx-auto px-4 py-8 md:px-10 lg:px-20 md:py-10">
         <section
             class="rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 px-6 py-8 text-white shadow-xl md:px-8">
             <h1 class="text-3xl font-black uppercase md:text-4xl">{{ $categoryTitle ?? 'Categoria' }}</h1>
