@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BroadcastAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicProductController;
 use App\Http\Controllers\CartController;
@@ -8,10 +9,19 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ShippingZoneController;
 use App\Http\Controllers\FoodVendorController;
 use App\Http\Controllers\DeliveryAppController;
+use App\Http\Controllers\DebugBroadcastController;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Str;
 use App\Events\NewOrderForVendor;
+
+// Broadcasting auth endpoint for Reverb
+Route::post('/broadcasting/auth', [BroadcastAuthController::class, 'auth'])->middleware('auth');
+
+// DEBUG endpoints (remove in production)
+Route::get('/debug/broadcast-config', [DebugBroadcastController::class, 'showConfig'])->middleware('auth');
+Route::post('/debug/broadcast-auth', [DebugBroadcastController::class, 'testAuth'])->middleware('auth');
+Route::post('/debug/broadcast-event', [DebugBroadcastController::class, 'testEvent'])->middleware('auth');
 
 // Evita MethodNotAllowed cuando ngrok muestra su interstitial y envía POST a rutas de login.
 Route::post('/admin/login', fn() => redirect()->to(url('/admin/login')));

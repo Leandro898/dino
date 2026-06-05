@@ -44,48 +44,45 @@
 
     @include('partials.header')
 
-    <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20">
-        <div class="flex flex-col lg:flex-row gap-12 xl:gap-20 lg:items-start">
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10 lg:py-20 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-10">
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-20 lg:items-start">
 
             <div class="w-full lg:w-5/12 xl:w-[40%]">
-                <div
-                    class="max-w-[360px] md:max-w-[420px] lg:max-w-[460px] mx-auto rounded-3xl overflow-hidden bg-gray-100 dark:bg-[#1d1d1d] shadow-2xl p-4 md:p-6">
-                    @if ($product->image)
-                        <div class="h-[300px] md:h-[380px] lg:h-[440px] rounded-2xl bg-white/70 dark:bg-[#131313] flex items-center justify-center">
-                            <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
-                                class="max-h-[86%] max-w-[86%] w-auto h-auto object-contain">
-                        </div>
-                    @else
-                        <div class="h-[300px] md:h-[380px] lg:h-[440px] flex items-center justify-center text-gray-400 italic bg-gray-200 rounded-2xl">
-                            Sin imagen disponible
-                        </div>
-                    @endif
-                </div>
+                @if ($product->image)
+                    <div class="h-[380px] md:h-[420px] lg:h-[480px] rounded-2xl md:rounded-3xl overflow-hidden flex items-center justify-center">
+                        <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
+                            class="w-full h-full object-contain">
+                    </div>
+                @else
+                    <div class="h-[380px] md:h-[420px] lg:h-[480px] flex items-center justify-center text-gray-400 italic bg-gray-200 rounded-2xl md:rounded-3xl">
+                        Sin imagen disponible
+                    </div>
+                @endif
             </div>
 
             <div class="w-full lg:w-7/12 xl:w-[60%] flex flex-col">
-                <div class="w-full max-w-2xl mx-auto lg:mx-0">
+                <div class="w-full lg:max-w-2xl lg:mx-0">
                     <div class="mb-6">
-                        <h1 class="text-4xl md:text-5xl font-black dark:text-white uppercase leading-none mb-4">
+                        <h1 class="text-3xl md:text-4xl lg:text-5xl font-black dark:text-white uppercase leading-tight mb-4">
                             {{ $product->name }}
                         </h1>
                     </div>
 
                     <div
-                        class="bg-gray-50 dark:bg-[#161615] p-6 rounded-3xl mb-8 border border-gray-100 dark:border-white/5">
+                        class="bg-gray-50 dark:bg-[#161615] p-5 md:p-6 rounded-2xl md:rounded-3xl mb-8 border border-gray-100 dark:border-white/5">
                         <div class="flex items-end gap-2 mb-2">
-                            <span class="text-4xl font-black text-black dark:text-white">
+                            <span class="text-3xl md:text-4xl font-black text-black dark:text-white">
                                 ${{ number_format($product->adjusted_price, 0, ',', '.') }}
                             </span>
-                            <span class="text-sm font-bold text-gray-400 uppercase mb-1">ARS</span>
+                            <span class="text-xs md:text-sm font-bold text-gray-400 uppercase mb-1">ARS</span>
                         </div>
                         <p class="text-xs text-gray-500 font-bold uppercase tracking-tight">Precio final sin comisiones
                         </p>
                     </div>
 
-                    <div class="mb-10">
-                        <h2 class="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">Descripción</h2>
-                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl">
+                    <div class="mb-8 md:mb-10">
+                        <h2 class="text-xs md:text-sm font-bold uppercase tracking-widest text-gray-400 mb-3">Descripción</h2>
+                        <p class="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl">
                             {{ filled($product->description) ? $product->description : 'El vendedor no ha proporcionado una descripción detallada para este producto.' }}
                         </p>
                     </div>
@@ -167,7 +164,7 @@
         </div>
     </main>
 
-    <footer class="py-10 text-center text-sm text-[#706f6c] border-t border-gray-100 dark:border-white/5">
+    <footer class="py-10 text-center text-sm text-[#706f6c] border-t border-gray-100 dark:border-white/5 mb-32 md:mb-0">
         &copy; {{ date('Y') }} Marketplace Bariloche
     </footer>
 

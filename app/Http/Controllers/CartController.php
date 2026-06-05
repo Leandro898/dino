@@ -14,7 +14,8 @@ class CartController extends Controller
         $cart = $this->syncCartPrices(session()->get('cart', []));
         session()->put('cart', $cart);
 
-        return view('cart', compact('cart'));
+        // Redirigir directamente a checkout en lugar de mostrar la página de carrito
+        return redirect()->route('checkout.index');
     }
 
     public function add(Product $product)
@@ -62,7 +63,7 @@ class CartController extends Controller
                 ]);
             }
 
-            return redirect()->route('cart.index');
+            return redirect()->route('checkout.index');
         }
 
         $itemKey = (string) $product->id;
@@ -90,7 +91,7 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->route('cart.index');
+        return redirect()->route('checkout.index');
     }
 
     public function update(Request $request, $id)

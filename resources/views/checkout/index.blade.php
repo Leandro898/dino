@@ -43,8 +43,95 @@
 
             <div class="grid lg:grid-cols-3 gap-10">
 
-                <!-- DATOS DEL COMPRADOR -->
+                <!-- DATOS DEL COMPRADOR + CARRITO -->
                 <div class="lg:col-span-2 space-y-8">
+
+                    <!-- RESUMEN DEL CARRITO EDITABLE (NUEVO) -->
+                    @php $cart = session()->get('cart', []); @endphp
+                    @if (!empty($cart))
+                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
+                        <h2 class="text-xl font-bold mb-6 dark:text-white">
+                            📦 Tu Pedido
+                        </h2>
+
+                        <div class="hidden md:grid grid-cols-6 font-bold text-sm uppercase tracking-widest text-gray-400 pb-4 border-b">
+                            <div class="col-span-3">Producto</div>
+                            <div>Precio</div>
+                            <div>Cantidad</div>
+                            <div>Subtotal</div>
+                        </div>
+
+                        @foreach ($cart as $id => $details)
+                            @php
+                                $subtotal = $details['price'] * $details['quantity'];
+                                $total += $subtotal;
+                            @endphp
+
+                            <div class="grid grid-cols-1 md:grid-cols-6 items-center gap-4 py-6 border-b last:border-0">
+                                <!-- PRODUCTO -->
+                                <div class="md:col-span-3 flex items-center gap-4">
+                                    @if ($details['image'])
+                                        <img src="{{ asset('storage/' . $details['image']) }}"
+                                            class="w-20 h-20 object-cover rounded-xl">
+                                    @endif
+
+                                    <div>
+                                        <h3 class="font-bold dark:text-white text-sm md:text-base">
+                                            {{ $details['name'] }}
+                                        </h3>
+
+                                        @if (!empty($details['is_raffle']) && !empty($details['raffle_number']))
+                                            <p class="text-xs text-indigo-600 font-semibold mt-1">
+                                                Nro: {{ $details['raffle_number'] }}
+                                            </p>
+                                        @endif
+
+                                        <form action="{{ route('cart.remove', $id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-xs text-gray-400 hover:text-red-500 mt-2">
+                                                ❌ Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- PRECIO -->
+                                <div class="font-semibold text-sm md:text-base">
+                                    ${{ number_format($details['price'], 0, ',', '.') }}
+                                </div>
+
+                                <!-- CANTIDAD -->
+                                <div class="flex items-center gap-2">
+                                    @if (!empty($details['is_raffle']))
+                                        <span class="text-sm font-semibold">1</span>
+                                    @else
+                                        <form action="{{ route('cart.update', $id) }}" method="POST" class="flex items-center gap-2">
+                                            @csrf
+                                            <button type="button" onclick="decreaseQuantity(this)"
+                                                class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
+                                                −
+                                            </button>
+                                            <input type="hidden" name="quantity" class="quantity-input"
+                                                value="{{ $details['quantity'] }}">
+                                            <span class="quantity-display w-6 text-center font-semibold text-sm">{{ $details['quantity'] }}</span>
+                                            <button type="button" onclick="increaseQuantity(this)"
+                                                class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
+                                                +
+                                            </button>
+                                            <button type="submit" class="hidden submit-btn">Actualizar</button>
+                                        </form>
+                                    @endif
+                                </div>
+
+                                <!-- SUBTOTAL -->
+                                <div class="font-bold text-sm md:text-base">
+                                    ${{ number_format($subtotal, 0, ',', '.') }}
+                                </div>
+                            </div>
+                        @endforeach
+
+                    </div>
+                    @endif
 
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
 
@@ -563,6 +650,31 @@
             ensureMap();
             geocodeAddress();
         })();
+
+        // Funciones para editar cantidades del carrito
+        function increaseQuantity(button) {
+            const form = button.closest('form');
+            const input = form.querySelector('.quantity-input');
+            const display = form.querySelector('.quantity-display');
+            let quantity = parseInt(input.value);
+            quantity++;
+            input.value = quantity;
+            display.textContent = quantity;
+            form.querySelector('.submit-btn').click();
+        }
+
+        function decreaseQuantity(button) {
+            const form = button.closest('form');
+            const input = form.querySelector('.quantity-input');
+            const display = form.querySelector('.quantity-display');
+            let quantity = parseInt(input.value);
+            if (quantity > 1) {
+                quantity--;
+                input.value = quantity;
+                display.textContent = quantity;
+                form.querySelector('.submit-btn').click();
+            }
+        }
     </script>
 
 </body>

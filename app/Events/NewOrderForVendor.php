@@ -3,11 +3,8 @@
 namespace App\Events;
 
 use App\Models\Order;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -19,10 +16,10 @@ class NewOrderForVendor implements ShouldBroadcastNow
     public $order;
     public $vendorId;
 
-    public function __construct(Order $order)
+    public function __construct(Order $order, int $vendorId)
     {
         $this->order = $order;
-        $this->vendorId = $order->user_id;
+        $this->vendorId = $vendorId;
     }
 
     public function broadcastOn()

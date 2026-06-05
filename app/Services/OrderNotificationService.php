@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\User;
+use App\Events\NewOrderForVendor;
 use App\Notifications\FilamentOrderNotification;
-use Filament\Notifications\Notification;
-use Filament\Notifications\Actions\Action;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AdminOrderNotification;
+use App\Mail\VendorOrderAssigned;
+use Illuminate\Support\Collection;
 
 class OrderNotificationService
 {
@@ -18,28 +20,64 @@ class OrderNotificationService
      */
     public function notifyVendorOrderAssigned(Order $order): void
     {
-        Log::info('Notificando asignacion de pedido', ['order_id' => $order->id, 'vendor_id' => $order->user_id]);
-        
-        if ($order->user) {
-            // Usamos nuestra clase de notificación personalizada
-            $order->user->notify(new FilamentOrderNotification($order));
+        $vendors = $this->getVendorRecipients($order);
+
+        if ($vendors->isEmpty()) {
+            Log::info('No se encontraron vendedores para notificar el pedido asignado.', [
+                'order_id' => $order->id,
+            ]);
+
+            return;
         }
 
-        // Aquí puedes implementar la lógica de notificación al vendedor (email, Telegram, etc.)
-        // Ejemplo: enviar email al usuario dueño del producto
-        if ($order->user && !empty($order->user->email)) {
-            try {
-                Mail::to($order->user->email)
-                    ->send(new \App\Mail\VendorOrderAssigned($order));
-            } catch (\Throwable $e) {
-                Log::error('Error enviando notificación de pedido asignado al vendedor.', [
-                    'order_id' => $order->id,
-                    'error' => $e->getMessage(),
-                ]);
+        foreach ($vendors as $vendor) {
+            if ($this->vendorAlreadyNotified($vendor, $order)) {
+                continue;
+            }
+
+            $vendor->notify(new FilamentOrderNotification($order));
+
+            Log::info('Broadcasting NewOrderForVendor event', [
+                'order_id' => $order->id,
+                'vendor_id' => $vendor->id,
+                'broadcast_connection' => config('broadcasting.default'),
+            ]);
+
+            event(new NewOrderForVendor($order, $vendor->id));
+
+            if (!empty($vendor->email)) {
+                try {
+                    Mail::to($vendor->email)->send(new VendorOrderAssigned($order));
+                } catch (\Throwable $e) {
+                    Log::error('Error enviando notificación de pedido asignado al vendedor.', [
+                        'order_id' => $order->id,
+                        'vendor_id' => $vendor->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         }
-        // Aquí podrías agregar notificación por Telegram, push, etc.
     }
+
+    protected function getVendorRecipients(Order $order): Collection
+    {
+        $order->loadMissing('items.product.user');
+
+        return $order->items
+            ->pluck('product.user')
+            ->filter(fn (?User $vendor): bool => $vendor instanceof User && $vendor->role === 'vendor')
+            ->unique('id')
+            ->values();
+    }
+
+    protected function vendorAlreadyNotified(User $vendor, Order $order): bool
+    {
+        return $vendor->notifications()
+            ->where('type', FilamentOrderNotification::class)
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.body')) LIKE ?", ["%#{$order->id}%"])
+            ->exists();
+    }
+
     public function notifyNewOrder(Order $order): void
     {
         if ($this->canSendSms()) {

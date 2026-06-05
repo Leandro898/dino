@@ -24,6 +24,12 @@ class OrderResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
+    protected static ?string $navigationLabel = 'Pedidos';
+
+    protected static ?string $modelLabel = 'Pedido';
+
+    protected static ?string $pluralModelLabel = 'Pedidos';
+
     protected static ?int $navigationSort = 3;
 
     public static function canCreate(): bool
@@ -70,13 +76,20 @@ class OrderResource extends Resource
         return $table
             ->poll('10s')
             ->columns([
+                Tables\Columns\TextColumn::make('total')
+                    ->label('💰 Total')
+                    ->sortable()
+                    ->money('ARS')
+                    ->weight('bold')
+                    ->size('lg'),
+                
                 Tables\Columns\TextColumn::make('payment_method')
-                    ->label('Payment')
+                    ->label('Pago')
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'mercadopago' => 'Mercado Pago',
-                        'efectivo' => 'Efectivo',
-                        'transferencia' => 'Transferencia',
-                        default => $state ?? 'No informado',
+                        'mercadopago' => '💳 Mercado Pago',
+                        'efectivo' => '💵 Efectivo',
+                        'transferencia' => '🏦 Transferencia',
+                        default => $state ?? '—',
                     })
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
@@ -84,47 +97,54 @@ class OrderResource extends Resource
                         'efectivo' => 'gray',
                         'transferencia' => 'warning',
                         default => 'gray',
-                    }),
+                    })
+                    ->visibleFrom('sm'),
+                
                 Tables\Columns\TextColumn::make('shipping_zone')
-                    ->label('Zona envío')
-                    ->toggleable(),
+                    ->label('📍 Zona')
+                    ->visible(fn () => auth()->user()?->role === "admin")
+                    ->visibleFrom('md'),
+                
                 Tables\Columns\TextColumn::make('shipping_cost')
-                    ->label('Envío')
+                    ->label('📦 Envío')
                     ->money('ARS')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('total')
                     ->sortable()
-                    ->money('ARS'),
+                    ->visible(fn () => auth()->user()?->role === "admin")
+                    ->visibleFrom('lg'),
+                
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/y H:i')
+                    ->label('📅 Fecha')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->visibleFrom('md'),
+                
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->hidden(),
+                
                 Tables\Columns\SelectColumn::make('status')
-                    ->label('Estado')
+                    ->label('📌 Estado')
                     ->options(function () {
                         $user = auth()->user();
                         if ($user && $user->role === 'admin') {
                             return [
-                                'pending' => 'Pendiente',
-                                'assigned' => 'Asignado',
-                                'pending_transfer' => 'Pendiente de transferencia',
-                                'proof_sent' => 'Comprobante enviado',
-                                'processing' => 'En preparación',
-                                'paid_confirmed' => 'Pago confirmado',
-                                'completed' => 'Completado',
-                                'shipped' => 'Enviado',
-                                'cancelled' => 'Cancelado',
+                                'pending' => '⏳ Pendiente',
+                                'assigned' => '✅ Asignado',
+                                'pending_transfer' => '⏳ Pte. Transf.',
+                                'proof_sent' => '📄 Comprobante',
+                                'processing' => '⚙️ En prep.',
+                                'paid_confirmed' => '💚 Pagado',
+                                'completed' => '✔️ Completado',
+                                'shipped' => '🚚 Enviado',
+                                'cancelled' => '❌ Cancelado',
                             ];
                         }
                         
                         return [
-                            'assigned' => 'Asignado',
-                            'processing' => 'En preparación',
-                            'shipped' => 'Listo para retirar/enviado',
+                            'assigned' => '✅ Asignado',
+                            'processing' => '⚙️ En prep.',
+                            'shipped' => '🚚 Listo/Enviado',
                         ];
                     })
                     ->selectablePlaceholder(false)
