@@ -20,6 +20,14 @@ class NotifyVendorBroadcast implements ShouldBroadcastNow
         public ?string $message = null,
     ) {
         $this->message ??= "Se te ha asignado un nuevo pedido: {$order->name}";
+        
+        \Illuminate\Support\Facades\Log::info('NotifyVendorBroadcast event created', [
+            'order_id' => $order->id,
+            'vendor_id' => $vendorId,
+            'channel' => 'App.Models.User.' . $vendorId,
+            'event_name' => 'database-notifications.sent',
+            'title' => $this->title,
+        ]);
     }
 
     public function broadcastOn()

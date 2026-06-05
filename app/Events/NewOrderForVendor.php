@@ -20,6 +20,13 @@ class NewOrderForVendor implements ShouldBroadcastNow
     {
         $this->order = $order;
         $this->vendorId = $vendorId;
+        
+        \Illuminate\Support\Facades\Log::info('NewOrderForVendor event created', [
+            'order_id' => $order->id,
+            'vendor_id' => $vendorId,
+            'channel' => 'vendor.' . $vendorId,
+            'event_name' => 'new-order',
+        ]);
     }
 
     public function broadcastOn()
