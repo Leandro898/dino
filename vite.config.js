@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
                     'resources/js/app.js',
                     'resources/js/filament-vendor-order-polling.js',
                     'resources/js/filament-vendor-order-notification.js',
+                    'resources/js/vendor-notification-stream.js',
                 ],
                 refresh: true,
             }),
