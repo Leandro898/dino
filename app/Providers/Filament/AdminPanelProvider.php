@@ -30,7 +30,6 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->databaseNotifications()
-            ->databaseNotificationsPolling('5s')
             ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn (): string => Blade::render('

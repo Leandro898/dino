@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\User;
 use App\Events\NewOrderForVendor;
-use App\Notifications\FilamentOrderNotification;
+use App\Events\NotifyVendorBroadcast;
+use App\Notifications\VendorOrderAssignedNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -35,7 +36,13 @@ class OrderNotificationService
                 continue;
             }
 
-            $vendor->notify(new FilamentOrderNotification($order));
+            Log::info('Starting vendor notification', [
+                'order_id' => $order->id,
+                'vendor_id' => $vendor->id,
+            ]);
+
+            $vendor->notify(new VendorOrderAssignedNotification($order));
+            Log::info('Database notification sent');
 
             Log::info('Broadcasting NewOrderForVendor event', [
                 'order_id' => $order->id,
@@ -44,6 +51,10 @@ class OrderNotificationService
             ]);
 
             event(new NewOrderForVendor($order, $vendor->id));
+            Log::info('NewOrderForVendor event dispatched');
+
+            event(new NotifyVendorBroadcast($order, $vendor->id));
+            Log::info('NotifyVendorBroadcast event dispatched');
 
             if (!empty($vendor->email)) {
                 try {
@@ -73,8 +84,8 @@ class OrderNotificationService
     protected function vendorAlreadyNotified(User $vendor, Order $order): bool
     {
         return $vendor->notifications()
-            ->where('type', FilamentOrderNotification::class)
-            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.body')) LIKE ?", ["%#{$order->id}%"])
+            ->where('type', VendorOrderAssignedNotification::class)
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.order_id')) = ?", [$order->id])
             ->exists();
     }
 
@@ -200,3 +211,4 @@ class OrderNotificationService
         }
     }
 }
+

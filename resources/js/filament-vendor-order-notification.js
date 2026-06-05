@@ -81,6 +81,7 @@ if (vendorId) {
 
         console.log('Echo initialized for vendor:', vendorId, 'on channel:', `vendor.${vendorId}`);
 
+        // Listen for order events on vendor channel
         window.Echo.private(`vendor.${vendorId}`)
             .listen('.new-order', (data) => {
                 console.log('🔔 Event received on channel vendor.' + vendorId + ':', data);
