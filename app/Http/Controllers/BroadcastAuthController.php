@@ -48,14 +48,26 @@ class BroadcastAuthController extends Controller
         ]);
 
         if (!$canAccess) {
+            Log::error('Broadcasting auth: access denied', [
+                'user_id' => $user->id,
+                'user_role' => $user->role,
+                'vendor_id' => $vendorId,
+            ]);
             abort(403);
         }
 
-        return response()->json([
+        $response = response()->json([
             'channel_data' => [
                 'user_id' => $user->id,
                 'user_info' => $user->name,
             ]
+        ], 200);
+        
+        Log::info('Broadcasting auth: returning 200 response', [
+            'status' => 200,
+            'user_id' => $user->id,
         ]);
+        
+        return $response;
     }
 }

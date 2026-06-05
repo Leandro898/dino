@@ -75,6 +75,7 @@ if (vendorId) {
                     'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest',
                 },
+                credentials: 'include',
             },
         });
 
