@@ -22,6 +22,7 @@ Route::post('/broadcasting/auth', [BroadcastAuthController::class, 'auth'])->mid
 Route::get('/debug/broadcast-config', [DebugBroadcastController::class, 'showConfig'])->middleware('auth');
 Route::post('/debug/broadcast-auth', [DebugBroadcastController::class, 'testAuth'])->middleware('auth');
 Route::post('/debug/broadcast-event', [DebugBroadcastController::class, 'testEvent'])->middleware('auth');
+Route::get('/debug/test-reverb', [\App\Http\Controllers\DebugReverbController::class, 'testBroadcast'])->middleware('auth');
 
 // Evita MethodNotAllowed cuando ngrok muestra su interstitial y envía POST a rutas de login.
 Route::post('/admin/login', fn() => redirect()->to(url('/admin/login')));
