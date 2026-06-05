@@ -282,3 +282,25 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+// Test broadcast event manually
+Route::get('/debug/test-order-assigned', function() {
+    $order = \App\Models\Order::orderBy('id', 'desc')->first();
+    if (!$order) {
+        return response()->json(['error' => 'No order found'], 404);
+    }
+    
+    \Illuminate\Support\Facades\Log::info('MANUAL TEST: Dispatching order assigned event', [
+        'order_id' => $order->id,
+    ]);
+    
+    // Manually trigger the event for testing
+    $order->status = 'assigned';
+    $order->save();
+    
+    return response()->json([
+        'success' => true,
+        'order_id' => $order->id,
+        'message' => 'Order assigned and events dispatched',
+    ]);
+})->middleware('auth')->name('debug.test-order-assigned');

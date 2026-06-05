@@ -81,11 +81,17 @@ if (vendorId) {
 
         console.log('Echo initialized for vendor:', vendorId, 'on channel:', `vendor.${vendorId}`);
 
-        // Listen for order events on vendor channel
+        // Listen for order-assigned events on vendor channel
         window.Echo.private(`vendor.${vendorId}`)
-            .listen('.new-order', (data) => {
-                console.log('🔔 Event received on channel vendor.' + vendorId + ':', data);
+            .listen('.order-assigned', (data) => {
+                console.log('🔔 Order assigned event received on channel vendor.' + vendorId + ':', data);
                 ringBell();
+                
+                // Trigger table refresh in Filament
+                if (window.Livewire) {
+                    console.log('📊 Dispatching refresh-orders-table event');
+                    window.Livewire.dispatch('refresh-orders-table', { order_id: data.order_id });
+                }
             });
     } else {
         console.warn('Reverb key not found, broadcasting disabled');

@@ -34,30 +34,36 @@ class Order extends Model
     protected static function booted()
     {
         static::updated(function ($order) {
-            \Illuminate\Support\Facades\Log::info('Order updated', [
-                'order_id' => $order->id,
-                'status' => $order->status,
-                'changed_status' => $order->wasChanged('status'),
-            ]);
-
-            if ($order->wasChanged('status')) {
-                \Illuminate\Support\Facades\Log::info('Order status changed', [
+            if ($order->wasChanged('status') && $order->status === 'assigned') {
+                \Illuminate\Support\Facades\Log::info('Order assigned - dispatching broadcast and notification', [
                     'order_id' => $order->id,
-                    'old_status' => $order->getOriginal('status'),
-                    'new_status' => $order->status,
                 ]);
 
-                if ($order->status === 'assigned') {
-                    \Illuminate\Support\Facades\Log::info('Order status is ASSIGNED - triggering vendor notification');
-                    try {
-                        app(\App\Services\OrderNotificationService::class)->notifyVendorOrderAssigned($order);
-                        \Illuminate\Support\Facades\Log::info('Vendor notification service completed successfully');
-                    } catch (\Throwable $e) {
-                        \Illuminate\Support\Facades\Log::error('Error in vendor notification', [
-                            'error' => $e->getMessage(),
-                            'trace' => $e->getTraceAsString(),
+                try {
+                    // Get vendors (users who own products in this order)
+                    $vendors = $order->items
+                        ->load('product')
+                        ->map->product
+                        ->pluck('user')
+                        ->unique('id');
+
+                    foreach ($vendors as $vendor) {
+                        // Dispatch broadcast event (real-time to vendor's browser)
+                        \App\Events\OrderAssignedBroadcast::dispatch($order, $vendor->id);
+                        \Illuminate\Support\Facades\Log::info('OrderAssignedBroadcast dispatched', [
+                            'vendor_id' => $vendor->id,
+                        ]);
+
+                        // Send database notification (updates bell icon)
+                        $vendor->notify(new \App\Notifications\OrderAssignedNotification($order));
+                        \Illuminate\Support\Facades\Log::info('OrderAssignedNotification sent', [
+                            'vendor_id' => $vendor->id,
                         ]);
                     }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Error dispatching order notifications', [
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
         });
