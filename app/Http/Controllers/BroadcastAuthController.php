@@ -21,53 +21,57 @@ class BroadcastAuthController extends Controller
             abort(403);
         }
 
-        // Accept any channel with "vendor" in the name (temporary: debug mode)
-        if (strpos($channelName, 'vendor') === false) {
-            Log::error('Broadcasting: no vendor in channel', ['channel' => $channelName]);
-            abort(403);
-        }
+        // Accept vendor channels: vendor.7 or private-vendor.7
+        if (strpos($channelName, 'vendor') !== false) {
+            preg_match('/vendor\.(\d+)/', $channelName, $matches);
+            $vendorId = $matches[1] ?? null;
 
-        // Extract vendor ID from channel name using simple approach
-        // Formats: vendor.7 or private-vendor.7
-        preg_match('/vendor\.(\d+)/', $channelName, $matches);
-        $vendorId = $matches[1] ?? null;
+            if (!$vendorId) {
+                Log::error('Broadcasting: could not extract vendor ID', ['channel' => $channelName]);
+                abort(403);
+            }
 
-        if (!$vendorId) {
-            Log::error('Broadcasting: could not extract vendor ID', ['channel' => $channelName]);
-            abort(403);
-        }
+            $user = auth()->user();
+            $canAccess = $user->role === 'admin' || ($user->role === 'vendor' && (int) $user->id === (int) $vendorId);
 
-        $user = auth()->user();
-        $canAccess = $user->role === 'admin' || ($user->role === 'vendor' && (int) $user->id === (int) $vendorId);
-
-        Log::info('Broadcasting auth result', [
-            'user_id' => $user->id,
-            'user_role' => $user->role,
-            'vendor_id' => $vendorId,
-            'can_access' => $canAccess,
-        ]);
-
-        if (!$canAccess) {
-            Log::error('Broadcasting auth: access denied', [
+            Log::info('Broadcasting auth vendor channel', [
                 'user_id' => $user->id,
                 'user_role' => $user->role,
                 'vendor_id' => $vendorId,
+                'can_access' => $canAccess,
             ]);
-            abort(403);
+
+            if (!$canAccess) {
+                abort(403);
+            }
+
+            return response()->json([
+                'channel_data' => [
+                    'user_id' => $user->id,
+                    'user_info' => $user->name,
+                ]
+            ], 200);
         }
 
-        $response = response()->json([
-            'channel_data' => [
-                'user_id' => $user->id,
-                'user_info' => $user->name,
-            ]
-        ], 200);
-        
-        Log::info('Broadcasting auth: returning 200 response', [
-            'status' => 200,
-            'user_id' => $user->id,
-        ]);
-        
-        return $response;
+        // Accept user presence channels: private-App.Models.User.7
+        if (strpos($channelName, 'App.Models.User') !== false || strpos($channelName, 'presence-') !== false) {
+            // This is a presence or user channel - allow if authenticated
+            // These are used by Filament/Laravel for real-time features
+            Log::info('Broadcasting auth user channel', [
+                'user_id' => auth()->id(),
+                'channel' => $channelName,
+            ]);
+
+            return response()->json([
+                'channel_data' => [
+                    'user_id' => auth()->id(),
+                    'user_info' => auth()->user()->name,
+                ]
+            ], 200);
+        }
+
+        // Unknown channel type
+        Log::error('Broadcasting: unknown channel type', ['channel' => $channelName]);
+        abort(403);
     }
 }
