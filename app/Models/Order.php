@@ -35,9 +35,7 @@ class Order extends Model
     {
         static::updated(function ($order) {
             if ($order->wasChanged('status') && $order->status === 'assigned') {
-                \Illuminate\Support\Facades\Log::info('Order assigned - dispatching broadcast and notification', [
-                    'order_id' => $order->id,
-                ]);
+                error_log('🚀 ORDER ASSIGNED: ' . $order->id);
 
                 try {
                     // Get vendors (users who own products in this order)
@@ -47,23 +45,28 @@ class Order extends Model
                         ->pluck('user')
                         ->unique('id');
 
+                    error_log('📦 Found ' . count($vendors) . ' vendors');
+
                     foreach ($vendors as $vendor) {
+                        error_log('📤 Dispatching event to vendor: ' . $vendor->id);
+                        error_log('📤 Channel will be: vendor.' . $vendor->id);
+                        error_log('📤 Event name will be: order-assigned');
+                        
                         // Dispatch broadcast event (real-time to vendor's browser)
                         \App\Events\OrderAssignedBroadcast::dispatch($order, $vendor->id);
-                        \Illuminate\Support\Facades\Log::info('OrderAssignedBroadcast dispatched', [
-                            'vendor_id' => $vendor->id,
-                        ]);
+
+                        error_log('📬 Event dispatched to Reverb');
 
                         // Send database notification (updates bell icon)
                         $vendor->notify(new \App\Notifications\OrderAssignedNotification($order));
-                        \Illuminate\Support\Facades\Log::info('OrderAssignedNotification sent', [
-                            'vendor_id' => $vendor->id,
-                        ]);
+                        
+                        error_log('🔔 Notification sent to vendor: ' . $vendor->id);
                     }
+                    
+                    error_log('✅ All events dispatched successfully');
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Error dispatching order notifications', [
-                        'error' => $e->getMessage(),
-                    ]);
+                    error_log('❌ ERROR: ' . $e->getMessage());
+                    error_log('❌ TRACE: ' . $e->getTraceAsString());
                 }
             }
         });

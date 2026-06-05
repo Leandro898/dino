@@ -35,10 +35,8 @@ class AdminPanelProvider extends PanelProvider
                 fn (): string => Blade::render('
                     <script>
                         window.vendorNotificationUserId = @json(auth()->check() && auth()->user()->role === "vendor" ? auth()->id() : null);
-                        window.vendorNotificationBroadcastKey = @json(config("broadcasting.connections.reverb.key"));
-                        window.vendorNotificationBroadcastPort = @json(config("broadcasting.connections.reverb.options.port"));
                     </script>
-                    @vite(["resources/js/filament-vendor-order-notification.js"])
+                    @vite(["resources/js/vendor-notification-stream.js"])
                 '),
             )
             ->colors([

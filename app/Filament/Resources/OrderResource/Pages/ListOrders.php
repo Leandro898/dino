@@ -18,10 +18,13 @@ class ListOrders extends ListRecords
     #[On('refresh-orders-table')]
     public function refreshTable(): void
     {
+        \Illuminate\Support\Facades\Log::info('refreshTable called - resetting page to trigger table refresh');
+        
         // In Filament v3 with Livewire 3, we need to reset the table state
         // This forces the table to re-query the database
         $this->resetPage('ordersTablePage');
-        \Illuminate\Support\Facades\Log::info('refreshTable called - table should refresh now');
+        
+        \Illuminate\Support\Facades\Log::info('refreshTable completed - page reset');
     }
 
     protected function getHeaderActions(): array

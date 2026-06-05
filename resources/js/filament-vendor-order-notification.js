@@ -57,16 +57,32 @@ if (vendorId) {
     });
 
     const reverbKey = window.vendorNotificationBroadcastKey;
+    const reverbPort = window.vendorNotificationBroadcastPort;
+
+    console.log('🎧 Vendor notification init:', {
+        vendorId,
+        reverbKey: reverbKey ? '✅ SET' : '❌ MISSING',
+        reverbPort,
+        hostname: window.location.hostname,
+    });
 
     if (reverbKey) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+        console.log('🔌 Creating Echo instance with config:', {
+            broadcaster: 'reverb',
+            key: reverbKey.substring(0, 8) + '...',
+            wsHost: window.location.hostname,
+            wssPort: reverbPort ?? 443,
+            url: `wss://${window.location.hostname}:${reverbPort ?? 443}/app`,
+        });
 
         window.Echo = new Echo({
             broadcaster: 'reverb',
             key: reverbKey,
             wsHost: window.location.hostname,
-            wsPort: window.vendorNotificationBroadcastPort ?? 443,
-            wssPort: window.vendorNotificationBroadcastPort ?? 443,
+            wsPort: window.location.protocol === 'https:' ? 443 : 80,
+            wssPort: 443,
             forceTLS: true,
             enabledTransports: ['ws', 'wss'],
             authEndpoint: '/broadcasting/auth',
@@ -79,11 +95,27 @@ if (vendorId) {
             },
         });
 
-        console.log('Echo initialized for vendor:', vendorId, 'on channel:', `vendor.${vendorId}`);
+        console.log('✅ Echo initialized for vendor:', vendorId, 'on channel:', `vendor.${vendorId}`);
+
+        // Check connection state
+        setTimeout(() => {
+            console.log('📡 Echo connector ready:', window.Echo.connector);
+            console.log('📡 Echo connector socket:', window.Echo.connector?.socket);
+            if (window.Echo.connector?.socket) {
+                console.log('🔌 Socket connected:', window.Echo.connector.socket.connected);
+                console.log('🔌 Socket ID:', window.Echo.connector.socket.id);
+            } else {
+                console.error('❌ Socket NOT available - WebSocket connection failed');
+            }
+        }, 1000);
 
         // Listen for order-assigned events on vendor channel
-        window.Echo.private(`vendor.${vendorId}`)
-            .listen('.order-assigned', (data) => {
+        console.log('👂 Subscribing to channel:', `vendor.${vendorId}`);
+        const channel = window.Echo.private(`vendor.${vendorId}`);
+        
+        console.log('📡 Channel object created:', channel);
+        
+        channel.listen('.order-assigned', (data) => {
                 console.log('🔔 Order assigned event received on channel vendor.' + vendorId + ':', data);
                 ringBell();
                 
@@ -91,9 +123,16 @@ if (vendorId) {
                 if (window.Livewire) {
                     console.log('📊 Dispatching refresh-orders-table event');
                     window.Livewire.dispatch('refresh-orders-table', { order_id: data.order_id });
+                } else {
+                    console.error('❌ Livewire not found!');
                 }
+            })
+            .error((error) => {
+                console.error('❌ Channel subscription error:', error);
             });
+        
+        console.log('✅ Event listener attached to vendor.' + vendorId);
     } else {
-        console.warn('Reverb key not found, broadcasting disabled');
+        console.error('❌ Reverb key not found, broadcasting disabled');
     }
 }

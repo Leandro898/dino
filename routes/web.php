@@ -18,6 +18,9 @@ use App\Events\NewOrderForVendor;
 // Broadcasting auth endpoint for Reverb
 Route::post('/broadcasting/auth', [BroadcastAuthController::class, 'auth'])->middleware('auth');
 
+// Server-Sent Events endpoint for real-time notifications
+Route::get('/notifications/stream', [\App\Http\Controllers\NotificationStreamController::class, 'stream'])->middleware('auth');
+
 // DEBUG endpoints (remove in production)
 Route::get('/debug/broadcast-config', [DebugBroadcastController::class, 'showConfig'])->middleware('auth');
 Route::post('/debug/broadcast-auth', [DebugBroadcastController::class, 'testAuth'])->middleware('auth');
