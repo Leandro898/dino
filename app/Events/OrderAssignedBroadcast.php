@@ -10,6 +10,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class OrderAssignedBroadcast implements ShouldBroadcast
 {
@@ -22,6 +23,23 @@ class OrderAssignedBroadcast implements ShouldBroadcast
     {
         $this->order = $order;
         $this->vendor_id = $vendor_id;
+        
+        // Store in cache so SSE endpoint can send it immediately
+        $eventData = [
+            'order_id' => $this->order->id,
+            'order_number' => $this->order->id,
+            'vendor_id' => $this->vendor_id,
+            'status' => $this->order->status,
+            'total' => $this->order->total,
+            'name' => $this->order->name,
+        ];
+        
+        $cacheKey = "vendor_orders_pending:{$vendor_id}";
+        $pendingOrders = Cache::get($cacheKey, []);
+        $pendingOrders[] = $eventData;
+        Cache::put($cacheKey, $pendingOrders, now()->addMinutes(5));
+        
+        error_log("💾 Cached order event for vendor {$vendor_id}: {$this->order->id}");
     }
 
     /**
