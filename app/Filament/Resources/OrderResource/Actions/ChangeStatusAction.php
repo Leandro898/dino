@@ -56,7 +56,7 @@ class ChangeStatusAction extends Action
                 
                 error_log("✅ ChangeStatusAction: Order {$record->id} updated");
             })
-            ->success()
-            ->slideOver();
+            ->modalSubmitActionLabel('Guardar')
+            ->modalHeading('Cambiar Estado del Pedido');
     }
 }
