@@ -307,3 +307,14 @@ Route::get('/debug/test-order-assigned', function() {
         'message' => 'Order assigned and events dispatched',
     ]);
 })->middleware('auth')->name('debug.test-order-assigned');
+
+Route::get('/test-order-update/{orderId}', function ($orderId) {
+    $order = \App\Models\Order::find($orderId);
+    if (!$order) return "Order not found";
+    
+    error_log("🧪 TEST: Updating order {$orderId} status to 'assigned'");
+    $order->update(['status' => 'assigned']);
+    error_log("🧪 TEST: Update complete");
+    
+    return "Order {$orderId} updated to 'assigned'";
+})->middleware('auth');

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
+use App\Filament\Resources\OrderResource\Actions\ChangeStatusAction;
 use App\Models\Order;
 use App\Models\Product;
 use Filament\Forms;
@@ -122,41 +123,34 @@ class OrderResource extends Resource
                     ->sortable()
                     ->hidden(),
                 
-                Tables\Columns\SelectColumn::make('status')
+                Tables\Columns\TextColumn::make('status')
                     ->label('📌 Estado')
-                    ->options(function () {
-                        $user = auth()->user();
-                        if ($user && $user->role === 'admin') {
-                            return [
-                                'pending' => '⏳ Pendiente',
-                                'assigned' => '✅ Asignado',
-                                'pending_transfer' => '⏳ Pte. Transf.',
-                                'proof_sent' => '📄 Comprobante',
-                                'processing' => '⚙️ En prep.',
-                                'paid_confirmed' => '💚 Pagado',
-                                'completed' => '✔️ Completado',
-                                'shipped' => '🚚 Enviado',
-                                'cancelled' => '❌ Cancelado',
-                            ];
-                        }
-                        
-                        return [
+                    ->formatStateUsing(function (?string $state): string {
+                        return match ($state) {
+                            'pending' => '⏳ Pendiente',
                             'assigned' => '✅ Asignado',
+                            'pending_transfer' => '⏳ Pte. Transf.',
+                            'proof_sent' => '📄 Comprobante',
                             'processing' => '⚙️ En prep.',
-                            'shipped' => '🚚 Listo/Enviado',
-                        ];
+                            'paid_confirmed' => '💚 Pagado',
+                            'completed' => '✔️ Completado',
+                            'shipped' => '🚚 Enviado',
+                            'cancelled' => '❌ Cancelado',
+                            default => $state ?? '—',
+                        };
                     })
-                    ->selectablePlaceholder(false)
-                    ->disabled(fn ($record) => auth()->user()->role !== 'admin' && $record?->status === 'pending')
+                    ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'assigned' => 'success',
+                        'processing' => 'info',
+                        'completed' => 'success',
+                        'shipped' => 'success',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    })
                     ->sortable()
-                    ->searchable()
-                    // Force Filament to load the model so observers fire
-                    ->updateStateUsing(function (Order $record, string $state) {
-                        error_log("⚡ SelectColumn.updateStateUsing() called: status {$record->status} → {$state}");
-                        $record->update(['status' => $state]);
-                        error_log("✅ Record updated via updateStateUsing");
-                        return $state;
-                    }),
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -181,6 +175,8 @@ class OrderResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                ChangeStatusAction::make()
+                    ->visible(fn () => auth()->user()?->role === 'admin'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
