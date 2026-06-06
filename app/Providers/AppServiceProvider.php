@@ -40,5 +40,8 @@ class AppServiceProvider extends ServiceProvider
                 return Route::post($prefixedPath . '/livewire/update', $handle);
             });
         }
+
+        // Register Order Observer
+        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
     }
 }
