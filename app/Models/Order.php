@@ -33,7 +33,11 @@ class Order extends Model
 
     protected static function booted()
     {
+        error_log('👢 Order::booted() CALLED');
+        
         static::updated(function ($order) {
+            error_log('📝 Order.updated() hook triggered for order: ' . $order->id . ', status: ' . $order->status);
+            
             if ($order->wasChanged('status') && $order->status === 'assigned') {
                 error_log('🚀 ORDER ASSIGNED: ' . $order->id);
 
