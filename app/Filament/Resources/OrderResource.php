@@ -149,7 +149,14 @@ class OrderResource extends Resource
                     ->selectablePlaceholder(false)
                     ->disabled(fn ($record) => auth()->user()->role !== 'admin' && $record?->status === 'pending')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    // Force Filament to load the model so observers fire
+                    ->updateStateUsing(function (Order $record, string $state) {
+                        error_log("⚡ SelectColumn.updateStateUsing() called: status {$record->status} → {$state}");
+                        $record->update(['status' => $state]);
+                        error_log("✅ Record updated via updateStateUsing");
+                        return $state;
+                    }),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
