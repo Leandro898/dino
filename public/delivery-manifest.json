@@ -1,0 +1,22 @@
+{
+    "name": "Repartidor Dino - Alertas",
+    "short_name": "Repartidor",
+    "description": "App minima para avisar cuando entra un pedido.",
+    "start_url": "/repartidor/app",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#0b1220",
+    "theme_color": "#0b1220",
+    "icons": [
+        {
+            "src": "/images/og-image.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/og-image.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
