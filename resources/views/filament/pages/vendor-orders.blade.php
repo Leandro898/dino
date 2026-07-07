@@ -1,9 +1,27 @@
+<div>
 <script>window.disableAlpineStart = true;</script>
 @vite(['resources/js/app.js'])
 
 <x-filament-panels::page>
     <livewire:vendor-orders-table />
 </x-filament-panels::page>
+
+<script>
+(function() {
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes newRowHighlight {
+            0%   { background-color: #dcfce7; }
+            100% { background-color: transparent; }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+</script>
 
 <script>
 (function() {
@@ -178,3 +196,4 @@
     }
 })();
 </script>
+</div>

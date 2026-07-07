@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bari Tienda | Inicio</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -1219,7 +1220,7 @@
                 });
             });
 
-            if (SpeechRecognition && quickMenuVoiceAction) {
+            if (SpeechRecognition && (quickMenuVoiceAction || galleryMicBtn)) {
                 recognition = new SpeechRecognition();
                 recognition.lang = 'es-AR';
                 recognition.interimResults = true;
@@ -1305,21 +1306,30 @@
                     startListening();
                 };
 
-                quickMenuVoiceAction.addEventListener('click', () => {
-                    setQuickMenuOpen(false);
-                    handleVoiceBtnClick();
-                });
+                if (quickMenuVoiceAction) {
+                    quickMenuVoiceAction.addEventListener('click', () => {
+                        setQuickMenuOpen(false);
+                        handleVoiceBtnClick();
+                    });
+                }
 
                 if (galleryMicBtn) {
                     galleryMicBtn.addEventListener('click', handleVoiceBtnClick);
                 }
-            } else if (quickMenuVoiceAction) {
-                quickMenuVoiceAction.addEventListener('click', () => {
-                    setQuickMenuOpen(false);
-                    showVoiceToast('Tu navegador no soporta búsqueda por voz.');
-                });
-                const label = quickMenuVoiceAction.querySelector('.quick-menu-label');
-                if (label) label.textContent = 'Sin voz';
+            } else {
+                if (quickMenuVoiceAction) {
+                    quickMenuVoiceAction.addEventListener('click', () => {
+                        setQuickMenuOpen(false);
+                        showVoiceToast('Tu navegador no soporta búsqueda por voz.');
+                    });
+                    const label = quickMenuVoiceAction.querySelector('.quick-menu-label');
+                    if (label) label.textContent = 'Sin voz';
+                }
+                if (galleryMicBtn) {
+                    galleryMicBtn.addEventListener('click', () => {
+                        showVoiceToast('Tu navegador no soporta búsqueda por voz.');
+                    });
+                }
             }
 
             if (quickMenuTrigger) {

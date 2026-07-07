@@ -48,10 +48,10 @@ class VendorOrdersTable extends Component
             ]);
         }
 
-        // Mostrar solo pedidos que NO son pending (asignados o más avanzados)
+        // Mostrar solo pedidos asignados o en proceso por el vendor
         $orders = Order::query()
             ->with(['items.product.user', 'user'])
-            ->where('status', '!=', 'pending')
+            ->whereIn('status', ['assigned', 'processing', 'completed'])
             ->whereHas('items.product', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -59,7 +59,7 @@ class VendorOrdersTable extends Component
             ->paginate($this->perPage);
 
         $totalOrders = Order::query()
-            ->where('status', '!=', 'pending')
+            ->whereIn('status', ['assigned', 'processing', 'completed'])
             ->whereHas('items.product', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })

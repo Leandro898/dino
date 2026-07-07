@@ -1,3 +1,4 @@
+<div>
 <div class="space-y-4">
 
     {{-- Audio para notificaciones --}}
@@ -80,18 +81,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">No tienes pedidos asignados aún</p>
         </div>
     @endif
-</div>
 
-<style>
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(100%); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes newRowHighlight {
-    0%   { background-color: #dcfce7; }
-    100% { background-color: transparent; }
-}
-</style>
 
 <script>
 (function() {
@@ -229,7 +219,12 @@
             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">${order.customer_name ?? '-'}</td>
             <td class="px-6 py-4"><span class="text-sm text-gray-500">Ver detalle</span></td>
             <td class="px-6 py-4">
-                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">✅ Asignado</span>
+                <select wire:change="updateOrderStatus(${order.order_id}, $event.target.value)"
+                        class="px-3 py-1 text-xs font-medium rounded-md border transition-colors cursor-pointer bg-white text-gray-900 dark:bg-gray-800 dark:text-white">
+                    <option value="assigned" selected disabled>Asignado</option>
+                    <option value="processing">En preparación</option>
+                    <option value="completed">Listo para retirar/enviado</option>
+                </select>
             </td>
             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">${now}</td>
         `;
@@ -299,15 +294,23 @@
                         notifyBell(data);
                     } else {
                         /* console.log */(`%c🔄 [Vendor] Estado cambiado a: ${data.new_status}`, 'color: purple');
-                        // Actualizar highlight de fila y el select si existe
                         const row = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
                         if (row) {
-                            const statusSelect = row.querySelector('select');
-                            if (statusSelect) {
-                                statusSelect.value = data.new_status;
+                            if (!['assigned', 'processing', 'completed'].includes(data.new_status)) {
+                                row.remove();
+                                // Check if we need to show the empty placeholder
+                                const tbody = document.getElementById('vendorOrdersTableBody');
+                                if (tbody && tbody.children.length === 0) {
+                                    Livewire.dispatch('order-updated'); // Reload to show empty state placeholder
+                                }
+                            } else {
+                                const statusSelect = row.querySelector('select');
+                                if (statusSelect) {
+                                    statusSelect.value = data.new_status;
+                                }
+                                row.style.backgroundColor = '#fef3c7';
+                                setTimeout(() => { row.style.backgroundColor = ''; }, 3000);
                             }
-                            row.style.backgroundColor = '#fef3c7';
-                            setTimeout(() => { row.style.backgroundColor = ''; }, 3000);
                         }
                     }
                 })
@@ -345,3 +348,5 @@
     }
 })();
 </script>
+</div>
+</div>

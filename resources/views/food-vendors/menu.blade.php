@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $vendor->name }} - {{ config('app.name') }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -87,10 +88,9 @@
                                         ${{ number_format($product->price, 0, ',', '.') }}
                                     </div>
                                 </div>
-                                <button onclick="addToCart(event, '{{ route('cart.add', $product->id) }}')" 
-                                    class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 md:px-6 py-3 md:py-4 rounded-xl text-sm md:text-base font-black cursor-pointer select-none transition-all shadow-lg hover:shadow-purple-500/50 transform hover:scale-105 whitespace-nowrap">
+                                <span class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 md:px-6 py-3 md:py-4 rounded-xl text-sm md:text-base font-black cursor-pointer select-none transition-all shadow-lg hover:shadow-purple-500/50 transform hover:scale-105 whitespace-nowrap inline-block text-center">
                                     + PEDIR
-                                </button>
+                                </span>
                             </div>
                         </div>
                     </a>
@@ -118,27 +118,7 @@
 
     </main>
 
-    <script>
-        // Agregar al carrito (sin recargar)
-        function addToCart(event, url) {
-            event.preventDefault();
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({quantity: 1})
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    window.location.href = '{{ route('checkout.index') }}';
-                }
-            });
-        }
-    </script>
+
 
     <style>
         .scrollbar-hide::-webkit-scrollbar {

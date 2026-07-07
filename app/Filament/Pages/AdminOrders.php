@@ -26,6 +26,6 @@ class AdminOrders extends Page
 
     public static function shouldRegisterNavigation(): bool
     {
-        return Auth::user()?->role === 'admin';
+        return false;
     }
 }
