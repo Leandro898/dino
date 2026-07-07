@@ -57,12 +57,6 @@
                                         {{ $details['name'] }}
                                     </h3>
 
-                                    @if (!empty($details['is_raffle']) && !empty($details['raffle_number']))
-                                        <p class="text-xs text-indigo-600 font-semibold mt-1">
-                                            Numero de sorteo: {{ $details['raffle_number'] }}
-                                        </p>
-                                    @endif
-
                                     <form action="{{ route('cart.remove', $id) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="text-xs text-gray-400 hover:text-red-500 mt-2">
@@ -79,9 +73,6 @@
 
                             <!-- CANTIDAD -->
                             <div class="flex items-center gap-2">
-                                @if (!empty($details['is_raffle']))
-                                    <span class="text-sm font-semibold">1</span>
-                                @else
                                     <form action="{{ route('cart.update', $id) }}" method="POST"
                                         class="flex items-center gap-2">
                                         @csrf
@@ -99,7 +90,6 @@
                                         </button>
                                         <button type="submit" class="hidden submit-btn">Actualizar</button>
                                     </form>
-                                @endif
                             </div>
 
                             <!-- SUBTOTAL -->

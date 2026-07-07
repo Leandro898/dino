@@ -16,7 +16,6 @@ class Product extends Model
         'image',
         'stock',
         'is_active',
-        'is_raffle',
         'external_source',
         'external_id',
         'external_category',
@@ -25,7 +24,6 @@ class Product extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'is_raffle' => 'boolean',
     ];
 
     public function getImageSrcAttribute(): ?string
@@ -90,10 +88,6 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function isRaffle(): bool
-    {
-        return (bool) $this->is_raffle;
-    }
 
     public function scopeCarrefourAlmacen($query)
     {

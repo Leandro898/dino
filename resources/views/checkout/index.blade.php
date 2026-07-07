@@ -80,12 +80,6 @@
                                             {{ $details['name'] }}
                                         </h3>
 
-                                        @if (!empty($details['is_raffle']) && !empty($details['raffle_number']))
-                                            <p class="text-xs text-indigo-600 font-semibold mt-1">
-                                                Nro: {{ $details['raffle_number'] }}
-                                            </p>
-                                        @endif
-
                                         <form action="{{ route('cart.remove', $id) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="text-xs text-gray-400 hover:text-red-500 mt-2">
@@ -102,9 +96,6 @@
 
                                 <!-- CANTIDAD -->
                                 <div class="flex items-center gap-2">
-                                    @if (!empty($details['is_raffle']))
-                                        <span class="text-sm font-semibold">1</span>
-                                    @else
                                         <form action="{{ route('cart.update', $id) }}" method="POST" class="flex items-center gap-2">
                                             @csrf
                                             <button type="button" onclick="decreaseQuantity(this)"
@@ -120,7 +111,6 @@
                                             </button>
                                             <button type="submit" class="hidden submit-btn">Actualizar</button>
                                         </form>
-                                    @endif
                                 </div>
 
                                 <!-- SUBTOTAL -->
@@ -163,7 +153,6 @@
                                 @enderror
                             </div>
 
-                            @if(!$raffleOnlyMercadoPago)
                             <div>
                                 <label class="text-sm font-semibold">Calle</label>
                                 <input type="text" id="street-name-input" name="street_name"
@@ -199,7 +188,6 @@
                             {{-- Dirección completa compuesta (oculta, para guardar en BD) --}}
                             <input type="hidden" id="address-hidden" name="address" value="{{ old('address') }}">
                             <input type="hidden" id="shipping-zone-hidden" name="shipping_zone" value="{{ old('shipping_zone') }}">
-                            @endif
 
                             <div class="md:col-span-2">
                                 <div id="zone-detection-msg" class="hidden mb-1 p-3 rounded-xl text-sm font-medium"></div>
@@ -225,7 +213,7 @@
                             <label id="label-mercadopago"
                                 class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
                                 <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="sr-only"
-                                    {{ !empty($raffleOnlyMercadoPago) || !empty($onlyMercadoPago) || old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
+                                    {{ !empty($onlyMercadoPago) || old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
                                 <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
                                 <span>
                                     <span class="block font-semibold dark:text-white">Mercado Pago</span>
@@ -233,7 +221,7 @@
                                 </span>
                             </label>
 
-                            @if (empty($raffleOnlyMercadoPago) && !empty($manualWhatsAppPaymentEnabled))
+                            @if (!empty($manualWhatsAppPaymentEnabled))
                                 <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
                                     <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
                                         {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
@@ -245,17 +233,6 @@
                                 </label>
                             @endif
 
-                            @if (!empty($raffleOnlyMercadoPago))
-                                <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                                    El dia del sorteo, el premio sera entregado por uno de los repartidores de BariTienda al ganador.
-                                </div>
-
-                                <div class="rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
-                                    <p class="font-semibold mb-1">Regla de transparencia</p>
-                                    <p>Si no se venden los 100 numeros, el sorteo se realiza igual y participan solo los numeros vendidos.</p>
-                                    <p class="mt-1">Para asegurar ganador: si el primer numero oficial no fue vendido, se toma el siguiente puesto oficial hasta encontrar un numero vendido.</p>
-                                </div>
-                            @endif
 
                         </div>
 
@@ -275,11 +252,9 @@
 
                         @php
                             $selectedShippingZone = old('shipping_zone');
-                            $selectedShippingCost = !empty($freeShippingForSpecificRaffle)
-                                ? 0
-                                : ($selectedShippingZone && isset($shippingZones[$selectedShippingZone])
+                            $selectedShippingCost = $selectedShippingZone && isset($shippingZones[$selectedShippingZone])
                                     ? (float) $shippingZones[$selectedShippingZone]['price']
-                                    : null);
+                                    : null;
                         @endphp
 
                         @foreach (session('cart') as $id => $details)
@@ -306,9 +281,7 @@
                         <div class="flex justify-between mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                             <span>Envío</span>
                             <span id="summary-shipping">
-                                @if (!empty($freeShippingForSpecificRaffle))
-                                    Gratis (solo sorteo)
-                                @elseif (!is_null($selectedShippingCost))
+                                @if (!is_null($selectedShippingCost))
                                     ${{ number_format($selectedShippingCost, 0, ',', '.') }}
                                 @else
                                     Seleccioná zona
@@ -404,7 +377,6 @@
             const mapElement    = document.getElementById('checkout-map');
             const mapStatus     = document.getElementById('checkout-map-status');
             const shippingZones = @json($shippingZones);
-            const freeShippingForSpecificRaffle = @json(!empty($freeShippingForSpecificRaffle));
 
             if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden || !datalist) return;
 
@@ -494,11 +466,6 @@
                 if (!subtotalEl || !shippingEl || !totalEl) return;
 
                 const subtotal = parseInt(subtotalEl.dataset.value || 0, 10);
-                if (freeShippingForSpecificRaffle) {
-                    shippingEl.textContent = 'Gratis (solo sorteo)';
-                    totalEl.textContent = '$' + subtotal.toLocaleString('es-AR');
-                    return;
-                }
 
                 if (price !== null) {
                     shippingEl.textContent = '$' + price.toLocaleString('es-AR');
@@ -511,13 +478,6 @@
 
             let detectTimeout = null;
             let suggestTimeout = null;
-
-            if (freeShippingForSpecificRaffle) {
-                updateAddressHidden();
-                updateTotals(0);
-                hideMsg();
-                return;
-            }
 
             async function fetchStreetSuggestions() {
                 const term = streetInput.value.trim();

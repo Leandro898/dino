@@ -12,7 +12,6 @@ class OrderItem extends Model
         'price',
         'quantity',
         'subtotal',
-        'raffle_number',
     ];
 
     public function order()

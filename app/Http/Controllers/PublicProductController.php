@@ -21,8 +21,6 @@ class PublicProductController extends Controller
             ->paginate(120)
             ->withQueryString();
 
-        $raffleSalesEnabled = (bool) config('raffle.sales_enabled', true);
-        $raffleWinner = config('raffle.winner');
 
         $supermarketProductsCount = Product::query()
             ->carrefourAlmacen()
@@ -34,19 +32,6 @@ class PublicProductController extends Controller
             ->where('external_category', 'desayuno-y-merienda')
             ->where('is_active', true)
             ->count();
-
-        $raffleProduct = Product::query()
-            ->where('is_active', true)
-            ->where('slug', 'sorteo-helado-rapa-nui-1kg')
-            ->first();
-
-        if (!$raffleProduct) {
-            $raffleProduct = Product::query()
-                ->where('is_active', true)
-                ->where('is_raffle', true)
-                ->latest()
-                ->first();
-        }
 
         $categoryOrder = [
             'Supermercados',
@@ -74,11 +59,8 @@ class PublicProductController extends Controller
         return view('welcome', compact(
             'products',
             'categorizedProducts',
-            'raffleProduct',
             'supermarketProductsCount',
-            'breakfastProductsCount',
-            'raffleSalesEnabled',
-            'raffleWinner'
+            'breakfastProductsCount'
         ));
     }
 
@@ -376,62 +358,5 @@ class PublicProductController extends Controller
     public function show(Product $product)
     {
         return view('products.show', compact('product'));
-    }
-
-    public function raffleAvailability(Request $request, Product $product): JsonResponse
-    {
-        if (!$product->isRaffle()) {
-            return response()->json([
-                'ok' => false,
-                'message' => 'Este producto no es un sorteo por numero.',
-            ], 422);
-        }
-
-        if (!(bool) config('raffle.sales_enabled', true)) {
-            return response()->json([
-                'ok' => false,
-                'available' => false,
-                'message' => 'La venta de numeros del sorteo esta temporalmente cerrada.',
-            ], 422);
-        }
-
-        $normalizedNumber = $this->normalizeRaffleNumber((string) $request->input('raffle_number', ''));
-        if ($normalizedNumber === null) {
-            return response()->json([
-                'ok' => false,
-                'available' => false,
-                'message' => 'Ingresa un numero valido entre 000 y 099.',
-            ], 422);
-        }
-
-        $sold = OrderItem::query()
-            ->where('product_id', $product->id)
-            ->where('raffle_number', $normalizedNumber)
-            ->exists();
-
-        return response()->json([
-            'ok' => true,
-            'raffle_number' => $normalizedNumber,
-            'available' => !$sold,
-            'message' => $sold
-                ? "El numero {$normalizedNumber} ya fue elegido."
-                : "El numero {$normalizedNumber} esta disponible.",
-        ]);
-    }
-
-    private function normalizeRaffleNumber(string $value): ?string
-    {
-        $digits = preg_replace('/\D+/', '', $value);
-
-        if ($digits === null || $digits === '' || !ctype_digit($digits)) {
-            return null;
-        }
-
-        $number = (int) $digits;
-        if ($number < 0 || $number > 99) {
-            return null;
-        }
-
-        return str_pad((string) $number, 3, '0', STR_PAD_LEFT);
     }
 }

@@ -46,10 +46,6 @@ class OrderItemResource extends Resource
                 Tables\Columns\TextColumn::make('product.name')
                     ->label('Producto')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('raffle_number')
-                    ->label('Numero')
-                    ->placeholder('-')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('quantity')
                     ->label('Cantidad'),
                 Tables\Columns\TextColumn::make('price')

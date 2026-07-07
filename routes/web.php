@@ -238,8 +238,7 @@ Route::get('/pedido-voz', function () {
 
 // Acceso a la ruta de los productos con URL amigable
 Route::get('/productos/{product:slug}', [PublicProductController::class, 'show'])->name('products.show');
-Route::get('/productos/{product:slug}/disponibilidad-sorteo', [PublicProductController::class, 'raffleAvailability'])
-    ->name('products.raffle.availability');
+
 
 // Rutas para el carrito de compras
 Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');

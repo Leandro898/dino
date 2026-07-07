@@ -40,10 +40,6 @@ class ProductResource extends Resource
                     ->rows(5),
                 Forms\Components\TextInput::make('price')->numeric()->prefix('$')->required(),
                 Forms\Components\TextInput::make('stock')->numeric()->default(1),
-                Forms\Components\Toggle::make('is_raffle')
-                    ->label('Es un sorteo por numero')
-                    ->helperText('Si esta activo, el cliente debe elegir un numero unico entre 000 y 099.')
-                    ->default(false),
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->disk('public')
@@ -80,10 +76,6 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stock')
                     ->sortable(),
-
-                Tables\Columns\IconColumn::make('is_raffle')
-                    ->label('Sorteo')
-                    ->boolean(),
 
                 // Muestra el nombre del vendedor solo para admin
                 Tables\Columns\TextColumn::make('user.name')
