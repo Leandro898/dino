@@ -58,7 +58,7 @@
                                     <p class="mt-1">{{ $item['quantity'] }} x
                                         ${{ number_format($item['price'], 0, ',', '.') }} =
                                         ${{ number_format($item['subtotal'], 0, ',', '.') }}</p>
-                                    @if (!is_null($item['raffle_number']))
+                                    @if (isset($item['raffle_number']) && !is_null($item['raffle_number']))
                                         <p class="mt-1 text-xs text-gray-500">Numero: {{ $item['raffle_number'] }}</p>
                                     @endif
                                 </div>

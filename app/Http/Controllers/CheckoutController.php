@@ -29,6 +29,10 @@ class CheckoutController extends Controller
         $cart = $this->syncCartPrices(session()->get('cart', []));
         session()->put('cart', $cart);
 
+        if (empty($cart)) {
+            return redirect()->route('home')->with('error', 'Tu carrito está vacío. Agrega algunos productos para continuar.');
+        }
+
         $manualWhatsAppPaymentEnabled = $this->cartBelongsToMasivo($cart);
         $onlyMercadoPago = !$manualWhatsAppPaymentEnabled;
 
@@ -288,10 +292,7 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            Log::info('📡 About to broadcast NewOrderCreated event (Mercado Pago)', ['order_id' => $order->id]);
-            broadcast(new NewOrderCreated($order))->toOthers();
-            Log::info('✅ Broadcast sent for order (Mercado Pago)', ['order_id' => $order->id]);
-
+            // La notificación en tiempo real para Mercado Pago ahora se envía en el Webhook al confirmarse el pago.
             Log::info('✅ Orden completada - Mercado Pago', [
                 'order_id' => $order->id,
                 'preference_id' => $preference->id,
@@ -445,7 +446,7 @@ class CheckoutController extends Controller
 
     private function configureMercadoPago(): void
     {
-        MercadoPagoConfig::setAccessToken(config('mercadopago.access_token'));
+        MercadoPagoConfig::setAccessToken(config('mercadopago.access_token') ?? '');
 
         // En desarrollo local usamos el modo LOCAL para evitar errores de certificado.
         if (app()->environment('local')) {
@@ -513,6 +514,11 @@ class CheckoutController extends Controller
                     'error' => $e->getMessage(),
                 ]);
             }
+
+            // Emitir evento de WebSocket para notificar en el panel en tiempo real
+            Log::info('📡 About to broadcast NewOrderCreated event from Webhook (Mercado Pago)', ['order_id' => $order->id]);
+            broadcast(new NewOrderCreated($order));
+            Log::info('✅ Broadcast sent for order from Webhook (Mercado Pago)', ['order_id' => $order->id]);
         }
 
         if ($status !== 'approved' && $order->status === 'pending') {

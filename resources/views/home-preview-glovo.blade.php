@@ -779,35 +779,8 @@
 
     <main>
         <section class="panel">
-            <p class="title">Buscá lo que necesitas</p>
 
-            <div class="search-wrap">
-                <span class="search-icon">🔎</span>
-                <input id="quickSearch" class="search" type="search" placeholder="Ej: azucar, ibuprofeno, yerba"
-                    aria-label="Buscar categoria">
-            </div>
-
-            <div class="results-wrapper">
-                <div id="searchResultsGallery" class="results-space is-empty" aria-live="polite">
-                    <div class="results-track is-placeholder"></div>
-                </div>
-                <button type="button" id="galleryMicBtn" class="results-mic-btn" aria-label="Buscar por voz">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22"
-                        height="22">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z" />
-                    </svg>
-                </button>
-                <p class="results-mic-label" aria-hidden="true">Apretá y pedí</p>
-                <div id="micStopLoader" class="mic-stop-loader" aria-hidden="true">
-                    <div class="mic-stop-loader-inner">
-                        <span class="mic-stop-loader-spinner" aria-hidden="true"></span>
-                        <span>Apagando mic...</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tiles">
+            <div class="tiles" style="margin-bottom: 1.5rem;">
                 <button class="tile tile-primary" type="button" data-query="bebidas">
                     <span class="tile-icon-wrap">
                         <span class="tile-icon" aria-hidden="true">🍾</span>
@@ -835,6 +808,33 @@
                     </span>
                     <span class="tile-label">Farmacia</span>
                 </button>
+            </div>
+
+            <p class="title" style="margin-top: 1rem;">Buscá lo que necesitas</p>
+            <div class="search-wrap" style="margin-bottom: 1.5rem;">
+                <span class="search-icon">🔎</span>
+                <input id="quickSearch" class="search" type="search" placeholder="Ej: azucar, ibuprofeno, yerba"
+                    aria-label="Buscar categoria">
+            </div>
+
+            <div class="results-wrapper">
+                <div id="searchResultsGallery" class="results-space is-empty" aria-live="polite">
+                    <div class="results-track is-placeholder"></div>
+                </div>
+                <button type="button" id="galleryMicBtn" class="results-mic-btn" aria-label="Buscar por voz">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22"
+                        height="22">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z" />
+                    </svg>
+                </button>
+                <p class="results-mic-label" aria-hidden="true">Pedí lo que quieras</p>
+                <div id="micStopLoader" class="mic-stop-loader" aria-hidden="true">
+                    <div class="mic-stop-loader-inner">
+                        <span class="mic-stop-loader-spinner" aria-hidden="true"></span>
+                        <span>Apagando mic...</span>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -1003,14 +1003,15 @@
                     return;
                 }
 
-                if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
-
                 if (!products.length) {
-                    resultsGallery.classList.remove('is-empty');
-                    resultsGallery.innerHTML = '<p class="results-status">No encontramos resultados para "' +
+                    resultsGallery.classList.add('is-empty');
+                    resultsGallery.innerHTML = '<p class="results-status" style="text-align: center; margin-top: 1rem;">No encontramos resultados para "' +
                         escapeHtml(query) + '".</p>';
+                    if (galleryMicBtn) galleryMicBtn.classList.remove('is-hidden');
                     return;
                 }
+
+                if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
 
                 const cards = products.map((product) => {
                     const imageHtml = product.image ?

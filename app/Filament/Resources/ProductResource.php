@@ -46,6 +46,10 @@ class ProductResource extends Resource
                     ->directory('products')
                     ->visibility('public')
                     ->nullable(),
+                Forms\Components\Toggle::make('is_active')
+                    ->label('Visible (Publicado)')
+                    ->default(true)
+                    ->disabled(fn () => auth()->user() && auth()->user()->role !== 'admin'),
             ]);
     }
 
@@ -81,6 +85,10 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Vendedor')
                     ->visible($user && $user->role === 'admin'),
+
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Visible')
+                    ->disabled(fn () => $user && $user->role !== 'admin'),
             ])
             ->filters([
                 //
@@ -91,6 +99,18 @@ class ProductResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('ocultar')
+                        ->label('Ocultar seleccionados')
+                        ->icon('heroicon-o-eye-slash')
+                        ->action(fn (\Illuminate\Database\Eloquent\Collection $records) => $records->each->update(['is_active' => false]))
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('mostrar')
+                        ->label('Mostrar seleccionados')
+                        ->icon('heroicon-o-eye')
+                        ->action(fn (\Illuminate\Database\Eloquent\Collection $records) => $records->each->update(['is_active' => true]))
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

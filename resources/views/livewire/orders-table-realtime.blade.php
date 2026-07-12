@@ -223,29 +223,30 @@
 
         // Reproducir sonido de nueva orden
         function playNewOrderSound() {
-            if (!adminSoundEnabled) {
-                console.warn('⚠️ [Admin] Sonido no activado aún - el usuario debe hacer click en el botón');
-                // Hacer parpadear el banner para llamar la atención
-                const banner = document.getElementById('adminSoundBanner');
-                if (banner) {
-                    banner.style.transition = 'opacity 0.2s';
-                    let count = 0;
-                    const blink = setInterval(() => {
-                        banner.style.opacity = banner.style.opacity === '0.3' ? '1' : '0.3';
-                        if (++count >= 6) { clearInterval(blink); banner.style.opacity = '1'; }
-                    }, 200);
-                }
-                return;
-            }
-
             const audio = document.getElementById('newOrderSound');
             if (!audio) return;
 
             audio.currentTime = 0;
             audio.volume = 1.0;
             audio.play()
-                .then(() => /* console.log */('✅ [Admin] Sonido reproducido'))
-                .catch(err => console.error('❌ [Admin] Error reproduciendo sonido:', err.message));
+                .then(() => {
+                    adminSoundEnabled = true;
+                    /* console.log */('✅ [Admin] Sonido reproducido');
+                })
+                .catch(err => {
+                    console.warn('⚠️ [Admin] Sonido no activado aún - el usuario debe hacer click en el botón');
+                    // Hacer parpadear el banner para llamar la atención
+                    const banner = document.getElementById('adminSoundBanner');
+                    if (banner) {
+                        banner.style.display = 'flex';
+                        banner.style.transition = 'opacity 0.2s';
+                        let count = 0;
+                        const blink = setInterval(() => {
+                            banner.style.opacity = banner.style.opacity === '0.3' ? '1' : '0.3';
+                            if (++count >= 6) { clearInterval(blink); banner.style.opacity = '1'; }
+                        }, 200);
+                    }
+                });
         }
 
         // 🔊 Función para reproducir sonido de "Listo para retirar"

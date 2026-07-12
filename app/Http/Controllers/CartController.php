@@ -14,6 +14,10 @@ class CartController extends Controller
         $cart = $this->syncCartPrices(session()->get('cart', []));
         session()->put('cart', $cart);
 
+        if (empty($cart)) {
+            return redirect()->route('home')->with('error', 'Tu carrito está vacío. Agrega algunos productos para continuar.');
+        }
+
         // Redirigir directamente a checkout en lugar de mostrar la página de carrito
         return redirect()->route('checkout.index');
     }

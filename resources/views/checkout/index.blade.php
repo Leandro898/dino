@@ -179,7 +179,7 @@
 
                             <div class="md:col-span-2">
                                 <p class="text-sm font-semibold">Ubicación estimada en el mapa</p>
-                                <div id="checkout-map" class="mt-2 h-64 w-full rounded-xl border border-gray-200" style="height: 16rem;"></div>
+                                <div id="checkout-map" class="mt-2 h-64 w-full rounded-xl border border-gray-200 relative z-10" style="height: 16rem;"></div>
                                 <p id="checkout-map-status" class="mt-2 text-xs text-gray-500">
                                     Ingresá calle y altura para ver la ubicación estimada.
                                 </p>
