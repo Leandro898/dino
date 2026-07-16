@@ -27,26 +27,10 @@ class StreetZoneResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $zones = ShippingZone::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get(['zone_key', 'label', 'price'])
-            ->mapWithKeys(fn ($zone) => [
-                $zone->zone_key => $zone->label . ' ($' . number_format((int) $zone->price, 0, ',', '.') . ')',
-            ])
-            ->toArray();
-
-        if (empty($zones)) {
-            $zones = collect(config('shipping.zones', []))
-                ->mapWithKeys(fn ($zone, $key) => [$key => $zone['label'] . ' ($' . number_format($zone['price'], 0, ',', '.') . ')'])
-                ->toArray();
-        }
-
         return $form->schema([
             Forms\Components\TextInput::make('street_name')
-                ->label('Nombre de calle (normalizado)')
-                ->helperText('Minúsculas, sin tildes, sin prefijos (av., gral., etc.). Ej: albarracin')
+                ->label('Nombre de la calle')
+                ->helperText('Usa minúsculas, sin tildes. Ej: mitre, bustillo')
                 ->required()
                 ->maxLength(255),
 
@@ -62,28 +46,17 @@ class StreetZoneResource extends Resource
                 ->numeric()
                 ->minValue(1),
 
-            Forms\Components\Select::make('zone_key')
-                ->label('Zona')
-                ->options($zones)
-                ->required(),
+            Forms\Components\TextInput::make('price')
+                ->label('Precio de envío ($)')
+                ->helperText('Monto en pesos. Ej: 5000')
+                ->numeric()
+                ->required()
+                ->minValue(0),
         ]);
     }
 
     public static function table(Table $table): Table
     {
-        $zones = ShippingZone::query()
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get(['zone_key', 'label'])
-            ->mapWithKeys(fn ($zone) => [$zone->zone_key => $zone->label])
-            ->toArray();
-
-        if (empty($zones)) {
-            $zones = collect(config('shipping.zones', []))
-                ->mapWithKeys(fn ($zone, $key) => [$key => $zone['label']])
-                ->toArray();
-        }
-
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('street_name')
@@ -99,19 +72,13 @@ class StreetZoneResource extends Resource
                     ->label('Hasta')
                     ->placeholder('Toda la calle'),
 
-                Tables\Columns\BadgeColumn::make('zone_key')
-                    ->label('Zona')
-                    ->formatStateUsing(fn ($state) => $zones[$state] ?? $state)
-                    ->colors([
-                        'success' => 'centro',
-                        'warning' => 'belgrano_melipal',
-                        'danger'  => 'exterior',
-                    ]),
+                Tables\Columns\TextColumn::make('price')
+                    ->label('Precio')
+                    ->formatStateUsing(fn ($state) => '$' . number_format($state, 0, ',', '.'))
+                    ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('zone_key')
-                    ->label('Zona')
-                    ->options($zones),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -40,6 +40,7 @@ class CheckoutController extends Controller
             'shippingZones' => $this->shippingZones(),
             'manualWhatsAppPaymentEnabled' => $manualWhatsAppPaymentEnabled,
             'onlyMercadoPago' => $onlyMercadoPago,
+            'googleMapsApiKey' => config('services.google_maps.key'),
         ]);
     }
 

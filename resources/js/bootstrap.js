@@ -15,8 +15,8 @@ window.Echo = new Echo({
     wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
     wsPort: import.meta.env.VITE_REVERB_PORT || 8080,
     wssPort: import.meta.env.VITE_REVERB_PORT || 8080,
-    forceTLS: false,
-    enabledTransports: ['ws'],
+    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
+    enabledTransports: ['ws', 'wss'],
     // Authorizer personalizado que usa axios → maneja CSRF automáticamente
     authorizer: (channel) => ({
         authorize: (socketId, callback) => {

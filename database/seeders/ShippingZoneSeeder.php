@@ -20,12 +20,13 @@ class ShippingZoneSeeder extends Seeder
                     'is_active' => true,
                     'sort_order' => match ($zoneKey) {
                         'centro' => 1,
-                        'belgrano_melipal' => 2,
-                        'exterior' => 3,
                         default => 99,
                     },
                 ]
             );
         }
+
+        // Eliminar zonas viejas que ya no existen
+        ShippingZone::whereNotIn('zone_key', array_keys($zones))->delete();
     }
 }

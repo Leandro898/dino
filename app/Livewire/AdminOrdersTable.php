@@ -17,18 +17,21 @@ class AdminOrdersTable extends Component
     public $filterStatus = '';
     public $selectedOrders = [];
     public $selectAll = false;
+    public $viewingOrder = null;
 
     #[\Livewire\Attributes\On('order-updated')]
     public function refreshOrders()
     {
         $this->resetPage();
+        $this->dispatch('$refresh');
     }
 
-    #[\Livewire\Attributes\On('new-order-created')]
-    public function onNewOrder()
+    #[\Livewire\Attributes\On('echo:orders,.new-order-created')]
+    public function onNewOrder($event = null)
     {
         Log::info('🔔 [LIVEWIRE] Evento new-order-created recibido en AdminOrdersTable');
         $this->resetPage();
+        $this->dispatch('$refresh');
     }
 
     public function updateOrderStatus($orderId, $newStatus)
@@ -58,6 +61,16 @@ class AdminOrdersTable extends Component
             Log::error('❌ [DELETE ERROR] ' . $e->getMessage());
             session()->flash('error', '❌ Error al eliminar la orden: ' . $e->getMessage());
         }
+    }
+
+    public function viewOrder($orderId)
+    {
+        $this->viewingOrder = Order::with('items.product', 'user')->find($orderId);
+    }
+
+    public function closeViewOrder()
+    {
+        $this->viewingOrder = null;
     }
 
     public function toggleSelectAll()

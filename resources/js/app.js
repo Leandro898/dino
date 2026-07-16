@@ -44,3 +44,33 @@ if (!window.disableAlpineStart) {
     window.Alpine = Alpine;
     Alpine.start();
 }
+
+window.addEventListener('play-notification-sound', () => {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const playTone = (freq, startTime, duration) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, startTime);
+            
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.02);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(startTime);
+            oscillator.stop(startTime + duration);
+        };
+        
+        const now = audioContext.currentTime;
+        // Doble tono (bloop-bleep) característico para el cliente
+        playTone(500, now, 0.1);
+        playTone(750, now + 0.15, 0.15);
+    } catch (e) {
+        console.warn('Notification sound failed', e);
+    }
+});

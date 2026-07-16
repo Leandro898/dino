@@ -188,14 +188,13 @@ class PublicProductController extends Controller
         $products = Product::query()
             ->where('is_active', true)
             ->where(function ($query) {
-                $query->where(function ($carrefour) {
-                    $carrefour
-                        ->where('external_source', 'carrefour')
-                        ->whereIn('external_category', ['almacen', 'desayuno-y-merienda']);
-                })->orWhere(function ($pharmacy) {
+                // Solo incluir Farmacia y Comidas (vendedores locales, excluyendo masivo/supermercado)
+                $query->where(function ($pharmacy) {
                     $pharmacy
                         ->where('external_source', 'pedidosya')
                         ->where('external_category', 'farmacia');
+                })->orWhereHas('user', function ($vendor) {
+                    $vendor->where('role', 'vendor')->where('id', '!=', 6);
                 });
             })
             ->where('name', 'like', '%' . $search . '%')
@@ -209,7 +208,7 @@ class PublicProductController extends Controller
                 'price' => '$' . number_format((float) $product->adjusted_price, 0, ',', '.'),
                 'image' => $product->image_src,
                 'url' => route('products.show', ['product' => $product->slug]),
-                'category' => $product->external_category === 'farmacia' ? 'Farmacia' : 'Supermercado',
+                'category' => $product->external_category === 'farmacia' ? 'Farmacia' : 'Comidas',
             ];
         });
 

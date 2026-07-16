@@ -8,6 +8,7 @@ class Order extends Model
 {
     protected $fillable = [
         'user_id',
+        'delivery_user_id',
         'name',
         'email',
         'address',
@@ -29,6 +30,11 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function deliveryRider()
+    {
+        return $this->belongsTo(User::class, 'delivery_user_id');
     }
 
     protected static function booted()
@@ -55,6 +61,23 @@ class Order extends Model
                     'new' => $order->status
                 ]);
                 broadcast(new \App\Events\OrderStatusUpdated($order, $oldStatus));
+            }
+
+            if ($order->wasChanged('delivery_user_id')) {
+                $oldRiderId = $order->getOriginal('delivery_user_id');
+                $newRiderId = $order->delivery_user_id;
+
+                if ($newRiderId) {
+                    broadcast(new \App\Events\OrderUpdatedForRider($order, true));
+                }
+
+                if ($oldRiderId && $oldRiderId != $newRiderId) {
+                    broadcast(new \App\Events\OrderUnassignedFromRider((int)$oldRiderId, (int)$order->id));
+                }
+            }
+
+            if ($order->wasChanged('status') && $order->delivery_user_id) {
+                broadcast(new \App\Events\OrderUpdatedForRider($order, false));
             }
         });
     }

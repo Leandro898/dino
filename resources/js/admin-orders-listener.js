@@ -50,10 +50,10 @@ function initAdminOrderListener() {
 
     const pusher = new window.Pusher(import.meta.env.VITE_REVERB_APP_KEY || 'reverb-key', {
         wsHost: import.meta.env.VITE_REVERB_HOST || 'localhost',
-        wsPort: import.meta.env.VITE_REVERB_PORT || 8080,
-        wssPort: import.meta.env.VITE_REVERB_PORT || 8080,
-        forceTLS: false,
-        enabledTransports: ['ws'],
+        wsPort: import.meta.env.VITE_REVERB_PORT || 443,
+        wssPort: import.meta.env.VITE_REVERB_PORT || 443,
+        forceTLS: true,
+        enabledTransports: ['ws', 'wss'],
         cluster: 'mt1',
     });
 

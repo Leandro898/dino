@@ -16,6 +16,17 @@ class OrdersTableRealtime extends Component
     public $perPage = 10;
     public $selectedOrders = [];
     public $selectAll = false;
+    public $viewingOrder = null;
+
+    public function viewOrder($orderId)
+    {
+        $this->viewingOrder = Order::with('items.product', 'user')->find($orderId);
+    }
+
+    public function closeViewOrder()
+    {
+        $this->viewingOrder = null;
+    }
 
     #[\Livewire\Attributes\On('new-order-created')]
     public function onNewOrder()
@@ -94,6 +105,7 @@ class OrdersTableRealtime extends Component
     public function orders()
     {
         return Order::query()
+            ->with('items.product')
             ->when($this->search, fn($q) => $q->where('id', 'like', "%{$this->search}%")
                 ->orWhere('name', 'like', "%{$this->search}%")
                 ->orWhere('email', 'like', "%{$this->search}%"))
@@ -104,8 +116,14 @@ class OrdersTableRealtime extends Component
 
     public function render()
     {
+        $riders = \App\Models\User::query()
+            ->where('role', 'delivery')
+            ->where('is_approved', true)
+            ->get();
+
         return view('livewire.orders-table-realtime', [
             'orders' => $this->orders,
+            'riders' => $riders,
         ]);
     }
 }

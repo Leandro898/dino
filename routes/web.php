@@ -21,6 +21,16 @@ use Illuminate\Support\Str;
 // La lógica de autorización está en routes/channels.php
 Broadcast::routes(['middleware' => ['web', 'auth']]);
 
+// Redirección del home del subdominio de repartidor a la app de repartidores
+$mainHost = parse_url(config('app.url'), PHP_URL_HOST);
+if ($mainHost) {
+    Route::domain('repartidor.' . $mainHost)->group(function () {
+        Route::get('/', function () {
+            return redirect()->route('delivery.app');
+        });
+    });
+}
+
 
 // Evita MethodNotAllowed cuando ngrok muestra su interstitial y envía POST a rutas de login.
 // Route::post('/admin/login', fn() => redirect()->to(url('/admin/login')));
@@ -38,13 +48,44 @@ Route::middleware('auth')->group(function () {
     // Rutas para órdenes en el admin
     Route::patch('/api/custom/orders/{orderId}', [OrderController::class, 'update'])->name('orders.update.status');
     Route::delete('/api/custom/orders/{orderId}', [OrderController::class, 'destroy'])->name('orders.destroy.custom');
+
+    Route::post('/push-subscribe', function (Illuminate\Http\Request $request) {
+        $request->user()->updatePushSubscription(
+            $request->endpoint,
+            $request->keys['p256dh'] ?? null,
+            $request->keys['auth'] ?? null
+        );
+        return response()->json(['success' => true]);
+    })->name('push.subscribe');
 });
+
+Route::post('/guest-push-subscribe', function (Illuminate\Http\Request $request) {
+    $sessionId = Session::getId();
+    $customRequest = \App\Models\CustomRequest::where('session_id', $sessionId)
+                                        ->whereIn('status', ['open', 'quoted'])
+                                        ->first();
+                                        
+    if (!$customRequest) {
+        $customRequest = \App\Models\CustomRequest::create([
+            'session_id' => $sessionId,
+            'status' => 'open',
+        ]);
+    }
+    
+    $customRequest->updatePushSubscription(
+        $request->endpoint,
+        $request->keys['p256dh'] ?? null,
+        $request->keys['auth'] ?? null
+    );
+    
+    return response()->json(['success' => true]);
+})->name('guest-push.subscribe');
 
 // Home principal con catalogo completo (disponible en /catalogo)
 Route::get('/catalogo', [PublicProductController::class, 'index'])->name('catalog');
 
 // Home principal: vista tipo app con accesos rápidos
-Route::view('/', 'home-preview-glovo')->name('home');
+Route::view('/', 'home')->name('home');
 Route::get('/home/buscar-productos', [PublicProductController::class, 'homeSearchProducts'])
     ->name('home.search.products');
 
@@ -250,6 +291,7 @@ Route::post('/carrito/remove/{id}', [CartController::class, 'remove'])->name('ca
 // Detección automática de zona por calle/altura
 Route::get('/shipping/detect-zone', [ShippingZoneController::class, 'detect'])->name('shipping.detect-zone');
 Route::get('/shipping/street-suggestions', [ShippingZoneController::class, 'suggestions'])->name('shipping.street-suggestions');
+Route::get('/shipping/reverse-geocode', [ShippingZoneController::class, 'reverseGeocode'])->name('shipping.reverse-geocode');
 
 // Rate limiting para rutas de compra críticas
 Route::middleware(['throttle:30,1'])->group(function () {
@@ -274,7 +316,7 @@ Route::post('/nave/webhook', [CheckoutController::class, 'handleNaveWebhook'])->
 Route::get('/nave/callback', [CheckoutController::class, 'handleNaveCallback'])->name('nave.callback');
 
 // App de repartidores (MVP instalable tipo PWA)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/repartidor/app', [DeliveryAppController::class, 'index'])
         ->name('delivery.app');
 

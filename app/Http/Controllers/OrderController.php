@@ -56,10 +56,15 @@ class OrderController extends Controller
             
             // Actualizar estado si se proporciona
             if ($request->has('status')) {
-                $oldStatus = $order->status;
                 $order->status = $request->input('status');
-                $order->save();
             }
+
+            // Actualizar repartidor si se proporciona
+            if ($request->has('delivery_user_id')) {
+                $order->delivery_user_id = $request->input('delivery_user_id') ?: null;
+            }
+            
+            $order->save();
             
             return response()->json(['message' => 'Orden actualizada correctamente', 'order' => $order]);
         } catch (\Exception $e) {

@@ -38,6 +38,17 @@
             </div>
         @endif
 
+        @php $cart = session()->get('cart', []); @endphp
+        @foreach ($cart as $id => $details)
+            <form id="remove-form-{{ $id }}" action="{{ route('cart.remove', $id) }}" method="POST" class="hidden">
+                @csrf
+            </form>
+            <form id="update-form-{{ $id }}" action="{{ route('cart.update', $id) }}" method="POST" class="hidden">
+                @csrf
+                <input type="hidden" name="quantity" id="quantity-input-{{ $id }}" value="{{ $details['quantity'] }}">
+            </form>
+        @endforeach
+
         <form action="{{ route('checkout.process') }}" method="POST">
             @csrf
 
@@ -46,8 +57,6 @@
                 <!-- DATOS DEL COMPRADOR + CARRITO -->
                 <div class="lg:col-span-2 space-y-8">
 
-                    <!-- RESUMEN DEL CARRITO EDITABLE (NUEVO) -->
-                    @php $cart = session()->get('cart', []); @endphp
                     @if (!empty($cart))
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
                         <h2 class="text-xl font-bold mb-6 dark:text-white">
@@ -80,12 +89,9 @@
                                             {{ $details['name'] }}
                                         </h3>
 
-                                        <form action="{{ route('cart.remove', $id) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit" class="text-xs text-gray-400 hover:text-red-500 mt-2">
-                                                ❌ Eliminar
-                                            </button>
-                                        </form>
+                                        <button type="submit" form="remove-form-{{ $id }}" class="text-xs text-gray-400 hover:text-red-500 mt-2">
+                                            ❌ Eliminar
+                                        </button>
                                     </div>
                                 </div>
 
@@ -96,21 +102,15 @@
 
                                 <!-- CANTIDAD -->
                                 <div class="flex items-center gap-2">
-                                        <form action="{{ route('cart.update', $id) }}" method="POST" class="flex items-center gap-2">
-                                            @csrf
-                                            <button type="button" onclick="decreaseQuantity(this)"
-                                                class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
-                                                −
-                                            </button>
-                                            <input type="hidden" name="quantity" class="quantity-input"
-                                                value="{{ $details['quantity'] }}">
-                                            <span class="quantity-display w-6 text-center font-semibold text-sm">{{ $details['quantity'] }}</span>
-                                            <button type="button" onclick="increaseQuantity(this)"
-                                                class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
-                                                +
-                                            </button>
-                                            <button type="submit" class="hidden submit-btn">Actualizar</button>
-                                        </form>
+                                        <button type="button" onclick="decreaseCartQuantity('{{ $id }}')"
+                                            class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
+                                            −
+                                        </button>
+                                        <span class="w-6 text-center font-semibold text-sm">{{ $details['quantity'] }}</span>
+                                        <button type="button" onclick="increaseCartQuantity('{{ $id }}')"
+                                            class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
+                                            +
+                                        </button>
                                 </div>
 
                                 <!-- SUBTOTAL -->
@@ -426,7 +426,8 @@
                 const coords = [lat, lon];
 
                 if (!marker) {
-                    marker = L.marker(coords).addTo(map);
+                    marker = L.marker(coords, { draggable: true }).addTo(map);
+                    marker.on('dragend', onMarkerDragEnd);
                 } else {
                     marker.setLatLng(coords);
                 }
@@ -436,6 +437,42 @@
                 }
 
                 map.setView(coords, 16);
+            }
+
+            async function onMarkerDragEnd(event) {
+                const latlng = event.target.getLatLng();
+                const lat = latlng.lat;
+                const lon = latlng.lng;
+                
+                setMapStatus('Actualizando dirección desde el mapa...');
+
+                try {
+                    const url = new URL('{{ route("shipping.reverse-geocode") }}', window.location.origin);
+                    url.searchParams.set('lat', lat);
+                    url.searchParams.set('lon', lon);
+
+                    const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
+                    if (!res.ok) throw new Error('reverse-geocode-failed');
+                    
+                    const data = await res.json();
+
+                    if (data.street) {
+                        streetInput.value = data.street;
+                        if (data.number) {
+                            numberInput.value = data.number;
+                        }
+                        
+                        if (data.label) {
+                            marker.bindPopup(data.label).openPopup();
+                        }
+                        
+                        updateAddressHidden();
+                        detectZone();
+                    }
+                    setMapStatus('');
+                } catch (error) {
+                    setMapStatus('');
+                }
             }
 
             function updateAddressHidden() {
@@ -557,41 +594,63 @@
                     }
 
                     geocodeController = new AbortController();
+                    const googleKey = @json($googleMapsApiKey);
                     const query = `${street} ${number}, San Carlos de Bariloche, Rio Negro, Argentina`;
 
                     try {
-                        const url = new URL('https://nominatim.openstreetmap.org/search');
-                        url.searchParams.set('format', 'json');
-                        url.searchParams.set('limit', '1');
-                        url.searchParams.set('countrycodes', 'ar');
-                        url.searchParams.set('q', query);
+                        let lat, lon, displayName;
+                        let matched = false;
 
-                        const res = await fetch(url.toString(), {
-                            headers: { Accept: 'application/json' },
-                            signal: geocodeController.signal,
-                        });
-
-                        if (!res.ok) {
-                            throw new Error('geocode-failed');
+                        if (googleKey) {
+                            try {
+                                const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${googleKey}`;
+                                const res = await fetch(url, { signal: geocodeController.signal });
+                                if (res.ok) {
+                                    const data = await res.json();
+                                    if (data.status === 'OK' && data.results && data.results[0]) {
+                                        const result = data.results[0];
+                                        lat = parseFloat(result.geometry.location.lat);
+                                        lon = parseFloat(result.geometry.location.lng);
+                                        displayName = result.formatted_address;
+                                        matched = true;
+                                    }
+                                }
+                            } catch (_) {
+                                // fall through
+                            }
                         }
 
-                        const places = await res.json();
-                        const match = Array.isArray(places) ? places[0] : null;
+                        if (!matched) {
+                            const url = new URL('https://nominatim.openstreetmap.org/search');
+                            url.searchParams.set('format', 'json');
+                            url.searchParams.set('limit', '1');
+                            url.searchParams.set('countrycodes', 'ar');
+                            url.searchParams.set('q', query);
 
-                        if (!match) {
-                            setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
-                            return;
+                            const res = await fetch(url.toString(), {
+                                headers: { Accept: 'application/json' },
+                                signal: geocodeController.signal,
+                            });
+                            if (!res.ok) throw new Error('geocode-failed');
+                            const places = await res.json();
+                            const match = Array.isArray(places) ? places[0] : null;
+
+                            if (!match) {
+                                setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
+                                return;
+                            }
+
+                            lat = parseFloat(match.lat);
+                            lon = parseFloat(match.lon);
+                            displayName = match.display_name || `${street} ${number}`;
                         }
-
-                        const lat = parseFloat(match.lat);
-                        const lon = parseFloat(match.lon);
 
                         if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
                             setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
                             return;
                         }
 
-                        updateMapPin(lat, lon, match.display_name || `${street} ${number}`);
+                        updateMapPin(lat, lon, displayName);
                         setMapStatus('');
                     } catch (error) {
                         if (error.name === 'AbortError') return;
@@ -622,27 +681,19 @@
         })();
 
         // Funciones para editar cantidades del carrito
-        function increaseQuantity(button) {
-            const form = button.closest('form');
-            const input = form.querySelector('.quantity-input');
-            const display = form.querySelector('.quantity-display');
-            let quantity = parseInt(input.value);
-            quantity++;
-            input.value = quantity;
-            display.textContent = quantity;
-            form.querySelector('.submit-btn').click();
+        function increaseCartQuantity(id) {
+            const form = document.getElementById('update-form-' + id);
+            const input = document.getElementById('quantity-input-' + id);
+            input.value = parseInt(input.value) + 1;
+            form.submit();
         }
 
-        function decreaseQuantity(button) {
-            const form = button.closest('form');
-            const input = form.querySelector('.quantity-input');
-            const display = form.querySelector('.quantity-display');
-            let quantity = parseInt(input.value);
-            if (quantity > 1) {
-                quantity--;
-                input.value = quantity;
-                display.textContent = quantity;
-                form.querySelector('.submit-btn').click();
+        function decreaseCartQuantity(id) {
+            const form = document.getElementById('update-form-' + id);
+            const input = document.getElementById('quantity-input-' + id);
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+                form.submit();
             }
         }
     </script>

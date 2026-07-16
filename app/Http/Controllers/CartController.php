@@ -68,7 +68,7 @@ class CartController extends Controller
             return response()->json(['success' => true, 'message' => 'Cantidad actualizada']);
         }
 
-        return redirect()->route('cart.index');
+        return redirect()->back();
     }
 
     public function remove($id)

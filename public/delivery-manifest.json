@@ -1,6 +1,6 @@
 {
-    "name": "Repartidor Dino - Alertas",
-    "short_name": "Repartidor",
+    "name": "Bari Rider",
+    "short_name": "Bari Rider",
     "description": "App minima para avisar cuando entra un pedido.",
     "start_url": "/repartidor/app",
     "scope": "/",

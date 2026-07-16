@@ -754,6 +754,12 @@
                 transform: translate3d(-86px, 0, 0) scale(1);
             }
         }
+        .results-space.has-no-results ~ .results-mic-btn {
+            top: 70%;
+        }
+        .results-space.has-no-results ~ .results-mic-label {
+            top: calc(70% + 45px);
+        }
     </style>
 </head>
 
@@ -935,7 +941,7 @@
                 setMicState('paused');
                 const query = searchInput ? searchInput.value.trim() : '';
                 if (query && resultsGallery) {
-                    resultsGallery.classList.remove('is-empty');
+                    resultsGallery.classList.remove('is-empty', 'has-no-results');
                     if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
                     resultsGallery.innerHTML =
                         '<div class="voice-transcript is-final">' +
@@ -961,9 +967,11 @@
                 if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
 
                 if (!products.length) {
-                    resultsGallery.classList.remove('is-empty');
-                    resultsGallery.innerHTML = '<p class="results-status">No encontramos resultados para "' +
-                        escapeHtml(query) + '".</p>';
+                    resultsGallery.classList.add('is-empty');
+                    resultsGallery.innerHTML = '<div class="results-status" style="position: absolute; bottom: 20px; width: 100%; left: 0; text-align: center; z-index: 20;">' +
+                        '<p style="margin-bottom: 15px; font-size: 1.1rem;">No encontramos resultados para "' + escapeHtml(query) + '".</p>' +
+                        '<button type="button" onclick="window.Livewire.dispatch(\'open-live-chat\')" class="tile-primary" style="padding: 10px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">Consulta por chat si no encuentras lo que buscas</button></div>';
+                    if (galleryMicBtn) galleryMicBtn.classList.remove('is-hidden');
                     return;
                 }
 
@@ -982,13 +990,13 @@
                         '</a>';
                 }).join('');
 
-                resultsGallery.classList.remove('is-empty');
+                resultsGallery.classList.remove('is-empty', 'has-no-results');
                 resultsGallery.innerHTML = '<div class="results-track">' + cards + '</div>';
             };
 
             const renderVoiceTranscript = (text, isFinal, hintText = 'Tocá el micrófono para pausar') => {
                 if (!resultsGallery) return;
-                resultsGallery.classList.remove('is-empty');
+                resultsGallery.classList.remove('is-empty', 'has-no-results');
                 if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
 
                 if (!text) {
@@ -1059,7 +1067,7 @@
                 if (!resultsGallery) return;
 
                 activeController = new AbortController();
-                resultsGallery.classList.remove('is-empty');
+                resultsGallery.classList.remove('is-empty', 'has-no-results');
                 resultsGallery.innerHTML = '<p class="results-status">Buscando...</p>';
 
                 fetch(searchEndpoint + '?q=' + encodeURIComponent(query), {

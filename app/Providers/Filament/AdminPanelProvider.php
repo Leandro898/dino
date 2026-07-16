@@ -57,6 +57,20 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => Blade::render('@vite([\'resources/js/filament-echo.js\'])' .
+                    '<link rel="manifest" href="/manifest.json">' .
+                    '<meta name="theme-color" content="#8b5cf6">' .
+                    '<meta name="vapid-public-key" content="' . config('webpush.vapid.public_key') . '">' .
+                    '<link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=B&size=192&background=8b5cf6&color=fff">' .
+                    '<script>window.authUserRole = "{{ auth()->user()?->role ?? \'guest\' }}";</script>'
+                ),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('<script src="/js/pwa.js"></script>')
+            );
     }
 }

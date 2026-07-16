@@ -13,6 +13,10 @@ class DeliveryAppController extends Controller
     {
         abort_unless($this->canAccessDeliveryApp($request), 403);
 
+        if ($request->user()->role === 'delivery' && !$request->user()->is_approved) {
+            return view('delivery.pending-approval');
+        }
+
         return view('delivery.app');
     }
 
@@ -20,8 +24,15 @@ class DeliveryAppController extends Controller
     {
         abort_unless($this->canAccessDeliveryApp($request), 403);
 
+        if ($request->user()->role === 'delivery' && !$request->user()->is_approved) {
+            return response()->json([
+                'has_order' => false,
+            ]);
+        }
+
         $latestOrder = Order::query()
-            ->whereIn('status', ['pending', 'pending_transfer', 'proof_sent'])
+            ->where('delivery_user_id', $request->user()->id)
+            ->whereIn('status', ['assigned', 'processing', 'shipped'])
             ->latest('id')
             ->first();
 
@@ -38,6 +49,7 @@ class DeliveryAppController extends Controller
             'created_at' => optional($latestOrder->created_at)?->toIso8601String(),
             'customer_name' => $latestOrder->name,
             'total' => (float) $latestOrder->total,
+            'address' => $latestOrder->address,
         ]);
     }
 

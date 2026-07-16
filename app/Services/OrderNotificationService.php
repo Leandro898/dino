@@ -94,6 +94,18 @@ class OrderNotificationService
 
     public function notifyNewOrder(Order $order): void
     {
+        try {
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\NewOrderPushNotification($order));
+            }
+        } catch (\Throwable $e) {
+            Log::error('Error sending push notification for new order.', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         if ($this->canSendSms()) {
             $this->sendSms($order);
             return;

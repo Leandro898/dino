@@ -66,6 +66,17 @@ class OrderResource extends Resource
                     })
                     ->disabled(fn ($record) => auth()->user()->role !== 'admin' && $record?->status === 'pending')
                     ->required(),
+                Forms\Components\Select::make('delivery_user_id')
+                    ->label('Repartidor Asignado')
+                    ->options(function () {
+                        return \App\Models\User::query()
+                            ->where('role', 'delivery')
+                            ->where('is_approved', true)
+                            ->pluck('name', 'id');
+                    })
+                    ->searchable()
+                    ->placeholder('Selecciona un repartidor')
+                    ->visible(fn () => auth()->user()?->role === 'admin'),
             ]);
     }
 

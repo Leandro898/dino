@@ -85,4 +85,25 @@ class ShippingZoneController extends Controller
             'zone_price' => $zone['price'] ?? 0,
         ]);
     }
+
+    /**
+     * GET /shipping/reverse-geocode?lat=-41.133&lon=-71.31
+     */
+    public function reverseGeocode(Request $request): JsonResponse
+    {
+        $lat = (float) $request->query('lat');
+        $lon = (float) $request->query('lon');
+
+        if (!$lat || !$lon) {
+            return response()->json([
+                'street' => null,
+                'number' => null,
+                'label' => null,
+            ]);
+        }
+
+        $result = $this->detector->reverseGeocode($lat, $lon);
+
+        return response()->json($result);
+    }
 }

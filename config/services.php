@@ -66,4 +66,8 @@ return [
 
     'ga4_measurement_id' => env('GA4_MEASUREMENT_ID'),
 
+    'google_maps' => [
+        'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
 ];

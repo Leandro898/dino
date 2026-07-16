@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 // 1. Importa estas dos clases de Filament
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 // 2. Agrega "implements FilamentUser"
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
@@ -28,13 +29,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
             'attributes' => $attributes
         ]);
     }
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasPushSubscriptions;
 
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'is_approved',
     ];
 
     protected $hidden = [

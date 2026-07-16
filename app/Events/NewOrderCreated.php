@@ -23,6 +23,7 @@ class NewOrderCreated implements ShouldBroadcast
     public ?string $address;
     public float $shipping_cost;
     public ?string $status;
+    public array $items = [];
 
     public function __construct(Order $order)
     {
@@ -37,6 +38,17 @@ class NewOrderCreated implements ShouldBroadcast
         $this->address = $order->address;
         $this->shipping_cost = $order->shipping_cost ?? 0;
         $this->status = $order->status;
+        
+        // Eager load items and map them for frontend
+        $order->loadMissing('items.product');
+        $this->items = $order->items->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'product_name' => $item->product?->name ?? 'Producto desconocido',
+                'quantity' => $item->quantity,
+                'subtotal' => $item->subtotal,
+            ];
+        })->toArray();
     }
 
     public function broadcastOn(): array

@@ -1,4 +1,4 @@
-﻿import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig(({ mode }) => {
@@ -19,6 +19,9 @@ export default defineConfig(({ mode }) => {
                 input: [
                     'resources/css/app.css',
                     'resources/js/app.js',
+                    'resources/js/filament-echo.js',
+                    'resources/css/home.css',
+                    'resources/js/home.js',
                 ],
                 refresh: true,
             }),

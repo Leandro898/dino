@@ -79,7 +79,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach($orders as $order)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition {{ in_array($order->id, $selectedOrders) ? 'bg-blue-50 dark:bg-blue-900/20' : '' }}">
+                                <tr wire:key="order-{{ $order->id }}" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition {{ in_array($order->id, $selectedOrders) ? 'bg-blue-50 dark:bg-blue-900/20' : '' }}">
                                     <td class="px-4 py-4 w-10">
                                         <input type="checkbox" 
                                                wire:model="selectedOrders"
@@ -145,7 +145,12 @@
                                         </select>
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 flex flex-col gap-2">
+                                        <button wire:click="viewOrder({{ $order->id }})"
+                                                class="inline-flex items-center gap-2 rounded-md bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">
+                                            <span>👁️</span>
+                                            <span>Ver Detalle</span>
+                                        </button>
                                         <button onclick="if(confirm('¿Estás seguro de que quieres eliminar esta orden? Esta acción no se puede deshacer.')) { @this.call('deleteOrder', {{ $order->id }}) }"
                                                 class="inline-flex items-center gap-2 rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50">
                                             <span>🗑️</span>
@@ -168,6 +173,98 @@
             </div>
         @endif
     </div>
+
+    <!-- Modal Detalle del Pedido -->
+    @if($viewingOrder)
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity" wire:ignore.self>
+            <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+                <!-- Header -->
+                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Detalle del Pedido #{{ $viewingOrder->id }}</h3>
+                    <button wire:click="closeViewOrder" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Contenido -->
+                <div class="px-6 py-4 space-y-6">
+                    <!-- Cliente y Envío -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
+                            <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Datos del Cliente</h4>
+                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $viewingOrder->name }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $viewingOrder->email }}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $viewingOrder->phone }}</p>
+                        </div>
+                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
+                            <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Datos de Envío</h4>
+                            <p class="text-sm text-gray-900 dark:text-white">{{ $viewingOrder->address }}</p>
+                            @if($viewingOrder->shipping_zone)
+                                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">Zona: {{ $viewingOrder->shipping_zone }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Detalles del Pago -->
+                    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Método de Pago</h4>
+                                <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white uppercase">{{ $viewingOrder->payment_method }}</p>
+                            </div>
+                            <div class="text-right">
+                                <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado Actual</h4>
+                                <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white uppercase">{{ $viewingOrder->status }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Productos -->
+                    <div>
+                        <h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">Productos</h4>
+                        <div class="divide-y divide-gray-200 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+                            @foreach($viewingOrder->items as $item)
+                                <div class="flex items-center justify-between p-4">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->product?->name ?? 'Producto no encontrado' }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Cantidad: {{ $item->quantity }}</p>
+                                    </div>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">${{ number_format($item->subtotal, 2) }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Totales -->
+                    <div class="flex justify-end pt-4">
+                        <div class="w-full max-w-sm space-y-2 text-sm">
+                            <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                <span>Subtotal</span>
+                                <span>${{ number_format($viewingOrder->total - ($viewingOrder->shipping_cost ?? 0), 2) }}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                                <span>Envío</span>
+                                <span>${{ number_format($viewingOrder->shipping_cost ?? 0, 2) }}</span>
+                            </div>
+                            <div class="flex justify-between border-t border-gray-200 pt-2 text-base font-bold text-gray-900 dark:border-gray-700 dark:text-white">
+                                <span>Total</span>
+                                <span>${{ number_format($viewingOrder->total, 2) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/50 flex justify-end">
+                    <button wire:click="closeViewOrder" class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <script>
         // 🔌 SISTEMA DE NOTIFICACIÓN EN TIEMPO REAL CON WEBSOCKETS (Reverb)

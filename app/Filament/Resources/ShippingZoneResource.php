@@ -14,8 +14,7 @@ class ShippingZoneResource extends Resource
 {
     public static function shouldRegisterNavigation(): bool
     {
-        $user = auth()->user();
-        return $user && $user->role === 'admin';
+        return false;
     }
     protected static ?string $model = ShippingZone::class;
 
