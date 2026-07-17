@@ -2,9 +2,9 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
+use Filament\Pages\Dashboard as BaseDashboard;
 
-class VendorDashboard extends Page
+class VendorDashboard extends BaseDashboard
 {
     protected static ?string $navigationIcon = 'heroicon-o-home';
     protected static string $view = 'filament.pages.vendor-dashboard';
@@ -27,7 +27,7 @@ class VendorDashboard extends Page
     {
         // Only vendors can access this page
         if (auth()->user()?->role !== 'vendor') {
-            return redirect()->to(AdminDashboard::getUrl());
+            abort(403, 'Acceso denegado. Esta sección es exclusiva para vendedores.');
         }
     }
 }

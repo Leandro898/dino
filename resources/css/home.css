@@ -71,10 +71,10 @@ main {
 }
 
 .results-space {
-    height: 232px;
+    min-height: 232px;
+    height: auto;
     margin-bottom: 1.05rem;
     max-width: 100%;
-    overflow: hidden;
 }
 
 .results-space.is-empty {
@@ -378,10 +378,25 @@ main {
     }
 }
 
-/* Hide center mic when results or transcript are shown */
-.results-space:not(.is-empty)~.results-mic-btn,
-.results-mic-btn.is-hidden,
-.results-space:not(.is-empty)~.results-mic-label,
+/* Reposition center mic when results or transcript are shown */
+.results-space:not(.is-empty)~.results-mic-btn {
+    position: static;
+    transform: none;
+    margin-top: 25px;
+    display: flex;
+}
+.results-space:not(.is-empty)~.results-mic-btn:hover {
+    transform: translateY(-3px);
+}
+.results-mic-btn.is-hidden {
+    display: none;
+}
+.results-space:not(.is-empty)~.results-mic-label {
+    position: static;
+    transform: none;
+    margin-top: 12px;
+    display: block;
+}
 .results-mic-btn.is-hidden~.results-mic-label {
     display: none;
 }
@@ -1018,11 +1033,34 @@ main {
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: background-color 0.2s;
 }
-.lc-push-banner-btn:hover {
-    background-color: #2563eb;
+.lc-push-banner-btn:hover { background-color: #2563eb; }
+
+.results-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.results-space {
+    width: 100%;
+}
+
+.results-space.has-no-results ~ .results-mic-btn {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.results-space.has-no-results ~ .results-mic-btn:hover {
+    transform: translate(-50%, -52%);
+}
+.results-space.has-no-results ~ .results-mic-label {
+    position: absolute;
+    top: calc(70% + 45px);
+    left: 50%;
+    transform: translateX(-50%);
 }

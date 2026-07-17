@@ -24,6 +24,9 @@ class ListProducts extends ListRecords
 
     public function getTabs(): array
     {
+        if (auth()->user()?->role === 'vendor') {
+            return [];
+        }
         $keywords = [
             'agua', 'agua con gas', 'agua saborizada', 'aquarius', 'aperol', 'bebida', 'bebida deportiva',
             'bebida energizante', 'bonaqua', 'branca', 'campari', 'cerveza', 'cinzano', 'coca', 'coca cola',

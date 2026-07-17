@@ -23,7 +23,9 @@ class AdminDashboard extends BaseDashboard
     {
         // Redirect vendor users to their own dashboard
         if (auth()->user()?->role !== 'admin') {
-            return redirect()->to(VendorDashboard::getUrl());
+            $mainHost = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
+            $protocol = request()->secure() ? 'https://' : 'http://';
+            return redirect()->to($protocol . 'vendedor.' . $mainHost);
         }
     }
 

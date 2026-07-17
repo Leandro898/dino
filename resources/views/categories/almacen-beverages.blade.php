@@ -33,7 +33,7 @@
                 <label for="almacen-search" class="sr-only">Buscar bebidas de Almacén</label>
                 <div class="flex">
                     <input id="almacen-search" type="text" name="q" value="{{ $search }}"
-                        placeholder="¿Qué necesitás hoy? Ej: fernet, coca, gin..." autocomplete="off"
+                        placeholder="¿Qué necesitás hoy? Ej: gaseosa, jugo, fernet, etc..." autocomplete="off"
                         class="w-full rounded-2xl border border-white/20 bg-white px-4 py-3 text-sm font-semibold text-gray-800 outline-none">
                 </div>
                 <p id="search-status" class="mt-2 text-xs font-semibold text-white/70 hidden">Buscando...</p>
@@ -41,9 +41,22 @@
         </section>
 
         <section class="mt-8">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                <button type="button" onclick="startVoiceSearch('almacen-search', 'almacen-search-form')" class="shared-mic-btn" style="margin-bottom: 12px;" title="Búsqueda por voz">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z" />
+                    </svg>
+                </button>
+                <p class="shared-mic-label">Pedi lo que quieras</p>
+            </div>
+            
             @if ($products->isEmpty())
                 <div class="rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center text-gray-500">
-                    No hay productos de bebidas para mostrar.
+                    <p class="mb-4">No hay productos para esta búsqueda.</p>
+                    <button type="button" onclick="window.Livewire.dispatch('open-live-chat')" class="rounded-full bg-[#6a31df] px-6 py-3 font-bold text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl">
+                        Pídelo por chat
+                    </button>
                 </div>
             @else
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
@@ -76,13 +89,19 @@
                         </a>
                     @endforeach
                 </div>
-
-                <div class="mt-8">
+                <div class="mt-12 text-center mb-4">
+                    <button type="button" onclick="window.Livewire.dispatch('open-live-chat')" class="rounded-full bg-[#6a31df] px-6 py-3 font-bold text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl">
+                        ¿No encontrás lo que buscabas? Pídelo por chat
+                    </button>
+                </div>
+                <div id="products-pagination" class="mt-8">
                     {{ $products->links() }}
                 </div>
             @endif
         </section>
     </main>
+    
+    <livewire:live-chat />
 
     <script>
         (function () {
@@ -103,6 +122,51 @@
                 }, 900);
             });
         })();
+
+        function startVoiceSearch(inputId, formId) {
+            const inputElement = document.getElementById(inputId);
+            const formElement = document.getElementById(formId);
+            
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Lo siento, tu navegador no soporta búsqueda por voz.');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            
+            recognition.lang = 'es-AR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                inputElement.placeholder = 'Escuchando...';
+                inputElement.value = '';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                inputElement.value = transcript;
+                if(formElement) {
+                    formElement.submit();
+                } else {
+                    inputElement.dispatchEvent(new KeyboardEvent('keydown', {'key': 'Enter'}));
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Error en reconocimiento de voz:', event.error);
+                inputElement.placeholder = 'Error al escuchar. Intenta de nuevo.';
+            };
+
+            recognition.onend = function() {
+                if(!inputElement.value) {
+                    inputElement.placeholder = '¿Qué bebidas buscás hoy? Ej: gaseosa, jugo, fernet...';
+                }
+            };
+
+            recognition.start();
+        }
     </script>
 </body>
 

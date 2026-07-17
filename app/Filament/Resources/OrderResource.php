@@ -263,8 +263,11 @@ class OrderResource extends Resource
         return parent::getEloquentQuery()
             ->with(['items.product.user', 'user'])
             ->where('status', '!=', 'pending')
-            ->whereHas('items.product', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
+            ->where(function ($q) use ($user) {
+                $q->where('vendor_id', $user->id)
+                  ->orWhereHas('items.product', function ($subQ) use ($user) {
+                      $subQ->where('user_id', $user->id);
+                  });
             });
     }
 }

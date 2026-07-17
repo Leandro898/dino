@@ -247,79 +247,98 @@
         window.dispatchEvent(new CustomEvent('vendor-new-order-assigned', { detail: order }));
     }
 
-    // ─── Inicializar WebSocket via Echo ───────────────────────
-    function initVendorEcho(userId) {
+    // ─── Inicializar WebSocket via Pusher ───────────────────────
+    function initVendorPusher(userId) {
         if (wsInitialized) return;
 
-        if (!window.Echo) {
-            console.warn('%c⚠️ [Vendor] Echo no disponible, reintentando en 300ms...', 'color: orange');
-            setTimeout(() => initVendorEcho(userId), 300);
+        if (!window.Pusher) {
+            console.warn('%c⚠️ [Vendor] Pusher no disponible, reintentando en 300ms...', 'color: orange');
+            setTimeout(() => initVendorPusher(userId), 300);
             return;
         }
 
-        // Verificar si ya hay un canal vendor suscrito (evitar doble suscripción)
-        const channelName = `vendor.${userId}`;
-        if (window.Echo.connector.channels && window.Echo.connector.channels[`private-${channelName}`]) {
-            /* console.log */(`%c⚠️ [Vendor] Canal vendor.${userId} ya estaba suscrito`, 'color: orange');
-            wsInitialized = true;
-            return;
-        }
-
+        const channelName = `private-vendor.${userId}`;
         /* console.log */(`%c📡 [Vendor] Conectando al canal privado: ${channelName}`, 'color: blue; font-weight: bold');
 
         try {
-            window.Echo.private(channelName)
-                .listen('.order-status-updated', (data) => {
-                    /* console.log */('%c🎉 [Vendor] EVENTO RECIBIDO: order-status-updated', 'color: green; font-size: 14px; font-weight: bold', data);
+            const pusher = new window.Pusher('{{ config('broadcasting.connections.reverb.key') }}', {
+                wsHost: '{{ config('broadcasting.connections.reverb.options.host') }}',
+                wsPort: {{ config('broadcasting.connections.reverb.options.port', 8080) }},
+                wssPort: {{ config('broadcasting.connections.reverb.options.port', 8080) }},
+                forceTLS: false,
+                enabledTransports: ['ws'],
+                cluster: 'mt1',
+                authEndpoint: '/broadcasting/auth',
+                auth: {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                }
+            });
 
-                    if (data.new_status === 'assigned') {
-                        /* console.log */('%c📦 [Vendor] Estado = assigned → disparando notificaciones', 'color: green');
-                        playVendorSound();
-                        showVendorToast(data);
-                        showBrowserNotification(data);
-                        
-                        // Si la fila ya existe, sólo actualizamos el select
-                        const existingRow = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
-                        if (existingRow) {
-                            const statusSelect = existingRow.querySelector('select');
+            pusher.connection.bind('connected', () => {
+                /* console.log */('%c✅ [Vendor] Conectado a Reverb via Pusher', 'color: green; font-weight: bold');
+            });
+
+            pusher.connection.bind('disconnected', () => {
+                /* console.log */('%c❌ [Vendor] Desconectado de Reverb', 'color: red; font-weight: bold');
+            });
+
+            const channel = pusher.subscribe(channelName);
+
+            channel.bind('pusher:subscription_succeeded', () => {
+                /* console.log */(`%c✅ [Vendor] Suscripción al canal ${channelName} exitosa`, 'color: green; font-weight: bold');
+            });
+
+            channel.bind('pusher:subscription_error', (status) => {
+                console.error(`%c❌ [Vendor] Error en suscripción al canal ${channelName}:`, 'color: red; font-weight: bold', status);
+            });
+
+            channel.bind('order-status-updated', (data) => {
+                /* console.log */('%c🎉 [Vendor] EVENTO RECIBIDO: order-status-updated', 'color: green; font-size: 14px; font-weight: bold', data);
+
+                if (data.new_status === 'assigned') {
+                    /* console.log */('%c📦 [Vendor] Estado = assigned → disparando notificaciones', 'color: green');
+                    playVendorSound();
+                    showVendorToast(data);
+                    showBrowserNotification(data);
+                    
+                    const existingRow = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
+                    if (existingRow) {
+                        const statusSelect = existingRow.querySelector('select');
+                        if (statusSelect) {
+                            statusSelect.value = data.new_status;
+                        }
+                        existingRow.style.backgroundColor = '#fef3c7';
+                        setTimeout(() => { existingRow.style.backgroundColor = ''; }, 3000);
+                    } else {
+                        addOrderRowToTable(data);
+                    }
+                    
+                    notifyBell(data);
+                } else {
+                    /* console.log */(`%c🔄 [Vendor] Estado cambiado a: ${data.new_status}`, 'color: purple');
+                    const row = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
+                    if (row) {
+                        if (!['assigned', 'processing', 'completed'].includes(data.new_status)) {
+                            row.remove();
+                            const tbody = document.getElementById('vendorOrdersTableBody');
+                            if (tbody && tbody.children.length === 0) {
+                                Livewire.dispatch('order-updated');
+                            }
+                        } else {
+                            const statusSelect = row.querySelector('select');
                             if (statusSelect) {
                                 statusSelect.value = data.new_status;
                             }
-                            existingRow.style.backgroundColor = '#fef3c7';
-                            setTimeout(() => { existingRow.style.backgroundColor = ''; }, 3000);
-                        } else {
-                            addOrderRowToTable(data);
-                        }
-                        
-                        notifyBell(data);
-                    } else {
-                        /* console.log */(`%c🔄 [Vendor] Estado cambiado a: ${data.new_status}`, 'color: purple');
-                        const row = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
-                        if (row) {
-                            if (!['assigned', 'processing', 'completed'].includes(data.new_status)) {
-                                row.remove();
-                                // Check if we need to show the empty placeholder
-                                const tbody = document.getElementById('vendorOrdersTableBody');
-                                if (tbody && tbody.children.length === 0) {
-                                    Livewire.dispatch('order-updated'); // Reload to show empty state placeholder
-                                }
-                            } else {
-                                const statusSelect = row.querySelector('select');
-                                if (statusSelect) {
-                                    statusSelect.value = data.new_status;
-                                }
-                                row.style.backgroundColor = '#fef3c7';
-                                setTimeout(() => { row.style.backgroundColor = ''; }, 3000);
-                            }
+                            row.style.backgroundColor = '#fef3c7';
+                            setTimeout(() => { row.style.backgroundColor = ''; }, 3000);
                         }
                     }
-                })
-                .error((error) => {
-                    console.error('%c❌ [Vendor] Error en canal privado (auth fallida?):', 'color: red; font-weight: bold', error);
-                });
+                }
+            });
 
             wsInitialized = true;
-            /* console.log */(`%c✅ [Vendor] Escuchando canal ${channelName}`, 'color: green; font-weight: bold');
         } catch (e) {
             console.error('%c❌ [Vendor] Excepción al suscribirse:', 'color: red', e);
         }
@@ -335,16 +354,16 @@
     if (!VENDOR_USER_ID) {
         console.error('%c❌ [Vendor] No se pudo obtener userId - verificar auth()', 'color: red');
     } else {
-        // 1. Intentar inmediatamente (si Echo ya está listo)
-        initVendorEcho(VENDOR_USER_ID);
+        // 1. Intentar inmediatamente (si Pusher ya está listo)
+        initVendorPusher(VENDOR_USER_ID);
 
         // 2. También cuando Livewire esté completamente inicializado
         document.addEventListener('livewire:initialized', () => {
-            initVendorEcho(VENDOR_USER_ID);
+            initVendorPusher(VENDOR_USER_ID);
         });
 
         // 3. Fallback: intentar a los 1.5s para cubrir casos edge
-        setTimeout(() => initVendorEcho(VENDOR_USER_ID), 1500);
+        setTimeout(() => initVendorPusher(VENDOR_USER_ID), 1500);
     }
 })();
 </script>

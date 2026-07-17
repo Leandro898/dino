@@ -12,57 +12,7 @@ use Illuminate\Http\Request;
 
 class PublicProductController extends Controller
 {
-    public function index(): View
-    {
-        // Traemos productos activos paginados para no cargar todo el catalogo en cada request.
-        $products = Product::query()
-            ->where('is_active', true)
-            ->latest()
-            ->paginate(120)
-            ->withQueryString();
 
-
-        $supermarketProductsCount = Product::query()
-            ->carrefourAlmacen()
-            ->where('is_active', true)
-            ->count();
-
-        $breakfastProductsCount = Product::query()
-            ->where('external_source', 'carrefour')
-            ->where('external_category', 'desayuno-y-merienda')
-            ->where('is_active', true)
-            ->count();
-
-        $categoryOrder = [
-            'Supermercados',
-            'Desayuno y merienda',
-            'Cigarrillos',
-            'Bebidas',
-            'Accesorios',
-            'Snacks',
-            'Otros',
-        ];
-
-        $categorizedProducts = $products->getCollection()
-            ->groupBy(fn(Product $product) => $this->determineCategoryLabel($product))
-            ->sortBy(fn($_, $category) => array_search($category, $categoryOrder, true) !== false
-                ? array_search($category, $categoryOrder, true)
-                : 999)
-            ->sortKeysUsing(function ($a, $b) use ($categoryOrder) {
-                $indexA = array_search($a, $categoryOrder, true);
-                $indexB = array_search($b, $categoryOrder, true);
-                $indexA = $indexA === false ? 999 : $indexA;
-                $indexB = $indexB === false ? 999 : $indexB;
-                return $indexA <=> $indexB;
-            });
-
-        return view('welcome', compact(
-            'products',
-            'categorizedProducts',
-            'supermarketProductsCount',
-            'breakfastProductsCount'
-        ));
-    }
 
     public function supermarkets(Request $request): View
     {

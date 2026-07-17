@@ -145,6 +145,11 @@ class CheckoutController extends Controller
                 ->get()
                 ->keyBy('id');
 
+            $vendorId = null;
+            if ($products->isNotEmpty()) {
+                $vendorId = $products->first()->user_id;
+            }
+
             foreach ($cart as $id => $details) {
                 $productId = (int) ($details['product_id'] ?? $id);
                 $product = $products->get($productId);
@@ -203,6 +208,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'user_id' => Auth::id(),
+                'vendor_id' => $vendorId,
                 'name' => $request->name,
                 'email' => $this->resolveOrderEmail($request),
                 'address' => $request->address,

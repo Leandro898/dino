@@ -25,6 +25,22 @@ class CartController extends Controller
     public function add(Product $product)
     {
         $cart = session()->get('cart', []);
+        
+        if (!empty($cart)) {
+            $firstProductId = array_key_first($cart);
+            $firstProductInCart = Product::find((int) $firstProductId);
+            
+            if ($firstProductInCart && $firstProductInCart->user_id !== $product->user_id) {
+                if (request()->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Solo puedes pedir de un comercio a la vez. Vacía tu carrito para agregar este producto.',
+                    ], 422);
+                }
+                return redirect()->back()->with('error', 'Solo puedes pedir de un comercio a la vez. Vacía tu carrito para agregar este producto.');
+            }
+        }
+
         $requestedQuantity = max(1, (int) request()->input('quantity', 1));
 
         $itemKey = (string) $product->id;

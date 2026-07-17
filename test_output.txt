@@ -1,3 +1,0 @@
-
-   Error  Call to a member function html() on string.
-

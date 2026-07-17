@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Shared Microphone Button Styles */
+.shared-mic-btn {
+    width: 58px;
+    height: 58px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #7c3aed 0%, #4c1d95 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(76, 29, 149, 0.32);
+    transition: transform 140ms ease, box-shadow 140ms ease;
+    outline: 3px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 0;
+}
+.shared-mic-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(76, 29, 149, 0.42);
+}
+
+.shared-mic-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #4c1d95;
+    background: #fff;
+    padding: 0.25rem 0.8rem;
+    border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(48, 37, 94, 0.08);
+    border: 1px solid #d9def3;
+    margin: 0;
+}

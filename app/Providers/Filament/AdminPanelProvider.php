@@ -38,8 +38,6 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Pages\AdminDashboard::class,
                 \App\Filament\Pages\OrdersRealtime::class,
                 \App\Filament\Pages\AdminOrders::class,
-                \App\Filament\Pages\VendorDashboard::class,
-                \App\Filament\Pages\VendorOrders::class,
                 \App\Filament\Pages\PriceControl::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')

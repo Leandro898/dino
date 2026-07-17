@@ -1,1 +1,0 @@
-ERROR: Livewire only supports one HTML element per component. Multiple root elements detected for component: [orders-table-realtime]

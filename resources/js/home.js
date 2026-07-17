@@ -173,7 +173,7 @@
             return;
         }
 
-        if (galleryMicBtn) galleryMicBtn.classList.add('is-hidden');
+        if (galleryMicBtn) galleryMicBtn.classList.remove('is-hidden');
 
         const cards = products.map((product) => {
             const imageHtml = product.image ?
@@ -191,7 +191,8 @@
         }).join('');
 
         resultsGallery.classList.remove('is-empty', 'has-no-results');
-        resultsGallery.innerHTML = '<div class="results-track">' + cards + '</div>';
+        resultsGallery.innerHTML = '<div class="results-track">' + cards + '</div>' +
+            '<div style="text-align: center; margin-top: 55px; margin-bottom: 30px; padding-bottom: 10px;"><button type="button" onclick="window.Livewire.dispatch(\'open-live-chat\')" class="tile-primary" style="padding: 10px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">¿No es lo que buscabas? Pídelo por chat</button></div>';
     };
 
     const renderVoiceTranscript = (text, isFinal, hintText = 'Tocá el micrófono para pausar') => {
