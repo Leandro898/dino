@@ -1,21 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
+<x-front-layout bodyClass="home-body">
+    @push('styles')
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        @vite(['resources/css/home.css'])
+    @endpush
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Checkout - Marketplace Bariloche</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
-
-    @include('partials.header')
-
-    <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20 pb-36 md:pb-10">
+    <main class="w-full max-w-[1920px] mx-auto px-4 md:px-8 xl:px-12 py-10 lg:py-16 pb-36 md:pb-10">
 
 
 
@@ -49,204 +39,105 @@
             </form>
         @endforeach
 
-        <form action="{{ route('checkout.process') }}" method="POST">
+        <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
             @csrf
 
-            <div class="grid lg:grid-cols-3 gap-10">
+            <div class="grid lg:grid-cols-3 gap-6 lg:gap-10">
 
-                <!-- DATOS DEL COMPRADOR + CARRITO -->
-                <div class="lg:col-span-2 space-y-8">
+                <!-- COLUMNA IZQUIERDA: DATOS + MAPA (2/3 de ancho en pantallas grandes) -->
+                <div class="lg:col-span-2 grid md:grid-cols-2 gap-6 h-fit">
+                    <!-- 1. DATOS DE ENVÍO -->
+                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm h-full flex flex-col justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold mb-4 dark:text-white">Datos de envío</h2>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Nombre completo"
+                                        class="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white text-sm">
+                                </div>
+                                <div>
+                                    <input type="text" name="phone" value="{{ old('phone') }}" required placeholder="Teléfono"
+                                        class="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white text-sm">
+                                </div>
+                                <div>
+                                    <input type="email" name="email" value="{{ old('email') }}" placeholder="tu@email.com"
+                                        class="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white text-sm">
+                                </div>
 
-                    @if (!empty($cart))
-                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
-                        <h2 class="text-xl font-bold mb-6 dark:text-white">
-                            📦 Tu Pedido
-                        </h2>
+                                <hr class="border-gray-100 dark:border-gray-800 my-4">
 
-                        <div class="hidden md:grid grid-cols-6 font-bold text-sm uppercase tracking-widest text-gray-400 pb-4 border-b">
-                            <div class="col-span-3">Producto</div>
-                            <div>Precio</div>
-                            <div>Cantidad</div>
-                            <div>Subtotal</div>
+                                <div>
+                                    <input type="text" id="street-name-input" name="street_name"
+                                        value="{{ old('street_name') }}" required autocomplete="off"
+                                        list="street-suggestions-list" placeholder="Calle (Ej: Albarracín)"
+                                        class="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white text-sm">
+                                    <datalist id="street-suggestions-list"></datalist>
+                                </div>
+                                <div>
+                                    <input type="number" id="street-number-input" name="street_number"
+                                        value="{{ old('street_number') }}" required min="1"
+                                        placeholder="Altura (Ej: 1430)"
+                                        class="w-full p-2.5 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white text-sm">
+                                </div>
+
+                                <input type="hidden" id="address-hidden" name="address" value="{{ old('address') }}">
+                                <input type="hidden" id="shipping-zone-hidden" name="shipping_zone" value="{{ old('shipping_zone') }}">
+                            </div>
                         </div>
-
-                        @foreach ($cart as $id => $details)
-                            @php
-                                $subtotal = $details['price'] * $details['quantity'];
-                                $total += $subtotal;
-                            @endphp
-
-                            <div class="grid grid-cols-1 md:grid-cols-6 items-center gap-4 py-6 border-b last:border-0">
-                                <!-- PRODUCTO -->
-                                <div class="md:col-span-3 flex items-center gap-4">
-                                    @if ($details['image'])
-                                        <img src="{{ asset('storage/' . $details['image']) }}"
-                                            class="w-20 h-20 object-cover rounded-xl">
-                                    @endif
-
-                                    <div>
-                                        <h3 class="font-bold dark:text-white text-sm md:text-base">
-                                            {{ $details['name'] }}
-                                        </h3>
-
-                                        <button type="submit" form="remove-form-{{ $id }}" class="text-xs text-gray-400 hover:text-red-500 mt-2">
-                                            ❌ Eliminar
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- PRECIO -->
-                                <div class="font-semibold text-sm md:text-base">
-                                    ${{ number_format($details['price'], 0, ',', '.') }}
-                                </div>
-
-                                <!-- CANTIDAD -->
-                                <div class="flex items-center gap-2">
-                                        <button type="button" onclick="decreaseCartQuantity('{{ $id }}')"
-                                            class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
-                                            −
-                                        </button>
-                                        <span class="w-6 text-center font-semibold text-sm">{{ $details['quantity'] }}</span>
-                                        <button type="button" onclick="increaseCartQuantity('{{ $id }}')"
-                                            class="w-6 h-6 md:w-8 md:h-8 rounded-lg bg-gray-100 dark:bg-[#0f0f0f] hover:bg-gray-200 dark:hover:bg-[#1a1a1a] flex items-center justify-center font-bold transition-colors text-sm">
-                                            +
-                                        </button>
-                                </div>
-
-                                <!-- SUBTOTAL -->
-                                <div class="font-bold text-sm md:text-base">
-                                    ${{ number_format($subtotal, 0, ',', '.') }}
-                                </div>
-                            </div>
-                        @endforeach
-
-                    </div>
-                    @endif
-
-                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
-
-                        <h2 class="text-xl font-bold mb-6 dark:text-white">
-                            Datos de contacto
-                        </h2>
-
-                        <div class="grid md:grid-cols-2 gap-6">
-
-                            <div>
-                                <label class="text-sm font-semibold">Nombre completo</label>
-                                <input type="text" name="name" value="{{ old('name') }}" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-semibold">Teléfono</label>
-                                <input type="text" name="phone" value="{{ old('phone') }}" required
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <label class="text-sm font-semibold">Email</label>
-                                <input type="email" name="email" value="{{ old('email') }}"
-                                    placeholder="tu@email.com"
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                                @error('email')
-                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-semibold">Calle</label>
-                                <input type="text" id="street-name-input" name="street_name"
-                                    value="{{ old('street_name') }}" required autocomplete="off"
-                                    list="street-suggestions-list"
-                                    placeholder="Ej: Albarracín"
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                                <datalist id="street-suggestions-list"></datalist>
-                                @error('street_name')
-                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-semibold">Altura (número)</label>
-                                <input type="number" id="street-number-input" name="street_number"
-                                    value="{{ old('street_number') }}" required min="1"
-                                    placeholder="Ej: 1430"
-                                    class="w-full mt-2 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] dark:bg-[#0f0f0f] dark:text-white dark:placeholder-gray-500">
-                                @error('street_number')
-                                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <p class="text-sm font-semibold">Ubicación estimada en el mapa</p>
-                                <div id="checkout-map" class="mt-2 h-64 w-full rounded-xl border border-gray-200 relative z-10" style="height: 16rem;"></div>
-                                <p id="checkout-map-status" class="mt-2 text-xs text-gray-500">
-                                    Ingresá calle y altura para ver la ubicación estimada.
-                                </p>
-                            </div>
-
-                            {{-- Dirección completa compuesta (oculta, para guardar en BD) --}}
-                            <input type="hidden" id="address-hidden" name="address" value="{{ old('address') }}">
-                            <input type="hidden" id="shipping-zone-hidden" name="shipping_zone" value="{{ old('shipping_zone') }}">
-
-                            <div class="md:col-span-2">
-                                <div id="zone-detection-msg" class="hidden mb-1 p-3 rounded-xl text-sm font-medium"></div>
-                                @error('shipping_zone')
-                                    <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                        </div>
-
+                        <div id="zone-detection-msg" class="hidden text-sm mt-4"></div>
                     </div>
 
+                    <!-- 2. MAPA -->
+                    <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm h-full flex flex-col">
+                        <h2 class="text-lg font-bold mb-4 dark:text-white">Ubicación estimada</h2>
+                        <div id="delivery-map" class="w-full rounded-xl border border-gray-200 relative z-10 flex-1 min-h-[320px]" style="height: 350px;"></div>
+                        <p id="map-status" class="mt-2 text-xs text-gray-500">Ingresá calle y altura.</p>
+                        
+                        <input type="hidden" id="lat" name="lat" value="{{ old('lat', -41.133472) }}">
+                        <input type="hidden" id="lng" name="lng" value="{{ old('lng', -71.310278) }}">
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: RESUMEN Y MÉTODO DE PAGO (1/3 de ancho en pantallas grandes) -->
+                <div class="lg:col-span-1 space-y-6 lg:sticky lg:top-24 h-fit">
+                    <!-- MÉTODO DE PAGO -->
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
-
-                        <h2 class="text-xl font-bold mb-6 dark:text-white">
-                            Método de pago
-                        </h2>
-
-
-
-                        <div class="space-y-4">
-
-                            <label id="label-mercadopago"
-                                class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="sr-only"
+                        <h2 class="text-lg font-bold mb-4 dark:text-white">Método de pago</h2>
+                        <div class="space-y-3">
+                            
+                            <label id="label-mercadopago" class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50 dark:has-[:checked]:bg-purple-900/20 transition-colors">
+                                <input type="radio" name="payment_method" id="pm-mercadopago" value="mercadopago" class="sr-only peer"
                                     {{ !empty($onlyMercadoPago) || old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }}>
-                                <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
+                                <span id="dot-mercadopago" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-purple-600 peer-checked:border-[5px] transition-all"></span>
                                 <span>
-                                    <span class="block font-semibold dark:text-white">Mercado Pago</span>
-                                    <span class="block text-sm text-gray-500 dark:text-gray-400">Pagás online en el momento con tarjeta, débito, crédito o dinero en cuenta. La orden queda confirmada cuando Mercado Pago aprueba el pago.</span>
+                                    <span class="block text-sm font-bold dark:text-white">Mercado Pago</span>
+                                    <span class="block text-xs text-gray-500">Pagás online.</span>
                                 </span>
                             </label>
 
                             @if (!empty($manualWhatsAppPaymentEnabled))
-                                <label class="flex items-start gap-4 p-4 rounded-2xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer transition-colors">
-                                    <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only"
+                                <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50 dark:has-[:checked]:bg-purple-900/20 transition-colors">
+                                    <input type="radio" name="payment_method" id="pm-transferencia" value="transferencia" class="sr-only peer"
                                         {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
-                                    <span id="dot-transferencia" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 transition-colors"></span>
+                                    <span id="dot-transferencia" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-purple-600 peer-checked:border-[5px] transition-all"></span>
                                     <span>
-                                        <span class="block font-semibold dark:text-white">Efectivo o transferencia por WhatsApp</span>
-                                        <span class="block text-sm text-gray-500 dark:text-gray-400">Te redirigimos a WhatsApp con el detalle del pedido para coordinar el pago y la entrega.</span>
+                                        <span class="block text-sm font-bold dark:text-white">Efectivo / Transf.</span>
+                                        <span class="block text-xs text-gray-500">Por WhatsApp.</span>
                                     </span>
                                 </label>
                             @endif
 
-
                         </div>
-
                     </div>
 
-                </div>
+                    <!-- TU PEDIDO -->
+                    <div class="bg-white dark:bg-[#161615] rounded-2xl shadow-sm p-6">
+                        <h2 class="text-xl font-bold mb-6 dark:text-white flex items-center gap-2">📦 Tu pedido</h2>
 
 
-                <!-- RESUMEN DEL PEDIDO -->
-                <div class="bg-white dark:bg-[#161615] rounded-2xl shadow-sm p-6 h-fit">
 
-                    <h2 class="text-xl font-bold mb-6 dark:text-white">
-                        Tu pedido
-                    </h2>
+
 
                     @if (session('cart'))
 
@@ -257,30 +148,62 @@
                                     : null;
                         @endphp
 
+                        <div class="divide-y border-b mb-6 dark:divide-gray-800 dark:border-gray-800 pb-2">
                         @foreach (session('cart') as $id => $details)
                             @php
                                 $subtotal = $details['price'] * $details['quantity'];
                                 $total += $subtotal;
                             @endphp
 
-                            <div class="flex justify-between text-sm mb-3">
-                                <span>
-                                    {{ $details['name'] }} x{{ $details['quantity'] }}
-                                </span>
-                                <span>
-                                    ${{ number_format($subtotal, 0, ',', '.') }}
-                                </span>
+                            <div class="py-4">
+                                <div class="flex items-center gap-3">
+                                    @if ($details['image'])
+                                        <img src="{{ asset('storage/' . $details['image']) }}"
+                                            class="w-12 h-12 md:w-16 md:h-16 flex-shrink-0 object-cover rounded-lg">
+                                    @endif
+                                    <div class="flex-1">
+                                        <h3 class="font-bold dark:text-white text-sm">
+                                            {{ $details['name'] }}
+                                        </h3>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <!-- Qty Controls -->
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" class="w-6 h-6 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 flex items-center justify-center btn-decrease-qty text-xs font-bold"
+                                                    data-id="{{ $id }}" data-url="{{ route('cart.update', $id) }}">-</button>
+                                                <span class="font-bold w-4 text-center text-xs" id="quantity-display-{{ $id }}">{{ $details['quantity'] }}</span>
+                                                <button type="button" class="w-6 h-6 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 flex items-center justify-center btn-increase-qty text-xs font-bold"
+                                                    data-id="{{ $id }}" data-url="{{ route('cart.update', $id) }}">+</button>
+                                            </div>
+                                            <!-- Price -->
+                                            <div class="font-bold text-sm text-purple-700 dark:text-purple-400">
+                                                ${{ number_format($subtotal, 0, ',', '.') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" form="remove-form-{{ $id }}" class="text-gray-400 hover:text-red-500 self-start p-1" title="Eliminar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         @endforeach
+                        </div>
 
-                        <div class="flex justify-between mt-6 pt-4 border-t text-lg font-bold dark:text-white">
+                        <div class="flex justify-between mt-4 pt-4 border-t text-base font-bold dark:text-white">
                             <span>Subtotal productos</span>
                             <span id="summary-subtotal" data-value="{{ $total }}">${{ number_format($total, 0, ',', '.') }}</span>
                         </div>
 
-                        <div class="flex justify-between mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                            <span>Envío</span>
-                            <span id="summary-shipping">
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t text-base font-semibold text-gray-800 dark:text-gray-200">
+                            <span class="flex items-center gap-1.5 text-purple-700 dark:text-purple-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                                    <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7h-3v7h.05a2.5 2.5 0 004.9 0H17a1 1 0 001-1v-2.828a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7.414V7z" />
+                                </svg>
+                                Envío
+                            </span>
+                            <span id="summary-shipping" class="text-purple-700 dark:text-purple-400 font-bold">
                                 @if (!is_null($selectedShippingCost))
                                     ${{ number_format($selectedShippingCost, 0, ',', '.') }}
                                 @else
@@ -301,403 +224,32 @@
                         </div>
 
                         <button type="submit"
-                            class="w-full mt-8 bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm mb-36 md:mb-0">
+                            class="w-full mt-6 bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-3 rounded-xl font-bold uppercase text-sm mb-20 md:mb-0">
                             Confirmar pedido
                         </button>
 
                     @endif
 
+                    </div>
                 </div>
 
             </div>
 
         </form>
 
+        <div id="checkout-config" class="hidden" 
+            data-shipping-zones='@json($shippingZones)'
+            data-google-maps-key='{{ config('services.google_maps.key') }}'
+            data-reverse-geocode-url='{{ route('shipping.reverse-geocode') }}'
+            data-street-suggestions-url='{{ route('shipping.street-suggestions') }}'
+            data-detect-zone-url='{{ route('shipping.detect-zone') }}'>
+        </div>
+
     </main>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-    <script>
-            (() => {
-                const mpInput      = document.getElementById('pm-mercadopago');
-                const dotMP        = document.getElementById('dot-mercadopago');
-                const dotTransf    = document.getElementById('dot-transferencia');
-                const transferInput = document.getElementById('pm-transferencia');
-                if (!mpInput) return;
-
-                function setDot(el, active) {
-                    if (!el) return;
-                    if (active) {
-                        el.style.borderColor = '#9333ea';
-                        el.style.backgroundColor = '#9333ea';
-                    } else {
-                        el.style.borderColor = '';
-                        el.style.backgroundColor = '';
-                    }
-                }
-
-                function syncAll() {
-                    const mpChecked     = mpInput && mpInput.checked;
-                    const transfChecked = transferInput && transferInput.checked;
-
-                    setDot(dotMP, mpChecked);
-                    setDot(dotTransf, transfChecked);
-                }
-
-                // Al seleccionar MP
-                if (mpInput) {
-                    mpInput.addEventListener('change', () => {
-                        if (transferInput) transferInput.checked = false;
-                        syncAll();
-                    });
-                }
-
-                if (transferInput) {
-                    transferInput.addEventListener('change', () => {
-                        if (mpInput) mpInput.checked = false;
-                        syncAll();
-                    });
-                }
-
-                // Estado inicial
-                syncAll();
-            })();
-    </script>
-
-    <script>
-        // ── Auto-detección de zona de envío ──────────────────────────────────
-        (() => {
-            const streetInput   = document.getElementById('street-name-input');
-            const numberInput   = document.getElementById('street-number-input');
-            const zoneHidden    = document.getElementById('shipping-zone-hidden');
-            const msgBox        = document.getElementById('zone-detection-msg');
-            const addressHidden = document.getElementById('address-hidden');
-            const datalist      = document.getElementById('street-suggestions-list');
-            const mapElement    = document.getElementById('checkout-map');
-            const mapStatus     = document.getElementById('checkout-map-status');
-            const shippingZones = @json($shippingZones);
-
-            if (!streetInput || !numberInput || !zoneHidden || !msgBox || !addressHidden || !datalist) return;
-
-            let map = null;
-            let marker = null;
-            let geocodeTimeout = null;
-            let geocodeController = null;
-
-            function setMapStatus(text, isError = false) {
-                if (!mapStatus) return;
-
-                if (!text) {
-                    mapStatus.classList.add('hidden');
-                    return;
-                }
-
-                mapStatus.textContent = text;
-                mapStatus.classList.remove('hidden');
-                mapStatus.classList.toggle('text-red-500', isError);
-                mapStatus.classList.toggle('text-gray-500', !isError);
-            }
-
-            function ensureMap() {
-                if (!mapElement || map) return;
-
-                if (typeof window.L === 'undefined') {
-                    setMapStatus('No se pudo cargar el mapa en este momento.', true);
-                    return;
-                }
-
-                map = L.map(mapElement, {
-                    zoomControl: true,
-                }).setView([-41.1335, -71.3103], 12);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap',
-                    maxZoom: 19,
-                }).addTo(map);
-
-                setTimeout(() => map.invalidateSize(), 0);
-            }
-
-            function updateMapPin(lat, lon, label) {
-                ensureMap();
-                if (!map) return;
-
-                const coords = [lat, lon];
-
-                if (!marker) {
-                    marker = L.marker(coords, { draggable: true }).addTo(map);
-                    marker.on('dragend', onMarkerDragEnd);
-                } else {
-                    marker.setLatLng(coords);
-                }
-
-                if (label) {
-                    marker.bindPopup(label);
-                }
-
-                map.setView(coords, 16);
-            }
-
-            async function onMarkerDragEnd(event) {
-                const latlng = event.target.getLatLng();
-                const lat = latlng.lat;
-                const lon = latlng.lng;
-                
-                setMapStatus('Actualizando dirección desde el mapa...');
-
-                try {
-                    const url = new URL('{{ route("shipping.reverse-geocode") }}', window.location.origin);
-                    url.searchParams.set('lat', lat);
-                    url.searchParams.set('lon', lon);
-
-                    const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-                    if (!res.ok) throw new Error('reverse-geocode-failed');
-                    
-                    const data = await res.json();
-
-                    if (data.street) {
-                        streetInput.value = data.street;
-                        if (data.number) {
-                            numberInput.value = data.number;
-                        }
-                        
-                        if (data.label) {
-                            marker.bindPopup(data.label).openPopup();
-                        }
-                        
-                        updateAddressHidden();
-                        detectZone();
-                    }
-                    setMapStatus('');
-                } catch (error) {
-                    setMapStatus('');
-                }
-            }
-
-            function updateAddressHidden() {
-                const s = streetInput.value.trim();
-                const n = numberInput.value.trim();
-                addressHidden.value = s + (n ? ' ' + n : '');
-            }
-
-            function showMsg(type, text) {
-                msgBox.className = 'mb-3 p-3 rounded-xl text-sm font-medium border';
-                msgBox.classList.add(
-                    type === 'success' ? 'bg-green-50'  : 'bg-amber-50',
-                    type === 'success' ? 'text-green-700' : 'text-amber-700',
-                    type === 'success' ? 'border-green-200' : 'border-amber-200'
-                );
-                msgBox.textContent = text;
-                msgBox.classList.remove('hidden');
-            }
-
-            function hideMsg() {
-                msgBox.classList.add('hidden');
-            }
-
-            function updateTotals(price) {
-                const subtotalEl = document.getElementById('summary-subtotal');
-                const shippingEl = document.getElementById('summary-shipping');
-                const totalEl    = document.getElementById('summary-total');
-                if (!subtotalEl || !shippingEl || !totalEl) return;
-
-                const subtotal = parseInt(subtotalEl.dataset.value || 0, 10);
-
-                if (price !== null) {
-                    shippingEl.textContent = '$' + price.toLocaleString('es-AR');
-                    totalEl.textContent    = '$' + (subtotal + price).toLocaleString('es-AR');
-                } else {
-                    shippingEl.textContent = 'Completá tu dirección';
-                    totalEl.textContent    = '$' + subtotal.toLocaleString('es-AR');
-                }
-            }
-
-            let detectTimeout = null;
-            let suggestTimeout = null;
-
-            async function fetchStreetSuggestions() {
-                const term = streetInput.value.trim();
-
-                if (term.length < 2) {
-                    datalist.innerHTML = '';
-                    return;
-                }
-
-                clearTimeout(suggestTimeout);
-                suggestTimeout = setTimeout(async () => {
-                    try {
-                        const url = new URL('{{ route("shipping.street-suggestions") }}', window.location.origin);
-                        url.searchParams.set('q', term);
-
-                        const res = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-                        const data = await res.json();
-                        const items = Array.isArray(data.suggestions) ? data.suggestions : [];
-
-                        datalist.innerHTML = '';
-                        items.forEach((street) => {
-                            const option = document.createElement('option');
-                            option.value = street;
-                            datalist.appendChild(option);
-                        });
-                    } catch (_) {
-                        // silencioso
-                    }
-                }, 200);
-            }
-
-            async function detectZone() {
-                const street = streetInput.value.trim();
-                const number = numberInput.value.trim();
-                updateAddressHidden();
-                if (!street) { hideMsg(); return; }
-
-                clearTimeout(detectTimeout);
-                detectTimeout = setTimeout(async () => {
-                    try {
-                        const url = new URL('{{ route("shipping.detect-zone") }}', window.location.origin);
-                        url.searchParams.set('street', street);
-                        if (number) url.searchParams.set('number', number);
-
-                        const res  = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-                        const data = await res.json();
-
-                        if (data.zone_key) {
-                            zoneHidden.value = data.zone_key;
-                            showMsg('success', 'Zona detectada: ' + data.zone_label + ' - Envio: $' + data.zone_price.toLocaleString('es-AR'));
-                            updateTotals(data.zone_price);
-                        } else {
-                            zoneHidden.value = '';
-                            showMsg('warning', 'No encontramos esa calle y altura. Revisa los datos para calcular el envio.');
-                            updateTotals(null);
-                        }
-                    } catch (_) { /* silencioso */ }
-                }, 600);
-            }
-
-            async function geocodeAddress() {
-                const street = streetInput.value.trim();
-                const number = numberInput.value.trim();
-
-                if (street.length < 3 || number.length < 1) {
-                    setMapStatus('Ingresá calle y altura para ver la ubicación estimada.');
-                    return;
-                }
-
-                // Con dirección completa, ocultamos la leyenda de ayuda.
-                setMapStatus('');
-
-                clearTimeout(geocodeTimeout);
-                geocodeTimeout = setTimeout(async () => {
-                    if (geocodeController) {
-                        geocodeController.abort();
-                    }
-
-                    geocodeController = new AbortController();
-                    const googleKey = @json($googleMapsApiKey);
-                    const query = `${street} ${number}, San Carlos de Bariloche, Rio Negro, Argentina`;
-
-                    try {
-                        let lat, lon, displayName;
-                        let matched = false;
-
-                        if (googleKey) {
-                            try {
-                                const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${googleKey}`;
-                                const res = await fetch(url, { signal: geocodeController.signal });
-                                if (res.ok) {
-                                    const data = await res.json();
-                                    if (data.status === 'OK' && data.results && data.results[0]) {
-                                        const result = data.results[0];
-                                        lat = parseFloat(result.geometry.location.lat);
-                                        lon = parseFloat(result.geometry.location.lng);
-                                        displayName = result.formatted_address;
-                                        matched = true;
-                                    }
-                                }
-                            } catch (_) {
-                                // fall through
-                            }
-                        }
-
-                        if (!matched) {
-                            const url = new URL('https://nominatim.openstreetmap.org/search');
-                            url.searchParams.set('format', 'json');
-                            url.searchParams.set('limit', '1');
-                            url.searchParams.set('countrycodes', 'ar');
-                            url.searchParams.set('q', query);
-
-                            const res = await fetch(url.toString(), {
-                                headers: { Accept: 'application/json' },
-                                signal: geocodeController.signal,
-                            });
-                            if (!res.ok) throw new Error('geocode-failed');
-                            const places = await res.json();
-                            const match = Array.isArray(places) ? places[0] : null;
-
-                            if (!match) {
-                                setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
-                                return;
-                            }
-
-                            lat = parseFloat(match.lat);
-                            lon = parseFloat(match.lon);
-                            displayName = match.display_name || `${street} ${number}`;
-                        }
-
-                        if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-                            setMapStatus('No pudimos ubicar esa dirección en el mapa. Revisá calle y altura.', true);
-                            return;
-                        }
-
-                        updateMapPin(lat, lon, displayName);
-                        setMapStatus('');
-                    } catch (error) {
-                        if (error.name === 'AbortError') return;
-                        setMapStatus('No se pudo actualizar el mapa en este momento.', true);
-                    }
-                }, 800);
-            }
-
-            const initialZoneKey = zoneHidden.value;
-            if (initialZoneKey && shippingZones[initialZoneKey]) {
-                updateTotals(shippingZones[initialZoneKey].price);
-            }
-
-            streetInput.addEventListener('input', () => {
-                fetchStreetSuggestions();
-                detectZone();
-                geocodeAddress();
-            });
-            numberInput.addEventListener('input', () => {
-                detectZone();
-                geocodeAddress();
-            });
-            streetInput.addEventListener('blur',  updateAddressHidden);
-            numberInput.addEventListener('blur',  updateAddressHidden);
-
-            ensureMap();
-            geocodeAddress();
-        })();
-
-        // Funciones para editar cantidades del carrito
-        function increaseCartQuantity(id) {
-            const form = document.getElementById('update-form-' + id);
-            const input = document.getElementById('quantity-input-' + id);
-            input.value = parseInt(input.value) + 1;
-            form.submit();
-        }
-
-        function decreaseCartQuantity(id) {
-            const form = document.getElementById('update-form-' + id);
-            const input = document.getElementById('quantity-input-' + id);
-            if (parseInt(input.value) > 1) {
-                input.value = parseInt(input.value) - 1;
-                form.submit();
-            }
-        }
-    </script>
-
-</body>
-
-</html>
+    @push('scripts')
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        @vite(['resources/js/checkout.js'])
+    @endpush
+</x-front-layout>

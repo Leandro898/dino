@@ -29,6 +29,7 @@ class SellerPanelProvider extends PanelProvider
             ->domain('vendedor.' . $mainHost)
             ->path('') // Sirve en la raíz del subdominio
             ->login()
+            ->favicon(asset('favicon-arg.svg'))
             ->databaseNotifications()
             ->colors([
                 'primary' => Color::Indigo, // Un color diferente para el vendedor
@@ -39,6 +40,7 @@ class SellerPanelProvider extends PanelProvider
             ])
             ->resources([
                 \App\Filament\Resources\ProductResource::class,
+                \App\Filament\Resources\CustomRequestResource::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])
@@ -71,12 +73,13 @@ class SellerPanelProvider extends PanelProvider
                 fn (): string => Blade::render(
                     '<script src="/js/pwa.js"></script>' .
                     '<script>
+                        window.addEventListener("beforeinstallprompt", (e) => e.preventDefault());
                         if ("serviceWorker" in navigator) {
                             window.addEventListener("load", function() {
                                 navigator.serviceWorker.register("/vendedor-sw.js").then(function(registration) {
-                                    console.log("ServiceWorker para vendedor registrado con éxito con scope: ", registration.scope);
+                                    // Silencioso
                                 }, function(err) {
-                                    console.log("Fallo al registrar ServiceWorker para vendedor: ", err);
+                                    // Silencioso
                                 });
                             });
                         }

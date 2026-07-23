@@ -189,99 +189,167 @@
 
     <!-- Modal Detalle del Pedido -->
     @if($viewingOrder)
-        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity" wire:ignore.self>
-            <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-gray-800">
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-opacity animate-[fadeIn_0.2s_ease-out]" wire:ignore.self>
+            <div class="relative w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-300 dark:border-slate-700 dark:bg-slate-900">
                 <!-- Header -->
-                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Detalle del Pedido #{{ $viewingOrder->id }}</h3>
-                    <button wire:click="closeViewOrder" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4.5 dark:border-slate-700 bg-white dark:bg-slate-900 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <svg class="h-6 w-6 text-slate-600 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Detalle del Pedido #{{ $viewingOrder->id }}</h3>
+                    </div>
+                    <button wire:click="closeViewOrder" class="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-300 dark:hover:bg-slate-800 transition-all">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
                 
-                <!-- Contenido -->
-                <div class="px-6 py-4 space-y-6">
+                <!-- Contenido (Scrollable) -->
+                <div class="px-6 py-5 space-y-6 overflow-y-auto flex-1 max-h-[calc(90vh-140px)] bg-white dark:bg-slate-900">
                     <!-- Cliente y Envío -->
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
-                            <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Datos del Cliente</h4>
-                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $viewingOrder->name }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $viewingOrder->email }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $viewingOrder->phone }}</p>
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <!-- Tarjeta de Datos del Cliente -->
+                        <div class="rounded-xl border border-slate-300/80 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-800/30">
+                            <div class="flex items-center gap-1.5 mb-3.5">
+                                <svg class="h-5 w-5 text-slate-500 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span class="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-400 uppercase">Datos del Cliente</span>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-sm font-bold text-slate-900 dark:text-slate-50">{{ $viewingOrder->name }}</p>
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 break-all">{{ $viewingOrder->email }}</p>
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $viewingOrder->phone }}</p>
+                            </div>
                         </div>
-                        <div class="rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
-                            <h4 class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Ubicación</h4>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $viewingOrder->address }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ $viewingOrder->city }}, {{ $viewingOrder->state }}</p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">CP: {{ $viewingOrder->zip_code }}</p>
+                        
+                        <!-- Tarjeta de Ubicación -->
+                        <div class="rounded-xl border border-slate-300/80 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-800/30">
+                            <div class="flex items-center gap-1.5 mb-3.5">
+                                <svg class="h-5 w-5 text-slate-500 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span class="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-400 uppercase">Ubicación de Envío</span>
+                            </div>
+                            <div class="space-y-1.5">
+                                <p class="text-sm font-bold text-slate-900 dark:text-slate-50">{{ $viewingOrder->address }}</p>
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ $viewingOrder->city }}, {{ $viewingOrder->state }}</p>
+                                <p class="text-xs font-bold text-slate-500 dark:text-slate-500 mt-1">Código Postal: {{ $viewingOrder->zip_code }}</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Detalles del Pago -->
-                    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-                        <div class="flex items-center justify-between">
+                    <!-- Detalles de Pago y Estado -->
+                    <div class="rounded-xl border border-slate-300/80 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-800/30">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Método de Pago</p>
-                                <p class="mt-1 font-medium text-gray-900 dark:text-white">{{ $viewingOrder->payment_method === 'mercadopago' ? 'Mercado Pago' : 'Transferencia Bancaria' }}</p>
+                                <span class="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase block mb-1.5">Método de Pago</span>
+                                <div>
+                                    @if($viewingOrder->payment_method === 'mercadopago')
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800 ring-1 ring-inset ring-blue-700/20 dark:bg-blue-900/40 dark:text-blue-300">💳 Mercado Pago</span>
+                                    @elseif($viewingOrder->payment_method === 'transferencia')
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-800 ring-1 ring-inset ring-green-700/20 dark:bg-green-900/40 dark:text-green-300">🏦 Transferencia Bancaria</span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 ring-1 ring-inset ring-amber-700/20 dark:bg-amber-900/40 dark:text-amber-300">💵 {{ ucfirst($viewingOrder->payment_method) }}</span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Estado</p>
-                                <p class="mt-1 font-medium text-gray-900 dark:text-white">
-                                    {{ match($viewingOrder->status) {
-                                        'pending' => 'Pendiente',
-                                        'assigned' => 'Asignado a Repartidor',
-                                        'processing' => 'En Preparación',
-                                        'completed' => 'Completado',
-                                        'shipped' => 'Enviado',
-                                        'cancelled' => 'Cancelado',
-                                        default => ucfirst($viewingOrder->status)
-                                    } }}
-                                </p>
+                            
+                            <div>
+                                <span class="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase block mb-1.5">Estado del Pedido</span>
+                                <div>
+                                    @php
+                                        $statusLabel = match($viewingOrder->status) {
+                                            'pending' => 'Pendiente',
+                                            'assigned' => 'Asignado a Repartidor',
+                                            'processing' => 'En Preparación',
+                                            'completed' => 'Completado',
+                                            'shipped' => 'Enviado',
+                                            'cancelled' => 'Cancelado',
+                                            default => ucfirst($viewingOrder->status)
+                                        };
+                                        
+                                        $statusClass = match($viewingOrder->status) {
+                                            'pending' => 'bg-amber-100 text-amber-900 ring-amber-600/30 dark:bg-amber-900/40 dark:text-amber-300',
+                                            'assigned' => 'bg-sky-100 text-sky-900 ring-sky-600/30 dark:bg-sky-900/40 dark:text-sky-300',
+                                            'processing' => 'bg-purple-100 text-purple-900 ring-purple-600/30 dark:bg-purple-900/40 dark:text-purple-300',
+                                            'completed' => 'bg-emerald-100 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-900/40 dark:text-emerald-300',
+                                            'shipped' => 'bg-indigo-100 text-indigo-900 ring-indigo-600/30 dark:bg-indigo-900/40 dark:text-indigo-300',
+                                            'cancelled' => 'bg-rose-100 text-rose-900 ring-rose-600/30 dark:bg-rose-900/40 dark:text-rose-300',
+                                            default => 'bg-slate-100 text-slate-900 ring-slate-600/30 dark:bg-slate-900/40 dark:text-slate-300'
+                                        };
+                                    @endphp
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset {{ $statusClass }}">
+                                        {{ $statusLabel }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Lista de Productos -->
                     <div>
-                        <h4 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">Productos</h4>
-                        <div class="divide-y divide-gray-200 rounded-lg border border-gray-200 dark:divide-gray-700 dark:border-gray-700">
-                            @foreach($viewingOrder->items as $item)
-                                <div class="flex items-center justify-between p-4">
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $item->product?->name ?? 'Producto no disponible' }}</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">Cantidad: {{ $item->quantity }}</p>
-                                    </div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">${{ number_format($item->price * $item->quantity, 2) }}</p>
-                                </div>
-                            @endforeach
+                        <span class="text-xs font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase mb-3 block">Productos en la Orden</span>
+                        <div class="overflow-hidden rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-100 text-xs font-bold uppercase text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-b border-slate-300 dark:border-slate-700">
+                                    <tr>
+                                        <th class="px-4 py-3">Producto</th>
+                                        <th class="px-4 py-3 text-center">Cantidad</th>
+                                        <th class="px-4 py-3 text-right">Precio Unit.</th>
+                                        <th class="px-4 py-3 text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-900">
+                                    @foreach($viewingOrder->items as $item)
+                                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                                            <td class="px-4 py-3 font-semibold text-slate-900 dark:text-slate-100">
+                                                {{ $item->product?->name ?? 'Producto no disponible' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-center text-slate-700 dark:text-slate-300">
+                                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600">
+                                                    {{ $item->quantity }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 text-right font-bold text-slate-700 dark:text-slate-300">
+                                                ${{ number_format($item->price, 2) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-right font-bold text-slate-900 dark:text-slate-100">
+                                                ${{ number_format($item->price * $item->quantity, 2) }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                     <!-- Totales -->
-                    <div class="flex justify-end pt-4">
-                        <div class="w-full max-w-sm space-y-2 text-sm">
-                            <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                                <span>Subtotal</span>
-                                <span>${{ number_format($viewingOrder->total, 2) }}</span>
+                    <div class="flex justify-end pt-2">
+                        <div class="w-full max-w-xs rounded-xl border border-slate-300 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/30 space-y-2.5 text-sm">
+                            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                                <span class="font-bold">Subtotal</span>
+                                <span class="font-bold text-slate-900 dark:text-slate-200">${{ number_format($viewingOrder->total, 2) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                                <span>Envío</span>
-                                <span>Gratis</span>
+                            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                                <span class="font-bold">Envío</span>
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400">Gratis</span>
                             </div>
-                            <div class="flex justify-between border-t border-gray-200 pt-2 text-base font-bold text-gray-900 dark:border-gray-700 dark:text-white">
-                                <span>Total</span>
-                                <span>${{ number_format($viewingOrder->total, 2) }}</span>
+                            <div class="flex justify-between border-t border-slate-300 pt-2.5 dark:border-slate-700">
+                                <span class="text-base font-extrabold text-slate-900 dark:text-slate-100">Total</span>
+                                <span class="text-lg font-extrabold text-slate-900 dark:text-slate-50">${{ number_format($viewingOrder->total, 2) }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Footer -->
-                <div class="border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/50 flex justify-end">
+                <div class="border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50 flex justify-end shrink-0">
                     <button wire:click="closeViewOrder"
-                            class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:ring-gray-600 dark:hover:bg-gray-600">
+                            class="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white transition-all">
                         Cerrar
                     </button>
                 </div>

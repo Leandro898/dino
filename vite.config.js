@@ -22,6 +22,8 @@ export default defineConfig(({ mode }) => {
                     'resources/js/filament-echo.js',
                     'resources/css/home.css',
                     'resources/js/home.js',
+                    'resources/js/category.js',
+                    'resources/js/checkout.js',
                 ],
                 refresh: true,
             }),

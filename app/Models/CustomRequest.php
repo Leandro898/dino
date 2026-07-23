@@ -11,6 +11,7 @@ class CustomRequest extends Model
     use Notifiable, HasPushSubscriptions;
     protected $fillable = [
         'session_id',
+        'vendor_id',
         'status',
         'quoted_price',
         'quote_description',
@@ -21,5 +22,10 @@ class CustomRequest extends Model
     public function messages()
     {
         return $this->hasMany(ChatMessage::class);
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(User::class, 'vendor_id');
     }
 }

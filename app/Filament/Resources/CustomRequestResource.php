@@ -103,6 +103,20 @@ class CustomRequestResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        if (auth()->user() && auth()->user()->role === 'vendor') {
+            $query->where('vendor_id', auth()->id());
+        } elseif (auth()->user() && auth()->user()->role === 'admin') {
+            // El admin ve solo los que no tienen vendor_id (chat global)
+            $query->whereNull('vendor_id');
+        }
+        
+        return $query;
+    }
+
     public static function getRelations(): array
     {
         return [];

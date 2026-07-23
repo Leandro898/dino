@@ -38,13 +38,17 @@ class NewCustomRequestMessagePushNotification extends Notification implements Sh
     {
         $senderName = $this->message->sender_type === 'user' ? 
             ($this->message->sender->name ?? 'Cliente') : 'Admin';
+            
+        $url = $notifiable->role === 'vendor' 
+            ? 'https://vendedor.' . parse_url(config('app.url'), PHP_URL_HOST) . '/custom-requests'
+            : url('/admin/custom-requests');
 
         return (new WebPushMessage)
             ->title('Mensaje de ' . $senderName)
             ->icon('/favicon.ico')
             ->body(str()->limit($this->message->message ?? '', 50))
             ->action('Ver mensaje', 'view_message')
-            ->data(['url' => url('/admin/custom-requests')]);
+            ->data(['url' => $url]);
     }
 
     /**

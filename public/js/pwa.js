@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
         navigator.serviceWorker.register('/sw.js')
             .then(function(swReg) {
-                console.log('Service Worker is registered', swReg);
                 
                 // Pedir permiso y suscribir
                 document.body.addEventListener('click', function askPermissionOnce() {
@@ -66,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         })
         .catch(function(err) {
-            console.log('Failed to subscribe the user: ', err);
+            // Silencioso
         });
     }
 

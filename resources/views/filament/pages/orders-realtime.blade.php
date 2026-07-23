@@ -1,5 +1,5 @@
 <script>window.disableAlpineStart = true;</script>
-@vite(['resources/js/app.js'])
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 
 <script>
     // Interceptar TODOS los errores y warnings INMEDIATAMENTE
@@ -217,6 +217,22 @@
             }
         }
 
+        // 🔔 Función para mostrar notificación de Soporte de Repartidor
+        function showSupportNotification(deliveryUserId, senderName) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                const notification = new Notification('💬 ¡NUEVO MENSAJE DE SOPORTE!', {
+                    body: `Mensaje de soporte de repartidor: ${senderName}`,
+                    tag: 'support-' + deliveryUserId,
+                    requireInteraction: true
+                });
+
+                notification.onclick = function() {
+                    window.open(`/admin/delivery-supports/${deliveryUserId}/chat`, '_blank');
+                    window.focus();
+                };
+            }
+        }
+
         // Solicitar permisos de notificación
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
@@ -349,12 +365,19 @@
                 const row = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
                 if (row) {
                     // Encontrar el select de estado y actualizarlo
-                    const statusSelect = row.querySelector('select');
+                    const statusSelect = row.querySelector('select[onchange^="updateOrderStatusDirect"]');
                     if (statusSelect) {
                         statusSelect.value = data.new_status;
-                        row.style.backgroundColor = '#fffacd'; // Highlight amarillo
-                        setTimeout(() => row.style.backgroundColor = '', 2000);
                     }
+
+                    // Encontrar el select de repartidor y actualizarlo
+                    const riderSelect = row.querySelector('select[onchange^="updateOrderRiderDirect"]');
+                    if (riderSelect) {
+                        riderSelect.value = data.delivery_user_id || '';
+                    }
+
+                    row.style.backgroundColor = '#fffacd'; // Highlight amarillo
+                    setTimeout(() => row.style.backgroundColor = '', 2000);
                 }
 
                 // 🔊 Reproducir sonidos según el estado
@@ -376,6 +399,16 @@
                 console.log('🎉 ¡MENSAJE DE PEDIDO ESPECIAL RECIBIDO!', data);
                 playSpecialOrderSound();
                 showSpecialOrderNotification(data.requestId);
+            });
+
+            // 💬 Escuchar mensajes nuevos de Soporte de Repartidores
+            channel.bind('support-message.sent', (data) => {
+                console.log('🎉 ¡MENSAJE DE SOPORTE DE REPARTIDOR RECIBIDO!', data);
+                const currentUserId = {{ auth()->id() }};
+                if (data.senderId !== currentUserId) {
+                    playSpecialOrderSound();
+                    showSupportNotification(data.deliveryUserId, data.senderName);
+                }
             });
         }
 
@@ -546,7 +579,9 @@
                 if (response.ok) {
                     /* console.log */('%c✅ Repartidor actualizado', 'color: green; font-weight: bold');
                 } else {
-                    console.error('%c❌ Error al actualizar repartidor', 'color: red; font-weight: bold');
+                    const errData = await response.json();
+                    alert(errData.error || 'Error al actualizar repartidor');
+                    window.location.reload();
                 }
             } catch (e) {
                 console.error('%c❌ Error:', 'color: red; font-weight: bold', e);

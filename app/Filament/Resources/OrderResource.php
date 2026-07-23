@@ -76,7 +76,8 @@ class OrderResource extends Resource
                     })
                     ->searchable()
                     ->placeholder('Selecciona un repartidor')
-                    ->visible(fn () => auth()->user()?->role === 'admin'),
+                    ->visible(fn () => auth()->user()?->role === 'admin')
+                    ->disabled(fn ($record) => $record && in_array($record->status, ['completed', 'cancelled'])),
             ]);
     }
 
@@ -125,6 +126,12 @@ class OrderResource extends Resource
                     ->label('📅 Fecha')
                     ->sortable()
                     ->visibleFrom('md'),
+
+                Tables\Columns\IconColumn::make('is_accepted_by_rider')
+                    ->label('Aceptado Repartidor')
+                    ->boolean()
+                    ->sortable()
+                    ->visibleFrom('sm'),
                 
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()

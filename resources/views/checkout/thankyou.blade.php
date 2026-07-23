@@ -205,6 +205,18 @@
                 </div>
             @endif
 
+            @if (!empty($trackingUrl))
+                <a href="{{ $trackingUrl }}"
+                    class="inline-flex w-full justify-center items-center gap-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition-all text-white py-4 font-bold uppercase text-sm shadow-lg hover:shadow-xl mb-3"
+                    id="track-order-btn">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/20 text-lg">
+                        📍
+                    </span>
+                    Seguir mi pedido en tiempo real
+                </a>
+                <p class="text-xs text-gray-500 mb-6">Podrás ver la ubicación del repartidor en un mapa cuando esté en camino.</p>
+            @endif
+
             <a href="{{ route('home') }}"
                 class="inline-block w-full bg-black hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-colors text-white py-4 rounded-xl font-bold uppercase text-sm">
                 Volver a la tienda

@@ -22,6 +22,8 @@ class OrderStatusUpdated implements ShouldBroadcastNow
     public float $total;
     public ?string $payment_method;
     public array $vendor_ids;
+    public ?int $delivery_user_id;
+    public bool $is_accepted_by_rider;
 
     public function __construct(Order $order, string $oldStatus)
     {
@@ -32,6 +34,8 @@ class OrderStatusUpdated implements ShouldBroadcastNow
         $this->customer_name = $order->name;
         $this->total = $order->total;
         $this->payment_method = $order->payment_method;
+        $this->delivery_user_id = $order->delivery_user_id;
+        $this->is_accepted_by_rider = (bool) $order->is_accepted_by_rider;
 
         // Obtener IDs únicos de vendors que tienen productos en este pedido
         $this->vendor_ids = $order->items()
@@ -57,6 +61,9 @@ class OrderStatusUpdated implements ShouldBroadcastNow
 
         // También notificar al admin en el canal público
         $channels[] = new Channel('orders');
+
+        // Canal público de tracking para que el cliente vea los cambios de estado en tiempo real
+        $channels[] = new Channel('order-tracking.' . $this->order_id);
 
         return $channels;
     }

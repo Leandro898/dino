@@ -1,26 +1,29 @@
 <div>
-    @if($isOpen || $customRequest)
-        <!-- Floating Chat Button when chat is closed -->
-        @if(!$isOpen && $customRequest)
-            <button wire:click="openChat" class="lc-fab">
-                @if($customRequest->has_unread_user)
-                    <span class="lc-badge">!</span>
-                @endif
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
-            </button>
-        @endif
+    <!-- Floating Chat Button when chat is closed -->
+    @if(!$isOpen)
+        <button wire:click="openChat" class="lc-fab">
+            @if($customRequest && $customRequest->has_unread_user)
+                <span class="lc-badge">!</span>
+            @endif
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </button>
+    @endif
 
-        <!-- Chat Modal / Drawer -->
-        @if($isOpen)
+    <!-- Chat Modal / Drawer -->
+    @if($isOpen)
             <div class="lc-overlay" x-data x-trap="true">
                 <div class="lc-modal">
                     
                     <!-- Header -->
                     <div class="lc-header">
                         <div class="lc-header-title">
-                            <span>Pedido Especial</span>
+                            @if($vendor_name)
+                                <span>Chat con {{ $vendor_name }}</span>
+                            @else
+                                <span>Pedido Especial</span>
+                            @endif
                         </div>
                         <button wire:click="closeChat" class="lc-close">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -40,8 +43,13 @@
 
                         @if(count($messages) === 0)
                             <div class="lc-empty-state">
-                                <p class="lc-empty-title">¿No encontraste lo que buscabas?</p>
-                                <p class="lc-empty-subtitle">Escribe lo que necesitas y te lo cotizamos al instante.</p>
+                                @if($vendor_name)
+                                    <p class="lc-empty-title">¿Tienes alguna consulta?</p>
+                                    <p class="lc-empty-subtitle">Escríbele directamente a {{ $vendor_name }} antes de comprar.</p>
+                                @else
+                                    <p class="lc-empty-title">¿No encontraste lo que buscabas?</p>
+                                    <p class="lc-empty-subtitle">Escribe lo que necesitas y te lo cotizamos al instante.</p>
+                                @endif
                             </div>
                         @endif
 
@@ -96,8 +104,6 @@
                 </div>
             </div>
         @endif
-    @endif
-
     <script>
         document.addEventListener('livewire:initialized', () => {
             const scrollToBottom = () => {

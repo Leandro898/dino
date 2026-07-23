@@ -14,13 +14,33 @@ class LiveChat extends Component
     public $customRequest = null;
     public $customRequestId = null;
     public $messages = [];
+    public $vendor_id = null; // ID del vendedor al que se dirige el chat
+    public $vendor_name = null; // Nombre del vendedor
 
-    public function mount()
+    public function mount($vendor_id = null)
     {
+        $this->vendor_id = $vendor_id;
+        
+        if ($this->vendor_id) {
+            $vendor = \App\Models\User::find($this->vendor_id);
+            if ($vendor) {
+                $this->vendor_name = $vendor->name;
+            }
+        }
+
         $sessionId = Session::getId();
-        $this->customRequest = CustomRequest::where('session_id', $sessionId)
-                                            ->whereIn('status', ['open', 'quoted'])
-                                            ->first();
+        
+        $query = CustomRequest::where('session_id', $sessionId)
+                              ->whereIn('status', ['open', 'quoted']);
+                              
+        if ($this->vendor_id) {
+            $query->where('vendor_id', $this->vendor_id);
+        } else {
+            $query->whereNull('vendor_id');
+        }
+
+        $this->customRequest = $query->first();
+
         if ($this->customRequest) {
             $this->customRequestId = $this->customRequest->id;
             $this->loadMessages();
@@ -35,6 +55,7 @@ class LiveChat extends Component
         if (!$this->customRequest) {
             $this->customRequest = CustomRequest::create([
                 'session_id' => Session::getId(),
+                'vendor_id' => $this->vendor_id,
                 'status' => 'open',
             ]);
         }
@@ -87,9 +108,18 @@ class LiveChat extends Component
         $this->dispatch('message-sent');
 
         try {
-            $admins = \App\Models\User::where('role', 'admin')->get();
-            foreach ($admins as $admin) {
-                $admin->notify(new \App\Notifications\NewCustomRequestMessagePushNotification($messageModel, $this->customRequest));
+            if ($this->vendor_id) {
+                // Notificar solo al vendedor de este local
+                $vendor = \App\Models\User::find($this->vendor_id);
+                if ($vendor) {
+                    $vendor->notify(new \App\Notifications\NewCustomRequestMessagePushNotification($messageModel, $this->customRequest));
+                }
+            } else {
+                // Notificar a todos los admins (chat global)
+                $admins = \App\Models\User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\NewCustomRequestMessagePushNotification($messageModel, $this->customRequest));
+                }
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error sending push notification for custom request msg', ['error' => $e->getMessage()]);
@@ -98,7 +128,7 @@ class LiveChat extends Component
         try {
             broadcast(new \App\Events\CustomRequestMessageSent($this->customRequest->id))->toOthers();
         } catch (\Exception $e) {
-            // Ignorar fallos de websockets si no están bien configurados
+            // Ignorar fallos de websockets
         }
     }
 
@@ -110,7 +140,7 @@ class LiveChat extends Component
 
         // Crear producto real para no romper la lógica del checkout y las tablas de órdenes
         $product = \App\Models\Product::create([
-            'user_id' => \App\Models\User::first()->id, // Vendedor principal
+            'user_id' => $this->vendor_id ?? \App\Models\User::first()->id, // Vendedor del chat o principal
             'name' => "Pedido: " . $this->customRequest->quote_description,
             'description' => "Pedido Especial #" . $this->customRequest->id,
             'price' => $this->customRequest->quoted_price,

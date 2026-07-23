@@ -1,0 +1,2818 @@
+Dino Project Directory Structure
+=================================
+├── .editorconfig
+├── .env
+├── .env.example
+├── .env.testing
+├── .gitattributes
+├── .gitignore
+├── ARCHITECTURE.md
+├── ESTRUCTURA_PROYECTO.txt
+├── README.md
+├── app
+│   ├── Console
+│   │   ├── Commands
+│   │   │   ├── CheckOrderAssignments.php
+│   │   │   ├── ImportCarrefourAlmacen.php
+│   │   │   ├── ImportPedidosYaPharmacy.php
+│   │   │   ├── ImportShippingZonesGeoJson.php
+│   │   │   ├── SimulateOrder.php
+│   │   │   ├── SimulateOrderAssigned.php
+│   │   │   ├── TestBroadcastConfig.php
+│   │   │   ├── TestOrder.php
+│   ├── Events
+│   │   ├── CustomRequestMessageSent.php
+│   │   ├── NewOrderCreated.php
+│   │   ├── OrderStatusUpdated.php
+│   │   ├── OrderUnassignedFromRider.php
+│   │   ├── OrderUpdatedForRider.php
+│   │   ├── SupportMessageSent.php
+│   ├── Filament
+│   │   ├── Client
+│   │   │   ├── Pages
+│   │   │   │   ├── Dashboard.php
+│   │   │   ├── Resources
+│   │   │   │   ├── ClientOrderResource
+│   │   │   │   │   ├── Pages
+│   │   │   │   │   │   ├── EditClientOrder.php
+│   │   │   │   │   │   ├── ListClientOrders.php
+│   │   │   │   │   │   ├── ViewClientOrder.php
+│   │   │   │   ├── ClientOrderResource.php
+│   │   │   │   ├── ClientProductResource
+│   │   │   │   │   ├── Pages
+│   │   │   │   │   │   ├── CreateClientProduct.php
+│   │   │   │   │   │   ├── EditClientProduct.php
+│   │   │   │   │   │   ├── ListClientProducts.php
+│   │   │   │   ├── ClientProductResource.php
+│   │   ├── Pages
+│   │   │   ├── AdminDashboard.php
+│   │   │   ├── AdminOrders.php
+│   │   │   ├── OrdersRealtime.php
+│   │   │   ├── PriceControl.php
+│   │   │   ├── VendorDashboard.php
+│   │   │   ├── VendorOrders.php
+│   │   ├── Resources
+│   │   │   ├── CustomRequestResource
+│   │   │   │   ├── Pages
+│   │   │   │   │   ├── ChatCustomRequest.php
+│   │   │   │   │   ├── ListCustomRequests.php
+│   │   │   ├── CustomRequestResource.php
+│   │   │   ├── DeliverySupportResource
+│   │   │   │   ├── Pages
+│   │   │   │   │   ├── ChatDeliverySupport.php
+│   │   │   │   │   ├── ListDeliverySupports.php
+│   │   │   ├── DeliverySupportResource.php
+│   │   │   ├── OrderResource
+│   │   │   │   ├── Actions
+│   │   │   │   │   ├── ChangeStatusAction.php
+│   │   │   │   │   ├── ConfirmOrderAction.php
+│   │   │   │   ├── Pages
+│   │   │   │   │   ├── CreateOrder.php
+│   │   │   │   │   ├── EditOrder.php
+│   │   │   │   │   ├── ListOrders.php
+│   │   │   │   │   ├── ViewOrder.php
+│   │   │   ├── OrderResource.php
+│   │   │   ├── ProductResource
+│   │   │   │   ├── Pages
+│   │   │   │   │   ├── CreateProduct.php
+│   │   │   │   │   ├── EditProduct.php
+│   │   │   │   │   ├── ListProducts.php
+│   │   │   ├── ProductResource.php
+│   │   │   ├── ShippingZoneResource
+│   │   │   │   ├── Pages
+│   │   │   │   │   ├── CreateShippingZone.php
+│   │   │   │   │   ├── EditShippingZone.php
+│   │   │   │   │   ├── ListShippingZones.php
+│   │   │   ├── ShippingZoneResource.php
+│   │   │   ├── UserResource
+│   │   │   │   ├── Pages
+│   │   │   │   │   ├── CreateUser.php
+│   │   │   │   │   ├── EditUser.php
+│   │   │   │   │   ├── ListUsers.php
+│   │   │   ├── UserResource.php
+│   │   ├── Widgets
+│   │   │   ├── AnalyticsOverviewWidget.php
+│   │   │   ├── OrderNotificationWidget.php
+│   ├── Http
+│   │   ├── Controllers
+│   │   │   ├── Auth
+│   │   │   │   ├── AuthenticatedSessionController.php
+│   │   │   │   ├── ConfirmablePasswordController.php
+│   │   │   │   ├── EmailVerificationNotificationController.php
+│   │   │   │   ├── EmailVerificationPromptController.php
+│   │   │   │   ├── NewPasswordController.php
+│   │   │   │   ├── PasswordController.php
+│   │   │   │   ├── PasswordResetLinkController.php
+│   │   │   │   ├── RegisteredDeliveryController.php
+│   │   │   │   ├── RegisteredUserController.php
+│   │   │   │   ├── VerifyEmailController.php
+│   │   │   ├── BroadcastAuthController.php
+│   │   │   ├── CartController.php
+│   │   │   ├── CategoryController.php
+│   │   │   ├── CheckoutController.php
+│   │   │   ├── Controller.php
+│   │   │   ├── DeliveryAppController.php
+│   │   │   ├── FoodVendorController.php
+│   │   │   ├── OrderController.php
+│   │   │   ├── ProfileController.php
+│   │   │   ├── PublicProductController.php
+│   │   │   ├── PushNotificationController.php
+│   │   │   ├── ShippingZoneController.php
+│   │   │   ├── VoiceOrderController.php
+│   │   ├── Middleware
+│   │   │   ├── InjectFilamentNotificationScripts.php
+│   │   │   ├── TrackPageView.php
+│   │   ├── Requests
+│   │   │   ├── Auth
+│   │   │   │   ├── LoginRequest.php
+│   │   │   ├── CreateOrderRequest.php
+│   │   │   ├── ProcessCheckoutRequest.php
+│   │   │   ├── ProfileUpdateRequest.php
+│   ├── Jobs
+│   ├── Listeners
+│   │   ├── LogBroadcastEvents.php
+│   ├── Livewire
+│   │   ├── AdminOrdersTable.php
+│   │   ├── LiveChat.php
+│   │   ├── NotificationBell.php
+│   │   ├── OrderNotificationListener.php
+│   │   ├── OrdersTableRealtime.php
+│   │   ├── VendorOrdersTable.php
+│   ├── Mail
+│   │   ├── AdminOrderNotification.php
+│   │   ├── OrderConfirmation.php
+│   │   ├── VendorOrderAssigned.php
+│   ├── Models
+│   │   ├── Category.php
+│   │   ├── ChatMessage.php
+│   │   ├── CustomRequest.php
+│   │   ├── Order.php
+│   │   ├── OrderItem.php
+│   │   ├── PageView.php
+│   │   ├── Product.php
+│   │   ├── ShippingZone.php
+│   │   ├── StoreSetting.php
+│   │   ├── SupportMessage.php
+│   │   ├── User.php
+│   ├── Notifications
+│   │   ├── FilamentOrderNotification.php
+│   │   ├── GenericNotification.php
+│   │   ├── NewCustomRequestMessagePushNotification.php
+│   │   ├── NewCustomRequestReplyNotification.php
+│   │   ├── NewOrderPushNotification.php
+│   │   ├── OrderAssignedNotification.php
+│   │   ├── VendorOrderAssignedNotification.php
+│   │   ├── VerifyEmailNotification.php
+│   ├── Observers
+│   │   ├── OrderObserver.php
+│   ├── Providers
+│   │   ├── AppServiceProvider.php
+│   │   ├── BroadcastServiceProvider.php
+│   │   ├── Filament
+│   │   │   ├── AdminPanelProvider.php
+│   │   │   ├── Client
+│   │   │   │   ├── ClientPanelProvider.php
+│   │   │   ├── SellerPanelProvider.php
+│   ├── Services
+│   │   ├── CarrefourAlmacenImportService.php
+│   │   ├── OrderEmailService.php
+│   │   ├── OrderNotificationService.php
+│   │   ├── OrderProcessingService.php
+│   │   ├── PaymentService.php
+│   │   ├── PedidosYaPharmacyImportService.php
+│   │   ├── WhatsAppService.php
+│   │   ├── ZoneDetectionService.php
+│   ├── View
+│   │   ├── Components
+│   │   │   ├── AppLayout.php
+│   │   │   ├── GuestLayout.php
+│   │   │   ├── PrintLayout.php
+├── artisan
+├── composer.json
+├── composer.lock
+├── config
+│   ├── app.php
+│   ├── auth.php
+│   ├── beverages.php
+│   ├── broadcasting.php
+│   ├── cache.php
+│   ├── database.php
+│   ├── filament.php
+│   ├── filesystems.php
+│   ├── livewire.php
+│   ├── logging.php
+│   ├── mail.php
+│   ├── mercadopago.php
+│   ├── queue.php
+│   ├── reverb.php
+│   ├── sanctum.php
+│   ├── services.php
+│   ├── session.php
+│   ├── shipping.php
+├── database
+│   ├── .gitignore
+│   ├── factories
+│   │   ├── UserFactory.php
+│   ├── migrations
+│   │   ├── 0001_01_01_000000_create_users_table.php
+│   │   ├── 0001_01_01_000001_create_cache_table.php
+│   │   ├── 0001_01_01_000002_create_jobs_table.php
+│   │   ├── 2025_12_31_142153_create_products_table.php
+│   │   ├── 2026_03_04_135842_create_orders_table.php
+│   │   ├── 2026_03_04_135908_create_order_items_table.php
+│   │   ├── 2026_03_13_124721_add_mercadopago_fields_to_orders_table.php
+│   │   ├── 2026_04_11_104411_make_description_nullable_in_products_table.php
+│   │   ├── 2026_04_13_000000_add_slug_to_products_table.php
+│   │   ├── 2026_04_14_120000_add_shipping_fields_to_orders_table.php
+│   │   ├── 2026_04_17_100000_create_street_zones_table.php
+│   │   ├── 2026_04_19_100000_create_shipping_zones_table.php
+│   │   ├── 2026_05_02_000000_add_raffle_fields_to_products_and_order_items.php
+│   │   ├── 2026_05_04_215759_create_page_views_table.php
+│   │   ├── 2026_05_11_000001_add_external_source_fields_to_products_table.php
+│   │   ├── 2026_05_13_120000_create_store_settings_table.php
+│   │   ├── 2026_05_14_000001_add_role_to_users_table.php
+│   │   ├── 2026_05_29_001155_create_personal_access_tokens_table.php
+│   │   ├── 2026_06_01_150624_create_notifications_table.php
+│   │   ├── 2026_06_15_000000_add_indexes_for_performance.php
+│   │   ├── 2026_07_07_123007_remove_raffle_columns_and_tables.php
+│   │   ├── 2026_07_13_000217_create_custom_requests_table.php
+│   │   ├── 2026_07_13_000219_create_chat_messages_table.php
+│   │   ├── 2026_07_13_150412_create_push_subscriptions_table.php
+│   │   ├── 2026_07_14_162845_add_is_approved_to_users_table.php
+│   │   ├── 2026_07_14_231050_add_delivery_user_id_to_orders_table.php
+│   │   ├── 2026_07_16_000000_add_price_to_street_zones_table.php
+│   │   ├── 2026_07_16_221933_add_vendor_id_to_orders_table.php
+│   │   ├── 2026_07_17_035857_create_categories_table.php
+│   │   ├── 2026_07_18_120000_create_support_messages_table.php
+│   │   ├── 2026_07_20_024931_add_coordinates_to_shipping_zones_table.php
+│   │   ├── 2026_07_20_153938_drop_street_zones_table.php
+│   │   ├── 2026_07_20_171930_add_banner_and_logo_to_users_table.php
+│   │   ├── 2026_07_21_002238_add_location_fields_to_orders_and_users.php
+│   │   ├── 2026_07_21_003530_add_is_accepted_by_rider_to_orders_table.php
+│   │   ├── 2026_07_21_021000_add_is_masivo_to_users_table.php
+│   ├── seeders
+│   │   ├── AdminUserSeeder.php
+│   │   ├── CategorySeeder.php
+│   │   ├── DatabaseSeeder.php
+│   │   ├── ShippingZoneSeeder.php
+│   │   ├── TestUsersSeeder.php
+│   │   ├── VendorSeeder.php
+├── lang
+│   ├── es
+│   │   ├── auth.php
+│   │   ├── pagination.php
+│   │   ├── passwords.php
+├── package-lock.json
+├── package.json
+├── phpunit.xml
+├── postcss.config.js
+├── public
+│   ├── .htaccess
+│   ├── build
+│   │   ├── assets
+│   │   │   ├── app-DE2ncabR.js
+│   │   │   ├── app-ZFSw3oce.css
+│   │   │   ├── category-Dd1CqDAL.js
+│   │   │   ├── checkout-is9vGip0.js
+│   │   │   ├── filament-echo-cDd-51IF.js
+│   │   │   ├── home-CQZ8_Yn1.js
+│   │   │   ├── home-gsZTNxJG.css
+│   │   │   ├── pusher-BsG-gUUI.js
+│   │   ├── manifest.json
+│   ├── css
+│   │   ├── filament
+│   │   │   ├── filament
+│   │   │   │   ├── app.css
+│   │   │   ├── forms
+│   │   │   │   ├── forms.css
+│   │   │   ├── support
+│   │   │   │   ├── support.css
+│   ├── db-admin-sec-2026
+│   │   ├── .rtlcssrc.json
+│   │   ├── CONTRIBUTING.md
+│   │   ├── ChangeLog
+│   │   ├── LICENSE
+│   │   ├── README
+│   │   ├── RELEASE-DATE-5.2.3
+│   │   ├── babel.config.json
+│   │   ├── composer.json
+│   │   ├── composer.lock
+│   │   ├── config.inc.php
+│   │   ├── config.sample.inc.php
+│   │   ├── doc
+│   │   │   ├── html
+│   │   │   │   ├── _images
+│   │   │   │   │   ├── chart.png
+│   │   │   │   │   ├── column_chart.png
+│   │   │   │   │   ├── line_chart.png
+│   │   │   │   │   ├── pie_chart.png
+│   │   │   │   │   ├── pma-relations-links.png
+│   │   │   │   │   ├── pma-relations-relation-link.png
+│   │   │   │   │   ├── pma-relations-relation-name.png
+│   │   │   │   │   ├── pma-relations-relation-view-link.png
+│   │   │   │   │   ├── query_result_operations.png
+│   │   │   │   │   ├── scatter_chart.png
+│   │   │   │   │   ├── spline_chart.png
+│   │   │   │   │   ├── timeline_chart.png
+│   │   │   │   │   ├── usergroups.png
+│   │   │   │   ├── _sources
+│   │   │   │   │   ├── bookmarks.rst.txt
+│   │   │   │   │   ├── charts.rst.txt
+│   │   │   │   │   ├── config.rst.txt
+│   │   │   │   │   ├── copyright.rst.txt
+│   │   │   │   │   ├── credits.rst.txt
+│   │   │   │   │   ├── developers.rst.txt
+│   │   │   │   │   ├── faq.rst.txt
+│   │   │   │   │   ├── glossary.rst.txt
+│   │   │   │   │   ├── import_export.rst.txt
+│   │   │   │   │   ├── index.rst.txt
+│   │   │   │   │   ├── intro.rst.txt
+│   │   │   │   │   ├── other.rst.txt
+│   │   │   │   │   ├── privileges.rst.txt
+│   │   │   │   │   ├── relations.rst.txt
+│   │   │   │   │   ├── require.rst.txt
+│   │   │   │   │   ├── security.rst.txt
+│   │   │   │   │   ├── settings.rst.txt
+│   │   │   │   │   ├── setup.rst.txt
+│   │   │   │   │   ├── themes.rst.txt
+│   │   │   │   │   ├── transformations.rst.txt
+│   │   │   │   │   ├── two_factor.rst.txt
+│   │   │   │   │   ├── user.rst.txt
+│   │   │   │   │   ├── vendors.rst.txt
+│   │   │   │   ├── _static
+│   │   │   │   │   ├── _sphinx_javascript_frameworks_compat.js
+│   │   │   │   │   ├── basic.css
+│   │   │   │   │   ├── classic.css
+│   │   │   │   │   ├── default.css
+│   │   │   │   │   ├── doctools.js
+│   │   │   │   │   ├── documentation_options.js
+│   │   │   │   │   ├── file.png
+│   │   │   │   │   ├── jquery.js
+│   │   │   │   │   ├── language_data.js
+│   │   │   │   │   ├── minus.png
+│   │   │   │   │   ├── plus.png
+│   │   │   │   │   ├── pygments.css
+│   │   │   │   │   ├── searchtools.js
+│   │   │   │   │   ├── sidebar.js
+│   │   │   │   │   ├── sphinx_highlight.js
+│   │   │   │   │   ├── underscore.js
+│   │   │   │   ├── bookmarks.html
+│   │   │   │   ├── charts.html
+│   │   │   │   ├── config.html
+│   │   │   │   ├── copyright.html
+│   │   │   │   ├── credits.html
+│   │   │   │   ├── developers.html
+│   │   │   │   ├── faq.html
+│   │   │   │   ├── genindex.html
+│   │   │   │   ├── glossary.html
+│   │   │   │   ├── import_export.html
+│   │   │   │   ├── index.html
+│   │   │   │   ├── intro.html
+│   │   │   │   ├── other.html
+│   │   │   │   ├── privileges.html
+│   │   │   │   ├── relations.html
+│   │   │   │   ├── require.html
+│   │   │   │   ├── search.html
+│   │   │   │   ├── searchindex.js
+│   │   │   │   ├── security.html
+│   │   │   │   ├── settings.html
+│   │   │   │   ├── setup.html
+│   │   │   │   ├── themes.html
+│   │   │   │   ├── transformations.html
+│   │   │   │   ├── two_factor.html
+│   │   │   │   ├── user.html
+│   │   │   │   ├── vendors.html
+│   │   ├── examples
+│   │   │   ├── config.manyhosts.inc.php
+│   │   │   ├── openid.php
+│   │   │   ├── signon-script.php
+│   │   │   ├── signon.php
+│   │   ├── favicon.ico
+│   │   ├── index.php
+│   │   ├── js
+│   │   │   ├── config
+│   │   │   │   ├── ol
+│   │   │   │   │   ├── webpack.config.js
+│   │   │   ├── dist
+│   │   │   │   ├── ajax.js
+│   │   │   │   ├── chart.js
+│   │   │   │   ├── codemirror
+│   │   │   │   │   ├── addon
+│   │   │   │   │   │   ├── lint
+│   │   │   │   │   │   │   ├── sql-lint.js
+│   │   │   │   ├── common.js
+│   │   │   │   ├── config.js
+│   │   │   │   ├── console.js
+│   │   │   │   ├── cross_framing_protection.js
+│   │   │   │   ├── database
+│   │   │   │   │   ├── central_columns.js
+│   │   │   │   │   ├── events.js
+│   │   │   │   │   ├── multi_table_query.js
+│   │   │   │   │   ├── operations.js
+│   │   │   │   │   ├── qbe.js
+│   │   │   │   │   ├── query_generator.js
+│   │   │   │   │   ├── routines.js
+│   │   │   │   │   ├── search.js
+│   │   │   │   │   ├── structure.js
+│   │   │   │   │   ├── tracking.js
+│   │   │   │   │   ├── triggers.js
+│   │   │   │   ├── designer
+│   │   │   │   │   ├── database.js
+│   │   │   │   │   ├── history.js
+│   │   │   │   │   ├── init.js
+│   │   │   │   │   ├── move.js
+│   │   │   │   │   ├── objects.js
+│   │   │   │   │   ├── page.js
+│   │   │   │   ├── doclinks.js
+│   │   │   │   ├── drag_drop_import.js
+│   │   │   │   ├── error_report.js
+│   │   │   │   ├── export.js
+│   │   │   │   ├── export_output.js
+│   │   │   │   ├── functions.js
+│   │   │   │   ├── gis_data_editor.js
+│   │   │   │   ├── home.js
+│   │   │   │   ├── import.js
+│   │   │   │   ├── indexes.js
+│   │   │   │   ├── jqplot
+│   │   │   │   │   ├── plugins
+│   │   │   │   │   │   ├── jqplot.byteFormatter.js
+│   │   │   │   ├── jquery.sortable-table.js
+│   │   │   │   ├── keyhandler.js
+│   │   │   │   ├── makegrid.js
+│   │   │   │   ├── menu_resizer.js
+│   │   │   │   ├── multi_column_sort.js
+│   │   │   │   ├── name-conflict-fixes.js
+│   │   │   │   ├── navigation.js
+│   │   │   │   ├── normalization.js
+│   │   │   │   ├── ol.js
+│   │   │   │   ├── page_settings.js
+│   │   │   │   ├── replication.js
+│   │   │   │   ├── server
+│   │   │   │   │   ├── databases.js
+│   │   │   │   │   ├── plugins.js
+│   │   │   │   │   ├── privileges.js
+│   │   │   │   │   ├── status
+│   │   │   │   │   │   ├── monitor.js
+│   │   │   │   │   │   ├── processes.js
+│   │   │   │   │   │   ├── queries.js
+│   │   │   │   │   │   ├── sorter.js
+│   │   │   │   │   │   ├── variables.js
+│   │   │   │   │   ├── user_groups.js
+│   │   │   │   │   ├── variables.js
+│   │   │   │   ├── setup
+│   │   │   │   │   ├── ajax.js
+│   │   │   │   │   ├── scripts.js
+│   │   │   │   ├── shortcuts_handler.js
+│   │   │   │   ├── sql.js
+│   │   │   │   ├── table
+│   │   │   │   │   ├── change.js
+│   │   │   │   │   ├── chart.js
+│   │   │   │   │   ├── find_replace.js
+│   │   │   │   │   ├── gis_visualization.js
+│   │   │   │   │   ├── operations.js
+│   │   │   │   │   ├── relation.js
+│   │   │   │   │   ├── select.js
+│   │   │   │   │   ├── structure.js
+│   │   │   │   │   ├── tracking.js
+│   │   │   │   │   ├── zoom_plot_jqplot.js
+│   │   │   │   ├── transformations
+│   │   │   │   │   ├── image_upload.js
+│   │   │   │   │   ├── json.js
+│   │   │   │   │   ├── json_editor.js
+│   │   │   │   │   ├── sql_editor.js
+│   │   │   │   │   ├── xml.js
+│   │   │   │   │   ├── xml_editor.js
+│   │   │   │   ├── u2f.js
+│   │   │   │   ├── webauthn.js
+│   │   │   ├── messages.php
+│   │   │   ├── src
+│   │   │   │   ├── ajax.js
+│   │   │   │   ├── chart.js
+│   │   │   │   ├── codemirror
+│   │   │   │   │   ├── addon
+│   │   │   │   │   │   ├── lint
+│   │   │   │   │   │   │   ├── sql-lint.js
+│   │   │   │   ├── common.js
+│   │   │   │   ├── config.js
+│   │   │   │   ├── console.js
+│   │   │   │   ├── cross_framing_protection.js
+│   │   │   │   ├── database
+│   │   │   │   │   ├── central_columns.js
+│   │   │   │   │   ├── events.js
+│   │   │   │   │   ├── multi_table_query.js
+│   │   │   │   │   ├── operations.js
+│   │   │   │   │   ├── qbe.js
+│   │   │   │   │   ├── query_generator.js
+│   │   │   │   │   ├── routines.js
+│   │   │   │   │   ├── search.js
+│   │   │   │   │   ├── structure.js
+│   │   │   │   │   ├── tracking.js
+│   │   │   │   │   ├── triggers.js
+│   │   │   │   ├── designer
+│   │   │   │   │   ├── database.js
+│   │   │   │   │   ├── history.js
+│   │   │   │   │   ├── init.js
+│   │   │   │   │   ├── move.js
+│   │   │   │   │   ├── objects.js
+│   │   │   │   │   ├── page.js
+│   │   │   │   ├── doclinks.js
+│   │   │   │   ├── drag_drop_import.js
+│   │   │   │   ├── error_report.js
+│   │   │   │   ├── export.js
+│   │   │   │   ├── export_output.js
+│   │   │   │   ├── functions.js
+│   │   │   │   ├── gis_data_editor.js
+│   │   │   │   ├── home.js
+│   │   │   │   ├── import.js
+│   │   │   │   ├── indexes.js
+│   │   │   │   ├── jqplot
+│   │   │   │   │   ├── plugins
+│   │   │   │   │   │   ├── jqplot.byteFormatter.js
+│   │   │   │   ├── jquery.sortable-table.js
+│   │   │   │   ├── keyhandler.js
+│   │   │   │   ├── makegrid.js
+│   │   │   │   ├── menu_resizer.js
+│   │   │   │   ├── multi_column_sort.js
+│   │   │   │   ├── name-conflict-fixes.js
+│   │   │   │   ├── navigation.js
+│   │   │   │   ├── normalization.js
+│   │   │   │   ├── ol.mjs
+│   │   │   │   ├── page_settings.js
+│   │   │   │   ├── replication.js
+│   │   │   │   ├── server
+│   │   │   │   │   ├── databases.js
+│   │   │   │   │   ├── plugins.js
+│   │   │   │   │   ├── privileges.js
+│   │   │   │   │   ├── status
+│   │   │   │   │   │   ├── monitor.js
+│   │   │   │   │   │   ├── processes.js
+│   │   │   │   │   │   ├── queries.js
+│   │   │   │   │   │   ├── sorter.js
+│   │   │   │   │   │   ├── variables.js
+│   │   │   │   │   ├── user_groups.js
+│   │   │   │   │   ├── variables.js
+│   │   │   │   ├── setup
+│   │   │   │   │   ├── ajax.js
+│   │   │   │   │   ├── scripts.js
+│   │   │   │   ├── shortcuts_handler.js
+│   │   │   │   ├── sql.js
+│   │   │   │   ├── table
+│   │   │   │   │   ├── change.js
+│   │   │   │   │   ├── chart.js
+│   │   │   │   │   ├── find_replace.js
+│   │   │   │   │   ├── gis_visualization.js
+│   │   │   │   │   ├── operations.js
+│   │   │   │   │   ├── relation.js
+│   │   │   │   │   ├── select.js
+│   │   │   │   │   ├── structure.js
+│   │   │   │   │   ├── tracking.js
+│   │   │   │   │   ├── zoom_plot_jqplot.js
+│   │   │   │   ├── transformations
+│   │   │   │   │   ├── image_upload.js
+│   │   │   │   │   ├── json.js
+│   │   │   │   │   ├── json_editor.js
+│   │   │   │   │   ├── sql_editor.js
+│   │   │   │   │   ├── xml.js
+│   │   │   │   │   ├── xml_editor.js
+│   │   │   │   ├── u2f.js
+│   │   │   │   ├── webauthn.js
+│   │   ├── libraries
+│   │   │   ├── advisory_rules_generic.php
+│   │   │   ├── advisory_rules_mysql_before80003.php
+│   │   │   ├── cache
+│   │   │   │   ├── routes.cache.php
+│   │   │   ├── classes
+│   │   │   │   ├── Advisor.php
+│   │   │   │   ├── Bookmark.php
+│   │   │   │   ├── BrowseForeigners.php
+│   │   │   │   ├── Cache.php
+│   │   │   │   ├── Charsets
+│   │   │   │   │   ├── Charset.php
+│   │   │   │   │   ├── Collation.php
+│   │   │   │   ├── Charsets.php
+│   │   │   │   ├── CheckUserPrivileges.php
+│   │   │   │   ├── Command
+│   │   │   │   │   ├── CacheWarmupCommand.php
+│   │   │   │   │   ├── FixPoTwigCommand.php
+│   │   │   │   │   ├── SetVersionCommand.php
+│   │   │   │   │   ├── TwigLintCommand.php
+│   │   │   │   │   ├── WriteGitRevisionCommand.php
+│   │   │   │   ├── Common.php
+│   │   │   │   ├── Config
+│   │   │   │   │   ├── ConfigFile.php
+│   │   │   │   │   ├── Descriptions.php
+│   │   │   │   │   ├── Form.php
+│   │   │   │   │   ├── FormDisplay.php
+│   │   │   │   │   ├── FormDisplayTemplate.php
+│   │   │   │   │   ├── Forms
+│   │   │   │   │   │   ├── BaseForm.php
+│   │   │   │   │   │   ├── BaseFormList.php
+│   │   │   │   │   │   ├── Page
+│   │   │   │   │   │   │   ├── BrowseForm.php
+│   │   │   │   │   │   │   ├── DbStructureForm.php
+│   │   │   │   │   │   │   ├── EditForm.php
+│   │   │   │   │   │   │   ├── ExportForm.php
+│   │   │   │   │   │   │   ├── ImportForm.php
+│   │   │   │   │   │   │   ├── NaviForm.php
+│   │   │   │   │   │   │   ├── PageFormList.php
+│   │   │   │   │   │   │   ├── SqlForm.php
+│   │   │   │   │   │   │   ├── TableStructureForm.php
+│   │   │   │   │   │   ├── Setup
+│   │   │   │   │   │   │   ├── ConfigForm.php
+│   │   │   │   │   │   │   ├── ExportForm.php
+│   │   │   │   │   │   │   ├── FeaturesForm.php
+│   │   │   │   │   │   │   ├── ImportForm.php
+│   │   │   │   │   │   │   ├── MainForm.php
+│   │   │   │   │   │   │   ├── NaviForm.php
+│   │   │   │   │   │   │   ├── ServersForm.php
+│   │   │   │   │   │   │   ├── SetupFormList.php
+│   │   │   │   │   │   │   ├── SqlForm.php
+│   │   │   │   │   │   ├── User
+│   │   │   │   │   │   │   ├── ExportForm.php
+│   │   │   │   │   │   │   ├── FeaturesForm.php
+│   │   │   │   │   │   │   ├── ImportForm.php
+│   │   │   │   │   │   │   ├── MainForm.php
+│   │   │   │   │   │   │   ├── NaviForm.php
+│   │   │   │   │   │   │   ├── SqlForm.php
+│   │   │   │   │   │   │   ├── UserFormList.php
+│   │   │   │   │   ├── PageSettings.php
+│   │   │   │   │   ├── ServerConfigChecks.php
+│   │   │   │   │   ├── Settings
+│   │   │   │   │   │   ├── Console.php
+│   │   │   │   │   │   ├── Debug.php
+│   │   │   │   │   │   ├── Export.php
+│   │   │   │   │   │   ├── Import.php
+│   │   │   │   │   │   ├── Schema.php
+│   │   │   │   │   │   ├── Server.php
+│   │   │   │   │   │   ├── SqlQueryBox.php
+│   │   │   │   │   │   ├── Transformations.php
+│   │   │   │   │   ├── Settings.php
+│   │   │   │   │   ├── SpecialSchemaLinks.php
+│   │   │   │   │   ├── Validator.php
+│   │   │   │   ├── Config.php
+│   │   │   │   ├── ConfigStorage
+│   │   │   │   │   ├── Features
+│   │   │   │   │   │   ├── BookmarkFeature.php
+│   │   │   │   │   │   ├── BrowserTransformationFeature.php
+│   │   │   │   │   │   ├── CentralColumnsFeature.php
+│   │   │   │   │   │   ├── ColumnCommentsFeature.php
+│   │   │   │   │   │   ├── ConfigurableMenusFeature.php
+│   │   │   │   │   │   ├── DatabaseDesignerSettingsFeature.php
+│   │   │   │   │   │   ├── DisplayFeature.php
+│   │   │   │   │   │   ├── ExportTemplatesFeature.php
+│   │   │   │   │   │   ├── FavoriteTablesFeature.php
+│   │   │   │   │   │   ├── NavigationItemsHidingFeature.php
+│   │   │   │   │   │   ├── PdfFeature.php
+│   │   │   │   │   │   ├── RecentlyUsedTablesFeature.php
+│   │   │   │   │   │   ├── RelationFeature.php
+│   │   │   │   │   │   ├── SavedQueryByExampleSearchesFeature.php
+│   │   │   │   │   │   ├── SqlHistoryFeature.php
+│   │   │   │   │   │   ├── TrackingFeature.php
+│   │   │   │   │   │   ├── UiPreferencesFeature.php
+│   │   │   │   │   │   ├── UserPreferencesFeature.php
+│   │   │   │   │   ├── Relation.php
+│   │   │   │   │   ├── RelationCleanup.php
+│   │   │   │   │   ├── RelationParameters.php
+│   │   │   │   │   ├── UserGroups.php
+│   │   │   │   ├── Console.php
+│   │   │   │   ├── Controllers
+│   │   │   │   │   ├── AbstractController.php
+│   │   │   │   │   ├── BrowseForeignersController.php
+│   │   │   │   │   ├── ChangeLogController.php
+│   │   │   │   │   ├── CheckRelationsController.php
+│   │   │   │   │   ├── CollationConnectionController.php
+│   │   │   │   │   ├── ColumnController.php
+│   │   │   │   │   ├── Config
+│   │   │   │   │   │   ├── GetConfigController.php
+│   │   │   │   │   │   ├── SetConfigController.php
+│   │   │   │   │   ├── Database
+│   │   │   │   │   │   ├── AbstractController.php
+│   │   │   │   │   │   ├── CentralColumns
+│   │   │   │   │   │   │   ├── PopulateColumnsController.php
+│   │   │   │   │   │   ├── CentralColumnsController.php
+│   │   │   │   │   │   ├── DataDictionaryController.php
+│   │   │   │   │   │   ├── DesignerController.php
+│   │   │   │   │   │   ├── EventsController.php
+│   │   │   │   │   │   ├── ExportController.php
+│   │   │   │   │   │   ├── ImportController.php
+│   │   │   │   │   │   ├── MultiTableQuery
+│   │   │   │   │   │   │   ├── QueryController.php
+│   │   │   │   │   │   │   ├── TablesController.php
+│   │   │   │   │   │   ├── MultiTableQueryController.php
+│   │   │   │   │   │   ├── Operations
+│   │   │   │   │   │   │   ├── CollationController.php
+│   │   │   │   │   │   ├── OperationsController.php
+│   │   │   │   │   │   ├── PrivilegesController.php
+│   │   │   │   │   │   ├── QueryByExampleController.php
+│   │   │   │   │   │   ├── RoutinesController.php
+│   │   │   │   │   │   ├── SearchController.php
+│   │   │   │   │   │   ├── SqlAutoCompleteController.php
+│   │   │   │   │   │   ├── SqlController.php
+│   │   │   │   │   │   ├── SqlFormatController.php
+│   │   │   │   │   │   ├── Structure
+│   │   │   │   │   │   │   ├── AddPrefixController.php
+│   │   │   │   │   │   │   ├── AddPrefixTableController.php
+│   │   │   │   │   │   │   ├── CentralColumns
+│   │   │   │   │   │   │   │   ├── AddController.php
+│   │   │   │   │   │   │   │   ├── MakeConsistentController.php
+│   │   │   │   │   │   │   │   ├── RemoveController.php
+│   │   │   │   │   │   │   ├── ChangePrefixFormController.php
+│   │   │   │   │   │   │   ├── CopyFormController.php
+│   │   │   │   │   │   │   ├── CopyTableController.php
+│   │   │   │   │   │   │   ├── CopyTableWithPrefixController.php
+│   │   │   │   │   │   │   ├── DropFormController.php
+│   │   │   │   │   │   │   ├── DropTableController.php
+│   │   │   │   │   │   │   ├── EmptyFormController.php
+│   │   │   │   │   │   │   ├── EmptyTableController.php
+│   │   │   │   │   │   │   ├── FavoriteTableController.php
+│   │   │   │   │   │   │   ├── RealRowCountController.php
+│   │   │   │   │   │   │   ├── ReplacePrefixController.php
+│   │   │   │   │   │   │   ├── ShowCreateController.php
+│   │   │   │   │   │   ├── StructureController.php
+│   │   │   │   │   │   ├── TrackingController.php
+│   │   │   │   │   │   ├── TriggersController.php
+│   │   │   │   │   ├── DatabaseController.php
+│   │   │   │   │   ├── ErrorReportController.php
+│   │   │   │   │   ├── Export
+│   │   │   │   │   │   ├── CheckTimeOutController.php
+│   │   │   │   │   │   ├── ExportController.php
+│   │   │   │   │   │   ├── TablesController.php
+│   │   │   │   │   │   ├── Template
+│   │   │   │   │   │   │   ├── CreateController.php
+│   │   │   │   │   │   │   ├── DeleteController.php
+│   │   │   │   │   │   │   ├── LoadController.php
+│   │   │   │   │   │   │   ├── UpdateController.php
+│   │   │   │   │   ├── GisDataEditorController.php
+│   │   │   │   │   ├── GitInfoController.php
+│   │   │   │   │   ├── HomeController.php
+│   │   │   │   │   ├── Import
+│   │   │   │   │   │   ├── ImportController.php
+│   │   │   │   │   │   ├── SimulateDmlController.php
+│   │   │   │   │   │   ├── StatusController.php
+│   │   │   │   │   ├── JavaScriptMessagesController.php
+│   │   │   │   │   ├── LicenseController.php
+│   │   │   │   │   ├── LintController.php
+│   │   │   │   │   ├── LogoutController.php
+│   │   │   │   │   ├── NavigationController.php
+│   │   │   │   │   ├── NormalizationController.php
+│   │   │   │   │   ├── PhpInfoController.php
+│   │   │   │   │   ├── Preferences
+│   │   │   │   │   │   ├── ExportController.php
+│   │   │   │   │   │   ├── FeaturesController.php
+│   │   │   │   │   │   ├── ImportController.php
+│   │   │   │   │   │   ├── MainPanelController.php
+│   │   │   │   │   │   ├── ManageController.php
+│   │   │   │   │   │   ├── NavigationController.php
+│   │   │   │   │   │   ├── SqlController.php
+│   │   │   │   │   │   ├── TwoFactorController.php
+│   │   │   │   │   ├── RecentTablesListController.php
+│   │   │   │   │   ├── SchemaExportController.php
+│   │   │   │   │   ├── Server
+│   │   │   │   │   │   ├── BinlogController.php
+│   │   │   │   │   │   ├── CollationsController.php
+│   │   │   │   │   │   ├── Databases
+│   │   │   │   │   │   │   ├── CreateController.php
+│   │   │   │   │   │   │   ├── DestroyController.php
+│   │   │   │   │   │   ├── DatabasesController.php
+│   │   │   │   │   │   ├── EnginesController.php
+│   │   │   │   │   │   ├── ExportController.php
+│   │   │   │   │   │   ├── ImportController.php
+│   │   │   │   │   │   ├── PluginsController.php
+│   │   │   │   │   │   ├── Privileges
+│   │   │   │   │   │   │   ├── AccountLockController.php
+│   │   │   │   │   │   │   ├── AccountUnlockController.php
+│   │   │   │   │   │   ├── PrivilegesController.php
+│   │   │   │   │   │   ├── ReplicationController.php
+│   │   │   │   │   │   ├── ShowEngineController.php
+│   │   │   │   │   │   ├── SqlController.php
+│   │   │   │   │   │   ├── Status
+│   │   │   │   │   │   │   ├── AbstractController.php
+│   │   │   │   │   │   │   ├── AdvisorController.php
+│   │   │   │   │   │   │   ├── Monitor
+│   │   │   │   │   │   │   │   ├── ChartingDataController.php
+│   │   │   │   │   │   │   │   ├── GeneralLogController.php
+│   │   │   │   │   │   │   │   ├── LogVarsController.php
+│   │   │   │   │   │   │   │   ├── QueryAnalyzerController.php
+│   │   │   │   │   │   │   │   ├── SlowLogController.php
+│   │   │   │   │   │   │   ├── MonitorController.php
+│   │   │   │   │   │   │   ├── Processes
+│   │   │   │   │   │   │   │   ├── KillController.php
+│   │   │   │   │   │   │   │   ├── RefreshController.php
+│   │   │   │   │   │   │   ├── ProcessesController.php
+│   │   │   │   │   │   │   ├── QueriesController.php
+│   │   │   │   │   │   │   ├── StatusController.php
+│   │   │   │   │   │   │   ├── VariablesController.php
+│   │   │   │   │   │   ├── UserGroupsController.php
+│   │   │   │   │   │   ├── UserGroupsFormController.php
+│   │   │   │   │   │   ├── Variables
+│   │   │   │   │   │   │   ├── GetVariableController.php
+│   │   │   │   │   │   │   ├── SetVariableController.php
+│   │   │   │   │   │   ├── VariablesController.php
+│   │   │   │   │   ├── Setup
+│   │   │   │   │   │   ├── AbstractController.php
+│   │   │   │   │   │   ├── ConfigController.php
+│   │   │   │   │   │   ├── FormController.php
+│   │   │   │   │   │   ├── HomeController.php
+│   │   │   │   │   │   ├── ServersController.php
+│   │   │   │   │   ├── Sql
+│   │   │   │   │   │   ├── ColumnPreferencesController.php
+│   │   │   │   │   │   ├── DefaultForeignKeyCheckValueController.php
+│   │   │   │   │   │   ├── EnumValuesController.php
+│   │   │   │   │   │   ├── RelationalValuesController.php
+│   │   │   │   │   │   ├── SetValuesController.php
+│   │   │   │   │   │   ├── SqlController.php
+│   │   │   │   │   ├── Table
+│   │   │   │   │   │   ├── AbstractController.php
+│   │   │   │   │   │   ├── AddFieldController.php
+│   │   │   │   │   │   ├── ChangeController.php
+│   │   │   │   │   │   ├── ChangeRowsController.php
+│   │   │   │   │   │   ├── ChartController.php
+│   │   │   │   │   │   ├── CreateController.php
+│   │   │   │   │   │   ├── DeleteConfirmController.php
+│   │   │   │   │   │   ├── DeleteRowsController.php
+│   │   │   │   │   │   ├── DropColumnConfirmationController.php
+│   │   │   │   │   │   ├── DropColumnController.php
+│   │   │   │   │   │   ├── ExportController.php
+│   │   │   │   │   │   ├── ExportRowsController.php
+│   │   │   │   │   │   ├── FindReplaceController.php
+│   │   │   │   │   │   ├── GetFieldController.php
+│   │   │   │   │   │   ├── GisVisualizationController.php
+│   │   │   │   │   │   ├── ImportController.php
+│   │   │   │   │   │   ├── IndexRenameController.php
+│   │   │   │   │   │   ├── IndexesController.php
+│   │   │   │   │   │   ├── Maintenance
+│   │   │   │   │   │   │   ├── AnalyzeController.php
+│   │   │   │   │   │   │   ├── CheckController.php
+│   │   │   │   │   │   │   ├── ChecksumController.php
+│   │   │   │   │   │   │   ├── OptimizeController.php
+│   │   │   │   │   │   │   ├── RepairController.php
+│   │   │   │   │   │   ├── OperationsController.php
+│   │   │   │   │   │   ├── Partition
+│   │   │   │   │   │   │   ├── AnalyzeController.php
+│   │   │   │   │   │   │   ├── CheckController.php
+│   │   │   │   │   │   │   ├── DropController.php
+│   │   │   │   │   │   │   ├── OptimizeController.php
+│   │   │   │   │   │   │   ├── RebuildController.php
+│   │   │   │   │   │   │   ├── RepairController.php
+│   │   │   │   │   │   │   ├── TruncateController.php
+│   │   │   │   │   │   ├── PrivilegesController.php
+│   │   │   │   │   │   ├── RecentFavoriteController.php
+│   │   │   │   │   │   ├── RelationController.php
+│   │   │   │   │   │   ├── ReplaceController.php
+│   │   │   │   │   │   ├── SearchController.php
+│   │   │   │   │   │   ├── SqlController.php
+│   │   │   │   │   │   ├── Structure
+│   │   │   │   │   │   │   ├── AddIndexController.php
+│   │   │   │   │   │   │   ├── AddKeyController.php
+│   │   │   │   │   │   │   ├── BrowseController.php
+│   │   │   │   │   │   │   ├── CentralColumnsAddController.php
+│   │   │   │   │   │   │   ├── CentralColumnsRemoveController.php
+│   │   │   │   │   │   │   ├── ChangeController.php
+│   │   │   │   │   │   │   ├── FulltextController.php
+│   │   │   │   │   │   │   ├── MoveColumnsController.php
+│   │   │   │   │   │   │   ├── PartitioningController.php
+│   │   │   │   │   │   │   ├── PrimaryController.php
+│   │   │   │   │   │   │   ├── ReservedWordCheckController.php
+│   │   │   │   │   │   │   ├── SaveController.php
+│   │   │   │   │   │   │   ├── SpatialController.php
+│   │   │   │   │   │   │   ├── UniqueController.php
+│   │   │   │   │   │   ├── StructureController.php
+│   │   │   │   │   │   ├── TrackingController.php
+│   │   │   │   │   │   ├── TriggersController.php
+│   │   │   │   │   │   ├── ZoomSearchController.php
+│   │   │   │   │   ├── TableController.php
+│   │   │   │   │   ├── ThemeSetController.php
+│   │   │   │   │   ├── ThemesController.php
+│   │   │   │   │   ├── Transformation
+│   │   │   │   │   │   ├── OverviewController.php
+│   │   │   │   │   │   ├── WrapperController.php
+│   │   │   │   │   ├── UserPasswordController.php
+│   │   │   │   │   ├── VersionCheckController.php
+│   │   │   │   │   ├── View
+│   │   │   │   │   │   ├── CreateController.php
+│   │   │   │   │   │   ├── OperationsController.php
+│   │   │   │   ├── Core.php
+│   │   │   │   ├── CreateAddField.php
+│   │   │   │   ├── Crypto
+│   │   │   │   │   ├── Crypto.php
+│   │   │   │   ├── Database
+│   │   │   │   │   ├── CentralColumns.php
+│   │   │   │   │   ├── DatabaseList.php
+│   │   │   │   │   ├── Designer
+│   │   │   │   │   │   ├── Common.php
+│   │   │   │   │   │   ├── DesignerTable.php
+│   │   │   │   │   ├── Designer.php
+│   │   │   │   │   ├── Events.php
+│   │   │   │   │   ├── MultiTableQuery.php
+│   │   │   │   │   ├── Qbe.php
+│   │   │   │   │   ├── Routines.php
+│   │   │   │   │   ├── Search.php
+│   │   │   │   │   ├── Triggers.php
+│   │   │   │   ├── DatabaseInterface.php
+│   │   │   │   ├── DbTableExists.php
+│   │   │   │   ├── Dbal
+│   │   │   │   │   ├── DatabaseName.php
+│   │   │   │   │   ├── DbalInterface.php
+│   │   │   │   │   ├── DbiExtension.php
+│   │   │   │   │   ├── DbiMysqli.php
+│   │   │   │   │   ├── MysqliResult.php
+│   │   │   │   │   ├── ResultInterface.php
+│   │   │   │   │   ├── TableName.php
+│   │   │   │   │   ├── Warning.php
+│   │   │   │   ├── Display
+│   │   │   │   │   ├── Results.php
+│   │   │   │   ├── Encoding.php
+│   │   │   │   ├── Engines
+│   │   │   │   │   ├── Bdb.php
+│   │   │   │   │   ├── Berkeleydb.php
+│   │   │   │   │   ├── Binlog.php
+│   │   │   │   │   ├── Innobase.php
+│   │   │   │   │   ├── Innodb.php
+│   │   │   │   │   ├── Memory.php
+│   │   │   │   │   ├── Merge.php
+│   │   │   │   │   ├── MrgMyisam.php
+│   │   │   │   │   ├── Myisam.php
+│   │   │   │   │   ├── Ndbcluster.php
+│   │   │   │   │   ├── Pbxt.php
+│   │   │   │   │   ├── PerformanceSchema.php
+│   │   │   │   ├── Error.php
+│   │   │   │   ├── ErrorHandler.php
+│   │   │   │   ├── ErrorReport.php
+│   │   │   │   ├── Exceptions
+│   │   │   │   │   ├── ExportException.php
+│   │   │   │   ├── Export
+│   │   │   │   │   ├── Options.php
+│   │   │   │   │   ├── Template.php
+│   │   │   │   │   ├── TemplateModel.php
+│   │   │   │   ├── Export.php
+│   │   │   │   ├── FieldMetadata.php
+│   │   │   │   ├── File.php
+│   │   │   │   ├── FileListing.php
+│   │   │   │   ├── FlashMessages.php
+│   │   │   │   ├── Font.php
+│   │   │   │   ├── Footer.php
+│   │   │   │   ├── Gis
+│   │   │   │   │   ├── GisFactory.php
+│   │   │   │   │   ├── GisGeometry.php
+│   │   │   │   │   ├── GisGeometryCollection.php
+│   │   │   │   │   ├── GisLineString.php
+│   │   │   │   │   ├── GisMultiLineString.php
+│   │   │   │   │   ├── GisMultiPoint.php
+│   │   │   │   │   ├── GisMultiPolygon.php
+│   │   │   │   │   ├── GisPoint.php
+│   │   │   │   │   ├── GisPolygon.php
+│   │   │   │   │   ├── GisVisualization.php
+│   │   │   │   ├── Git.php
+│   │   │   │   ├── Header.php
+│   │   │   │   ├── Html
+│   │   │   │   │   ├── Generator.php
+│   │   │   │   │   ├── MySQLDocumentation.php
+│   │   │   │   ├── Http
+│   │   │   │   │   ├── Factory
+│   │   │   │   │   │   ├── ServerRequestFactory.php
+│   │   │   │   │   ├── ServerRequest.php
+│   │   │   │   ├── Image
+│   │   │   │   │   ├── ImageWrapper.php
+│   │   │   │   ├── Import
+│   │   │   │   │   ├── Ajax.php
+│   │   │   │   │   ├── SimulateDml.php
+│   │   │   │   ├── Import.php
+│   │   │   │   ├── Index.php
+│   │   │   │   ├── IndexColumn.php
+│   │   │   │   ├── InsertEdit.php
+│   │   │   │   ├── InternalRelations.php
+│   │   │   │   ├── IpAllowDeny.php
+│   │   │   │   ├── Language.php
+│   │   │   │   ├── LanguageManager.php
+│   │   │   │   ├── Linter.php
+│   │   │   │   ├── ListAbstract.php
+│   │   │   │   ├── ListDatabase.php
+│   │   │   │   ├── Logging.php
+│   │   │   │   ├── Menu.php
+│   │   │   │   ├── Message.php
+│   │   │   │   ├── Mime.php
+│   │   │   │   ├── Navigation
+│   │   │   │   │   ├── Navigation.php
+│   │   │   │   │   ├── NavigationTree.php
+│   │   │   │   │   ├── NodeFactory.php
+│   │   │   │   │   ├── Nodes
+│   │   │   │   │   │   ├── Node.php
+│   │   │   │   │   │   ├── NodeColumn.php
+│   │   │   │   │   │   ├── NodeColumnContainer.php
+│   │   │   │   │   │   ├── NodeDatabase.php
+│   │   │   │   │   │   ├── NodeDatabaseChild.php
+│   │   │   │   │   │   ├── NodeDatabaseChildContainer.php
+│   │   │   │   │   │   ├── NodeDatabaseContainer.php
+│   │   │   │   │   │   ├── NodeEvent.php
+│   │   │   │   │   │   ├── NodeEventContainer.php
+│   │   │   │   │   │   ├── NodeFunction.php
+│   │   │   │   │   │   ├── NodeFunctionContainer.php
+│   │   │   │   │   │   ├── NodeIndex.php
+│   │   │   │   │   │   ├── NodeIndexContainer.php
+│   │   │   │   │   │   ├── NodeProcedure.php
+│   │   │   │   │   │   ├── NodeProcedureContainer.php
+│   │   │   │   │   │   ├── NodeTable.php
+│   │   │   │   │   │   ├── NodeTableContainer.php
+│   │   │   │   │   │   ├── NodeTrigger.php
+│   │   │   │   │   │   ├── NodeTriggerContainer.php
+│   │   │   │   │   │   ├── NodeView.php
+│   │   │   │   │   │   ├── NodeViewContainer.php
+│   │   │   │   ├── Normalization.php
+│   │   │   │   ├── OpenDocument.php
+│   │   │   │   ├── Operations.php
+│   │   │   │   ├── OutputBuffering.php
+│   │   │   │   ├── ParseAnalyze.php
+│   │   │   │   ├── Partitioning
+│   │   │   │   │   ├── Maintenance.php
+│   │   │   │   │   ├── Partition.php
+│   │   │   │   │   ├── SubPartition.php
+│   │   │   │   │   ├── TablePartitionDefinition.php
+│   │   │   │   ├── Pdf.php
+│   │   │   │   ├── Plugins
+│   │   │   │   │   ├── Auth
+│   │   │   │   │   │   ├── AuthenticationConfig.php
+│   │   │   │   │   │   ├── AuthenticationCookie.php
+│   │   │   │   │   │   ├── AuthenticationHttp.php
+│   │   │   │   │   │   ├── AuthenticationSignon.php
+│   │   │   │   │   ├── AuthenticationPlugin.php
+│   │   │   │   │   ├── Export
+│   │   │   │   │   │   ├── ExportCodegen.php
+│   │   │   │   │   │   ├── ExportCsv.php
+│   │   │   │   │   │   ├── ExportExcel.php
+│   │   │   │   │   │   ├── ExportHtmlword.php
+│   │   │   │   │   │   ├── ExportJson.php
+│   │   │   │   │   │   ├── ExportLatex.php
+│   │   │   │   │   │   ├── ExportMediawiki.php
+│   │   │   │   │   │   ├── ExportOds.php
+│   │   │   │   │   │   ├── ExportOdt.php
+│   │   │   │   │   │   ├── ExportPdf.php
+│   │   │   │   │   │   ├── ExportPhparray.php
+│   │   │   │   │   │   ├── ExportSql.php
+│   │   │   │   │   │   ├── ExportTexytext.php
+│   │   │   │   │   │   ├── ExportXml.php
+│   │   │   │   │   │   ├── ExportYaml.php
+│   │   │   │   │   │   ├── Helpers
+│   │   │   │   │   │   │   ├── Pdf.php
+│   │   │   │   │   │   │   ├── TableProperty.php
+│   │   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── ExportPlugin.php
+│   │   │   │   │   ├── IOTransformationsPlugin.php
+│   │   │   │   │   ├── Import
+│   │   │   │   │   │   ├── AbstractImportCsv.php
+│   │   │   │   │   │   ├── ImportCsv.php
+│   │   │   │   │   │   ├── ImportLdi.php
+│   │   │   │   │   │   ├── ImportMediawiki.php
+│   │   │   │   │   │   ├── ImportOds.php
+│   │   │   │   │   │   ├── ImportShp.php
+│   │   │   │   │   │   ├── ImportSql.php
+│   │   │   │   │   │   ├── ImportXml.php
+│   │   │   │   │   │   ├── README.md
+│   │   │   │   │   │   ├── ShapeFileImport.php
+│   │   │   │   │   │   ├── Upload
+│   │   │   │   │   │   │   ├── UploadNoplugin.php
+│   │   │   │   │   │   │   ├── UploadProgress.php
+│   │   │   │   │   │   │   ├── UploadSession.php
+│   │   │   │   │   ├── ImportPlugin.php
+│   │   │   │   │   ├── Plugin.php
+│   │   │   │   │   ├── Schema
+│   │   │   │   │   │   ├── Dia
+│   │   │   │   │   │   │   ├── Dia.php
+│   │   │   │   │   │   │   ├── DiaRelationSchema.php
+│   │   │   │   │   │   │   ├── RelationStatsDia.php
+│   │   │   │   │   │   │   ├── TableStatsDia.php
+│   │   │   │   │   │   ├── Eps
+│   │   │   │   │   │   │   ├── Eps.php
+│   │   │   │   │   │   │   ├── EpsRelationSchema.php
+│   │   │   │   │   │   │   ├── RelationStatsEps.php
+│   │   │   │   │   │   │   ├── TableStatsEps.php
+│   │   │   │   │   │   ├── ExportRelationSchema.php
+│   │   │   │   │   │   ├── Pdf
+│   │   │   │   │   │   │   ├── Pdf.php
+│   │   │   │   │   │   │   ├── PdfRelationSchema.php
+│   │   │   │   │   │   │   ├── RelationStatsPdf.php
+│   │   │   │   │   │   │   ├── TableStatsPdf.php
+│   │   │   │   │   │   ├── RelationStats.php
+│   │   │   │   │   │   ├── SchemaDia.php
+│   │   │   │   │   │   ├── SchemaEps.php
+│   │   │   │   │   │   ├── SchemaPdf.php
+│   │   │   │   │   │   ├── SchemaSvg.php
+│   │   │   │   │   │   ├── Svg
+│   │   │   │   │   │   │   ├── RelationStatsSvg.php
+│   │   │   │   │   │   │   ├── Svg.php
+│   │   │   │   │   │   │   ├── SvgRelationSchema.php
+│   │   │   │   │   │   │   ├── TableStatsSvg.php
+│   │   │   │   │   │   ├── TableStats.php
+│   │   │   │   │   ├── SchemaPlugin.php
+│   │   │   │   │   ├── Transformations
+│   │   │   │   │   │   ├── Abs
+│   │   │   │   │   │   │   ├── Bool2TextTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── CodeMirrorEditorTransformationPlugin.php
+│   │   │   │   │   │   │   ├── DateFormatTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── DownloadTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── ExternalTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── FormattedTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── HexTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── ImageLinkTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── ImageUploadTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── InlineTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── LongToIPv4TransformationsPlugin.php
+│   │   │   │   │   │   │   ├── PreApPendTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── RegexValidationTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── SQLTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── SubstringTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── TextFileUploadTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── TextImageLinkTransformationsPlugin.php
+│   │   │   │   │   │   │   ├── TextLinkTransformationsPlugin.php
+│   │   │   │   │   │   ├── Input
+│   │   │   │   │   │   │   ├── Image_JPEG_Upload.php
+│   │   │   │   │   │   │   ├── Text_Plain_FileUpload.php
+│   │   │   │   │   │   │   ├── Text_Plain_Iptobinary.php
+│   │   │   │   │   │   │   ├── Text_Plain_Iptolong.php
+│   │   │   │   │   │   │   ├── Text_Plain_JsonEditor.php
+│   │   │   │   │   │   │   ├── Text_Plain_RegexValidation.php
+│   │   │   │   │   │   │   ├── Text_Plain_SqlEditor.php
+│   │   │   │   │   │   │   ├── Text_Plain_XmlEditor.php
+│   │   │   │   │   │   ├── Output
+│   │   │   │   │   │   │   ├── Application_Octetstream_Download.php
+│   │   │   │   │   │   │   ├── Application_Octetstream_Hex.php
+│   │   │   │   │   │   │   ├── Image_JPEG_Inline.php
+│   │   │   │   │   │   │   ├── Image_JPEG_Link.php
+│   │   │   │   │   │   │   ├── Image_PNG_Inline.php
+│   │   │   │   │   │   │   ├── Text_Octetstream_Sql.php
+│   │   │   │   │   │   │   ├── Text_Plain_Binarytoip.php
+│   │   │   │   │   │   │   ├── Text_Plain_Bool2Text.php
+│   │   │   │   │   │   │   ├── Text_Plain_Dateformat.php
+│   │   │   │   │   │   │   ├── Text_Plain_External.php
+│   │   │   │   │   │   │   ├── Text_Plain_Formatted.php
+│   │   │   │   │   │   │   ├── Text_Plain_Imagelink.php
+│   │   │   │   │   │   │   ├── Text_Plain_Json.php
+│   │   │   │   │   │   │   ├── Text_Plain_Sql.php
+│   │   │   │   │   │   │   ├── Text_Plain_Xml.php
+│   │   │   │   │   │   ├── README
+│   │   │   │   │   │   ├── TEMPLATE
+│   │   │   │   │   │   ├── TEMPLATE_ABSTRACT
+│   │   │   │   │   │   ├── Text_Plain_Link.php
+│   │   │   │   │   │   ├── Text_Plain_Longtoipv4.php
+│   │   │   │   │   │   ├── Text_Plain_PreApPend.php
+│   │   │   │   │   │   ├── Text_Plain_Substring.php
+│   │   │   │   │   ├── TransformationsInterface.php
+│   │   │   │   │   ├── TransformationsPlugin.php
+│   │   │   │   │   ├── TwoFactor
+│   │   │   │   │   │   ├── Application.php
+│   │   │   │   │   │   ├── Invalid.php
+│   │   │   │   │   │   ├── Key.php
+│   │   │   │   │   │   ├── Simple.php
+│   │   │   │   │   │   ├── WebAuthn.php
+│   │   │   │   │   ├── TwoFactorPlugin.php
+│   │   │   │   │   ├── UploadInterface.php
+│   │   │   │   ├── Plugins.php
+│   │   │   │   ├── Profiling.php
+│   │   │   │   ├── Properties
+│   │   │   │   │   ├── Options
+│   │   │   │   │   │   ├── Groups
+│   │   │   │   │   │   │   ├── OptionsPropertyMainGroup.php
+│   │   │   │   │   │   │   ├── OptionsPropertyRootGroup.php
+│   │   │   │   │   │   │   ├── OptionsPropertySubgroup.php
+│   │   │   │   │   │   ├── Items
+│   │   │   │   │   │   │   ├── BoolPropertyItem.php
+│   │   │   │   │   │   │   ├── DocPropertyItem.php
+│   │   │   │   │   │   │   ├── HiddenPropertyItem.php
+│   │   │   │   │   │   │   ├── MessageOnlyPropertyItem.php
+│   │   │   │   │   │   │   ├── NumberPropertyItem.php
+│   │   │   │   │   │   │   ├── RadioPropertyItem.php
+│   │   │   │   │   │   │   ├── SelectPropertyItem.php
+│   │   │   │   │   │   │   ├── TextPropertyItem.php
+│   │   │   │   │   │   ├── OptionsPropertyGroup.php
+│   │   │   │   │   │   ├── OptionsPropertyItem.php
+│   │   │   │   │   │   ├── OptionsPropertyOneItem.php
+│   │   │   │   │   ├── Plugins
+│   │   │   │   │   │   ├── ExportPluginProperties.php
+│   │   │   │   │   │   ├── ImportPluginProperties.php
+│   │   │   │   │   │   ├── PluginPropertyItem.php
+│   │   │   │   │   │   ├── SchemaPluginProperties.php
+│   │   │   │   │   ├── PropertyItem.php
+│   │   │   │   ├── Providers
+│   │   │   │   │   ├── ServerVariables
+│   │   │   │   │   │   ├── MariaDbMySqlKbsProvider.php
+│   │   │   │   │   │   ├── ServerVariablesProvider.php
+│   │   │   │   │   │   ├── ServerVariablesProviderInterface.php
+│   │   │   │   │   │   ├── VoidProvider.php
+│   │   │   │   ├── Query
+│   │   │   │   │   ├── Cache.php
+│   │   │   │   │   ├── Compatibility.php
+│   │   │   │   │   ├── Generator.php
+│   │   │   │   │   ├── Utilities.php
+│   │   │   │   ├── RecentFavoriteTable.php
+│   │   │   │   ├── Replication.php
+│   │   │   │   ├── ReplicationGui.php
+│   │   │   │   ├── ReplicationInfo.php
+│   │   │   │   ├── ResponseRenderer.php
+│   │   │   │   ├── Routing.php
+│   │   │   │   ├── Sanitize.php
+│   │   │   │   ├── SavedSearches.php
+│   │   │   │   ├── Scripts.php
+│   │   │   │   ├── Server
+│   │   │   │   │   ├── Plugin.php
+│   │   │   │   │   ├── Plugins.php
+│   │   │   │   │   ├── Privileges
+│   │   │   │   │   │   ├── AccountLocking.php
+│   │   │   │   │   ├── Privileges.php
+│   │   │   │   │   ├── Select.php
+│   │   │   │   │   ├── Status
+│   │   │   │   │   │   ├── Data.php
+│   │   │   │   │   │   ├── Monitor.php
+│   │   │   │   │   │   ├── Processes.php
+│   │   │   │   │   ├── SysInfo
+│   │   │   │   │   │   ├── Base.php
+│   │   │   │   │   │   ├── Linux.php
+│   │   │   │   │   │   ├── SunOs.php
+│   │   │   │   │   │   ├── SysInfo.php
+│   │   │   │   │   │   ├── WindowsNt.php
+│   │   │   │   ├── Session.php
+│   │   │   │   ├── Setup
+│   │   │   │   │   ├── ConfigGenerator.php
+│   │   │   │   │   ├── FormProcessing.php
+│   │   │   │   │   ├── Index.php
+│   │   │   │   ├── Sql.php
+│   │   │   │   ├── SqlQueryForm.php
+│   │   │   │   ├── StorageEngine.php
+│   │   │   │   ├── SystemDatabase.php
+│   │   │   │   ├── Table
+│   │   │   │   │   ├── ColumnsDefinition.php
+│   │   │   │   │   ├── Indexes.php
+│   │   │   │   │   ├── Maintenance
+│   │   │   │   │   │   ├── Message.php
+│   │   │   │   │   ├── Maintenance.php
+│   │   │   │   │   ├── Search.php
+│   │   │   │   ├── Table.php
+│   │   │   │   ├── Template.php
+│   │   │   │   ├── Theme.php
+│   │   │   │   ├── ThemeManager.php
+│   │   │   │   ├── Tracker.php
+│   │   │   │   ├── Tracking.php
+│   │   │   │   ├── Transformations.php
+│   │   │   │   ├── Twig
+│   │   │   │   │   ├── AssetExtension.php
+│   │   │   │   │   ├── CoreExtension.php
+│   │   │   │   │   ├── FlashMessagesExtension.php
+│   │   │   │   │   ├── I18nExtension.php
+│   │   │   │   │   ├── MessageExtension.php
+│   │   │   │   │   ├── RelationExtension.php
+│   │   │   │   │   ├── SanitizeExtension.php
+│   │   │   │   │   ├── TableExtension.php
+│   │   │   │   │   ├── TrackerExtension.php
+│   │   │   │   │   ├── TransformationsExtension.php
+│   │   │   │   │   ├── UrlExtension.php
+│   │   │   │   │   ├── UtilExtension.php
+│   │   │   │   ├── TwoFactor.php
+│   │   │   │   ├── Types.php
+│   │   │   │   ├── Url.php
+│   │   │   │   ├── UrlRedirector.php
+│   │   │   │   ├── UserPassword.php
+│   │   │   │   ├── UserPreferences.php
+│   │   │   │   ├── Util.php
+│   │   │   │   ├── Utils
+│   │   │   │   │   ├── ForeignKey.php
+│   │   │   │   │   ├── FormatConverter.php
+│   │   │   │   │   ├── Gis.php
+│   │   │   │   │   ├── HttpRequest.php
+│   │   │   │   │   ├── SessionCache.php
+│   │   │   │   ├── Version.php
+│   │   │   │   ├── VersionInformation.php
+│   │   │   │   ├── WebAuthn
+│   │   │   │   │   ├── CBORDecoder.php
+│   │   │   │   │   ├── CustomServer.php
+│   │   │   │   │   ├── DataStream.php
+│   │   │   │   │   ├── Server.php
+│   │   │   │   │   ├── WebAuthnException.php
+│   │   │   │   │   ├── WebauthnLibServer.php
+│   │   │   │   ├── ZipExtension.php
+│   │   │   ├── config.default.php
+│   │   │   ├── config.values.php
+│   │   │   ├── constants.php
+│   │   │   ├── language_stats.inc.php
+│   │   │   ├── routes.php
+│   │   │   ├── services.php
+│   │   │   ├── services_controllers.php
+│   │   │   ├── services_loader.php
+│   │   │   ├── vendor_config.php
+│   │   ├── locale
+│   │   │   ├── ar
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── az
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── be
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── bg
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── bn
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ca
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── cs
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── da
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── de
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── el
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── en_GB
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── es
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── et
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── fi
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── fr
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── gl
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── he
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── hu
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── hy
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ia
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── id
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── it
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ja
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ka
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── kk
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ko
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── nb
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── nl
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── pl
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── pt
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── pt_BR
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ro
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ru
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── si
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── sk
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── sl
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── sq
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── sv
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ta
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── tr
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── ug
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── uk
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── vi
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── zh_CN
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   │   ├── zh_TW
+│   │   │   │   ├── LC_MESSAGES
+│   │   │   │   │   ├── phpmyadmin.mo
+│   │   ├── package.json
+│   │   ├── robots.txt
+│   │   ├── setup
+│   │   │   ├── config.php
+│   │   │   ├── index.php
+│   │   │   ├── lib
+│   │   │   │   ├── common.inc.php
+│   │   │   ├── scss
+│   │   │   │   ├── _custom.scss
+│   │   │   │   ├── styles.scss
+│   │   │   ├── styles.css
+│   │   │   ├── styles.css.map
+│   │   │   ├── themes
+│   │   │   │   ├── dot.gif
+│   │   │   ├── validate.php
+│   │   ├── show_config_errors.php
+│   │   ├── sql
+│   │   │   ├── create_tables.sql
+│   │   │   ├── upgrade_column_info_4_3_0+.sql
+│   │   │   ├── upgrade_tables_4_7_0+.sql
+│   │   │   ├── upgrade_tables_mysql_4_1_2+.sql
+│   │   ├── templates
+│   │   │   ├── changelog.twig
+│   │   │   ├── columns_definitions
+│   │   │   │   ├── column_attribute.twig
+│   │   │   │   ├── column_attributes.twig
+│   │   │   │   ├── column_definitions_form.twig
+│   │   │   │   ├── column_name.twig
+│   │   │   │   ├── partitions.twig
+│   │   │   │   ├── table_fields_definitions.twig
+│   │   │   ├── components
+│   │   │   │   ├── error_message.twig
+│   │   │   ├── config
+│   │   │   │   ├── form_display
+│   │   │   │   │   ├── display.twig
+│   │   │   │   │   ├── errors.twig
+│   │   │   │   │   ├── group_header.twig
+│   │   │   │   │   ├── input.twig
+│   │   │   ├── console
+│   │   │   │   ├── bookmark_content.twig
+│   │   │   │   ├── display.twig
+│   │   │   │   ├── query_action.twig
+│   │   │   │   ├── toolbar.twig
+│   │   │   ├── create_tracking_version.twig
+│   │   │   ├── database
+│   │   │   │   ├── central_columns
+│   │   │   │   │   ├── edit.twig
+│   │   │   │   │   ├── edit_table_row.twig
+│   │   │   │   │   ├── main.twig
+│   │   │   │   │   ├── populate_columns.twig
+│   │   │   │   ├── create_table.twig
+│   │   │   │   ├── data_dictionary
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── designer
+│   │   │   │   │   ├── database_tables.twig
+│   │   │   │   │   ├── edit_delete_pages.twig
+│   │   │   │   │   ├── main.twig
+│   │   │   │   │   ├── page_save_as.twig
+│   │   │   │   │   ├── page_selector.twig
+│   │   │   │   │   ├── schema_export.twig
+│   │   │   │   ├── events
+│   │   │   │   │   ├── editor_form.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── row.twig
+│   │   │   │   ├── export
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── import
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── multi_table_query
+│   │   │   │   │   ├── form.twig
+│   │   │   │   ├── operations
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── privileges
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── qbe
+│   │   │   │   │   ├── column_select_cell.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── ins_del_and_or_cell.twig
+│   │   │   │   │   ├── selection_form.twig
+│   │   │   │   │   ├── sort_order_select_cell.twig
+│   │   │   │   │   ├── sort_select_cell.twig
+│   │   │   │   ├── routines
+│   │   │   │   │   ├── editor_form.twig
+│   │   │   │   │   ├── execute_form.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── parameter_row.twig
+│   │   │   │   │   ├── row.twig
+│   │   │   │   ├── search
+│   │   │   │   │   ├── main.twig
+│   │   │   │   │   ├── results.twig
+│   │   │   │   ├── structure
+│   │   │   │   │   ├── add_prefix.twig
+│   │   │   │   │   ├── body_for_table_summary.twig
+│   │   │   │   │   ├── bulk_action_modal.twig
+│   │   │   │   │   ├── change_prefix_form.twig
+│   │   │   │   │   ├── check_all_tables.twig
+│   │   │   │   │   ├── collation_definition.twig
+│   │   │   │   │   ├── copy_form.twig
+│   │   │   │   │   ├── drop_form.twig
+│   │   │   │   │   ├── empty_form.twig
+│   │   │   │   │   ├── favorite_anchor.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── overhead.twig
+│   │   │   │   │   ├── show_create.twig
+│   │   │   │   │   ├── structure_table_row.twig
+│   │   │   │   │   ├── table_header.twig
+│   │   │   │   │   ├── tracking_icon.twig
+│   │   │   │   ├── tracking
+│   │   │   │   │   ├── tables.twig
+│   │   │   │   ├── triggers
+│   │   │   │   │   ├── editor_form.twig
+│   │   │   │   │   ├── export.twig
+│   │   │   │   │   ├── list.twig
+│   │   │   │   │   ├── row.twig
+│   │   │   ├── display
+│   │   │   │   ├── results
+│   │   │   │   │   ├── checkbox_and_links.twig
+│   │   │   │   │   ├── comment_for_row.twig
+│   │   │   │   │   ├── empty_display.twig
+│   │   │   │   │   ├── null_display.twig
+│   │   │   │   │   ├── page_selector.twig
+│   │   │   │   │   ├── row_data.twig
+│   │   │   │   │   ├── table.twig
+│   │   │   │   │   ├── table_headers_for_columns.twig
+│   │   │   │   │   ├── table_navigation_button.twig
+│   │   │   │   │   ├── value_display.twig
+│   │   │   ├── encoding
+│   │   │   │   ├── kanji_encoding_form.twig
+│   │   │   ├── error
+│   │   │   │   ├── generic.twig
+│   │   │   │   ├── report_form.twig
+│   │   │   │   ├── report_modal.twig
+│   │   │   ├── export
+│   │   │   │   ├── template_options.twig
+│   │   │   ├── export.twig
+│   │   │   ├── export_modal.twig
+│   │   │   ├── file_select_options.twig
+│   │   │   ├── filter.twig
+│   │   │   ├── footer.twig
+│   │   │   ├── gis_data_editor_form.twig
+│   │   │   ├── header.twig
+│   │   │   ├── header_location.twig
+│   │   │   ├── home
+│   │   │   │   ├── git_info.twig
+│   │   │   │   ├── index.twig
+│   │   │   │   ├── themes.twig
+│   │   │   ├── import
+│   │   │   │   ├── javascript.twig
+│   │   │   ├── import.twig
+│   │   │   ├── import_status.twig
+│   │   │   ├── indexes.twig
+│   │   │   ├── javascript
+│   │   │   │   ├── redirect.twig
+│   │   │   │   ├── variables.twig
+│   │   │   ├── list_navigator.twig
+│   │   │   ├── login
+│   │   │   │   ├── footer.twig
+│   │   │   │   ├── form.twig
+│   │   │   │   ├── header.twig
+│   │   │   │   ├── twofactor
+│   │   │   │   │   ├── application.twig
+│   │   │   │   │   ├── application_configure.twig
+│   │   │   │   │   ├── invalid.twig
+│   │   │   │   │   ├── key-https-warning.twig
+│   │   │   │   │   ├── key.twig
+│   │   │   │   │   ├── key_configure.twig
+│   │   │   │   │   ├── simple.twig
+│   │   │   │   │   ├── webauthn_creation.twig
+│   │   │   │   │   ├── webauthn_request.twig
+│   │   │   │   ├── twofactor.twig
+│   │   │   ├── menu
+│   │   │   │   ├── breadcrumbs.twig
+│   │   │   ├── message.twig
+│   │   │   ├── modals
+│   │   │   │   ├── build_query.twig
+│   │   │   │   ├── create_view.twig
+│   │   │   │   ├── enum_set_editor.twig
+│   │   │   │   ├── index_dialog_modal.twig
+│   │   │   │   ├── preview_sql_confirmation.twig
+│   │   │   │   ├── preview_sql_modal.twig
+│   │   │   │   ├── unhide_nav_item.twig
+│   │   │   ├── navigation
+│   │   │   │   ├── item_unhide_dialog.twig
+│   │   │   │   ├── main.twig
+│   │   │   │   ├── tree
+│   │   │   │   │   ├── controls.twig
+│   │   │   │   │   ├── database_select.twig
+│   │   │   │   │   ├── fast_filter.twig
+│   │   │   │   │   ├── node.twig
+│   │   │   │   │   ├── path.twig
+│   │   │   │   │   ├── quick_warp.twig
+│   │   │   │   │   ├── state.twig
+│   │   │   ├── plugins
+│   │   │   │   ├── text_image_link_transformations.twig
+│   │   │   ├── preferences
+│   │   │   │   ├── autoload.twig
+│   │   │   │   ├── forms
+│   │   │   │   │   ├── main.twig
+│   │   │   │   ├── header.twig
+│   │   │   │   ├── manage
+│   │   │   │   │   ├── error.twig
+│   │   │   │   │   ├── main.twig
+│   │   │   │   ├── two_factor
+│   │   │   │   │   ├── configure.twig
+│   │   │   │   │   ├── confirm.twig
+│   │   │   │   │   ├── main.twig
+│   │   │   ├── preview_sql.twig
+│   │   │   ├── recent_favorite_table_favorite.twig
+│   │   │   ├── recent_favorite_table_no_tables.twig
+│   │   │   ├── recent_favorite_table_recent.twig
+│   │   │   ├── relation
+│   │   │   │   ├── check_relations.twig
+│   │   │   ├── scripts.twig
+│   │   │   ├── select_all.twig
+│   │   │   ├── server
+│   │   │   │   ├── binlog
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── collations
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── databases
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── engines
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── show.twig
+│   │   │   │   ├── export
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── import
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── plugins
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── privileges
+│   │   │   │   │   ├── add_user.twig
+│   │   │   │   │   ├── add_user_fieldset.twig
+│   │   │   │   │   ├── change_password.twig
+│   │   │   │   │   ├── choose_user_group.twig
+│   │   │   │   │   ├── edit_routine_privileges.twig
+│   │   │   │   │   ├── get_user_link.twig
+│   │   │   │   │   ├── initials_row.twig
+│   │   │   │   │   ├── login_information_fields.twig
+│   │   │   │   │   ├── new_user_ajax.twig
+│   │   │   │   │   ├── privileges_summary.twig
+│   │   │   │   │   ├── privileges_table.twig
+│   │   │   │   │   ├── subnav.twig
+│   │   │   │   │   ├── user_overview.twig
+│   │   │   │   │   ├── user_properties.twig
+│   │   │   │   │   ├── users_overview.twig
+│   │   │   │   ├── replication
+│   │   │   │   │   ├── change_primary.twig
+│   │   │   │   │   ├── database_multibox.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── primary_add_replica_user.twig
+│   │   │   │   │   ├── primary_configuration.twig
+│   │   │   │   │   ├── primary_replication.twig
+│   │   │   │   │   ├── replica_configuration.twig
+│   │   │   │   │   ├── status_table.twig
+│   │   │   │   ├── select
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── server_options.twig
+│   │   │   │   ├── status
+│   │   │   │   │   ├── advisor
+│   │   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── base.twig
+│   │   │   │   │   ├── monitor
+│   │   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── processes
+│   │   │   │   │   │   ├── index.twig
+│   │   │   │   │   │   ├── list.twig
+│   │   │   │   │   ├── queries
+│   │   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── status
+│   │   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── variables
+│   │   │   │   │   │   ├── index.twig
+│   │   │   │   ├── sub_page_header.twig
+│   │   │   │   ├── user_groups
+│   │   │   │   │   ├── edit_user_groups.twig
+│   │   │   │   │   ├── tab_list.twig
+│   │   │   │   │   ├── user_groups.twig
+│   │   │   │   │   ├── user_listings.twig
+│   │   │   │   ├── variables
+│   │   │   │   │   ├── format_variable.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   ├── setup
+│   │   │   │   ├── base.twig
+│   │   │   │   ├── config
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── error.twig
+│   │   │   │   ├── form
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── home
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── servers
+│   │   │   │   │   ├── index.twig
+│   │   │   ├── sql
+│   │   │   │   ├── bookmark.twig
+│   │   │   │   ├── enum_column_dropdown.twig
+│   │   │   │   ├── no_results_returned.twig
+│   │   │   │   ├── profiling_chart.twig
+│   │   │   │   ├── query.twig
+│   │   │   │   ├── relational_column_dropdown.twig
+│   │   │   │   ├── set_column.twig
+│   │   │   │   ├── sql_query_results.twig
+│   │   │   ├── table
+│   │   │   │   ├── browse_foreigners
+│   │   │   │   │   ├── column_element.twig
+│   │   │   │   │   ├── show_all.twig
+│   │   │   │   ├── chart
+│   │   │   │   │   ├── tbl_chart.twig
+│   │   │   │   ├── delete
+│   │   │   │   │   ├── confirm.twig
+│   │   │   │   ├── export
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── find_replace
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── replace_preview.twig
+│   │   │   │   ├── gis_visualization
+│   │   │   │   │   ├── gis_visualization.twig
+│   │   │   │   ├── import
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── index_form.twig
+│   │   │   │   ├── index_rename_form.twig
+│   │   │   │   ├── insert
+│   │   │   │   │   ├── actions_panel.twig
+│   │   │   │   │   ├── column_row.twig
+│   │   │   │   │   ├── continue_insertion_form.twig
+│   │   │   │   │   ├── get_head_and_foot_of_insert_row_table.twig
+│   │   │   │   │   ├── get_html_for_insert_edit_form_header.twig
+│   │   │   │   ├── maintenance
+│   │   │   │   │   ├── analyze.twig
+│   │   │   │   │   ├── check.twig
+│   │   │   │   │   ├── checksum.twig
+│   │   │   │   │   ├── optimize.twig
+│   │   │   │   │   ├── repair.twig
+│   │   │   │   ├── operations
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── view.twig
+│   │   │   │   ├── page_with_secondary_tabs.twig
+│   │   │   │   ├── partition
+│   │   │   │   │   ├── analyze.twig
+│   │   │   │   │   ├── check.twig
+│   │   │   │   │   ├── drop.twig
+│   │   │   │   │   ├── optimize.twig
+│   │   │   │   │   ├── rebuild.twig
+│   │   │   │   │   ├── repair.twig
+│   │   │   │   │   ├── truncate.twig
+│   │   │   │   ├── privileges
+│   │   │   │   │   ├── index.twig
+│   │   │   │   ├── relation
+│   │   │   │   │   ├── common_form.twig
+│   │   │   │   │   ├── dropdown_generate.twig
+│   │   │   │   │   ├── foreign_key_row.twig
+│   │   │   │   │   ├── relational_dropdown.twig
+│   │   │   │   ├── search
+│   │   │   │   │   ├── column_comparison_operators.twig
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── input_box.twig
+│   │   │   │   ├── start_and_number_of_rows_fieldset.twig
+│   │   │   │   ├── structure
+│   │   │   │   │   ├── display_partitions.twig
+│   │   │   │   │   ├── display_structure.twig
+│   │   │   │   │   ├── display_table_stats.twig
+│   │   │   │   │   ├── drop_confirm.twig
+│   │   │   │   │   ├── partition_definition_form.twig
+│   │   │   │   │   ├── primary.twig
+│   │   │   │   ├── tracking
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── main.twig
+│   │   │   │   │   ├── report_table.twig
+│   │   │   │   │   ├── structure_snapshot_columns.twig
+│   │   │   │   │   ├── structure_snapshot_indexes.twig
+│   │   │   │   ├── zoom_search
+│   │   │   │   │   ├── index.twig
+│   │   │   │   │   ├── result_form.twig
+│   │   │   ├── top_menu.twig
+│   │   │   ├── transformation_overview.twig
+│   │   │   ├── user_password.twig
+│   │   │   ├── view_create.twig
+│   │   ├── themes
+│   │   │   ├── dot.gif
+│   │   │   ├── metro
+│   │   │   │   ├── css
+│   │   │   │   │   ├── blueeyes-theme.css
+│   │   │   │   │   ├── blueeyes-theme.css.map
+│   │   │   │   │   ├── blueeyes-theme.rtl.css
+│   │   │   │   │   ├── mono-theme.css
+│   │   │   │   │   ├── mono-theme.css.map
+│   │   │   │   │   ├── mono-theme.rtl.css
+│   │   │   │   │   ├── redmond-theme.css
+│   │   │   │   │   ├── redmond-theme.css.map
+│   │   │   │   │   ├── redmond-theme.rtl.css
+│   │   │   │   │   ├── teal-theme.css
+│   │   │   │   │   ├── teal-theme.css.map
+│   │   │   │   │   ├── teal-theme.rtl.css
+│   │   │   │   │   ├── theme.css
+│   │   │   │   │   ├── theme.css.map
+│   │   │   │   │   ├── theme.rtl.css
+│   │   │   │   ├── img
+│   │   │   │   │   ├── ajax_clock_small.gif
+│   │   │   │   │   ├── arrow_ltr.png
+│   │   │   │   │   ├── arrow_rtl.png
+│   │   │   │   │   ├── asc_order.png
+│   │   │   │   │   ├── b_bookmark.png
+│   │   │   │   │   ├── b_browse.png
+│   │   │   │   │   ├── b_calendar.png
+│   │   │   │   │   ├── b_chart.png
+│   │   │   │   │   ├── b_close.png
+│   │   │   │   │   ├── b_column_add.png
+│   │   │   │   │   ├── b_comment.png
+│   │   │   │   │   ├── b_dbstatistics.png
+│   │   │   │   │   ├── b_deltbl.png
+│   │   │   │   │   ├── b_deltbl_white.png
+│   │   │   │   │   ├── b_docs.png
+│   │   │   │   │   ├── b_docsql.png
+│   │   │   │   │   ├── b_drop.png
+│   │   │   │   │   ├── b_edit.png
+│   │   │   │   │   ├── b_empty.png
+│   │   │   │   │   ├── b_engine.png
+│   │   │   │   │   ├── b_event_add.png
+│   │   │   │   │   ├── b_events.png
+│   │   │   │   │   ├── b_export.png
+│   │   │   │   │   ├── b_favorite.png
+│   │   │   │   │   ├── b_find_replace.png
+│   │   │   │   │   ├── b_firstpage.png
+│   │   │   │   │   ├── b_ftext.png
+│   │   │   │   │   ├── b_globe.gif
+│   │   │   │   │   ├── b_group.png
+│   │   │   │   │   ├── b_help.png
+│   │   │   │   │   ├── b_home.png
+│   │   │   │   │   ├── b_import.png
+│   │   │   │   │   ├── b_index.png
+│   │   │   │   │   ├── b_index_add.png
+│   │   │   │   │   ├── b_info.png
+│   │   │   │   │   ├── b_inline_edit.png
+│   │   │   │   │   ├── b_insrow.png
+│   │   │   │   │   ├── b_key.png
+│   │   │   │   │   ├── b_lastpage.png
+│   │   │   │   │   ├── b_minus.png
+│   │   │   │   │   ├── b_more.png
+│   │   │   │   │   ├── b_move.png
+│   │   │   │   │   ├── b_newdb.png
+│   │   │   │   │   ├── b_newtbl.png
+│   │   │   │   │   ├── b_nextpage.png
+│   │   │   │   │   ├── b_no_favorite.png
+│   │   │   │   │   ├── b_pdfdoc.png
+│   │   │   │   │   ├── b_plugin.png
+│   │   │   │   │   ├── b_plus.png
+│   │   │   │   │   ├── b_prevpage.png
+│   │   │   │   │   ├── b_primary.png
+│   │   │   │   │   ├── b_print.png
+│   │   │   │   │   ├── b_props.png
+│   │   │   │   │   ├── b_relations.png
+│   │   │   │   │   ├── b_rename.svg
+│   │   │   │   │   ├── b_report.png
+│   │   │   │   │   ├── b_routine_add.png
+│   │   │   │   │   ├── b_routines.png
+│   │   │   │   │   ├── b_save.png
+│   │   │   │   │   ├── b_saveimage.png
+│   │   │   │   │   ├── b_sbrowse.png
+│   │   │   │   │   ├── b_sdb.png
+│   │   │   │   │   ├── b_search.png
+│   │   │   │   │   ├── b_select.png
+│   │   │   │   │   ├── b_snewtbl.png
+│   │   │   │   │   ├── b_spatial.png
+│   │   │   │   │   ├── b_sql.png
+│   │   │   │   │   ├── b_sqldoc.png
+│   │   │   │   │   ├── b_sqlhelp.png
+│   │   │   │   │   ├── b_table_add.png
+│   │   │   │   │   ├── b_tblanalyse.png
+│   │   │   │   │   ├── b_tblexport.png
+│   │   │   │   │   ├── b_tblimport.png
+│   │   │   │   │   ├── b_tblops.png
+│   │   │   │   │   ├── b_tbloptimize.png
+│   │   │   │   │   ├── b_tipp.png
+│   │   │   │   │   ├── b_trigger_add.png
+│   │   │   │   │   ├── b_triggers.png
+│   │   │   │   │   ├── b_unique.png
+│   │   │   │   │   ├── b_usradd.png
+│   │   │   │   │   ├── b_usrcheck.png
+│   │   │   │   │   ├── b_usrdrop.png
+│   │   │   │   │   ├── b_usredit.png
+│   │   │   │   │   ├── b_usrlist.png
+│   │   │   │   │   ├── b_versions.png
+│   │   │   │   │   ├── b_view.png
+│   │   │   │   │   ├── b_view_add.png
+│   │   │   │   │   ├── b_views.png
+│   │   │   │   │   ├── bd_browse.png
+│   │   │   │   │   ├── bd_deltbl.png
+│   │   │   │   │   ├── bd_drop.png
+│   │   │   │   │   ├── bd_edit.png
+│   │   │   │   │   ├── bd_empty.png
+│   │   │   │   │   ├── bd_export.png
+│   │   │   │   │   ├── bd_firstpage.png
+│   │   │   │   │   ├── bd_ftext.png
+│   │   │   │   │   ├── bd_index.png
+│   │   │   │   │   ├── bd_insrow.png
+│   │   │   │   │   ├── bd_lastpage.png
+│   │   │   │   │   ├── bd_nextpage.png
+│   │   │   │   │   ├── bd_prevpage.png
+│   │   │   │   │   ├── bd_primary.png
+│   │   │   │   │   ├── bd_routine_add.png
+│   │   │   │   │   ├── bd_sbrowse.png
+│   │   │   │   │   ├── bd_select.png
+│   │   │   │   │   ├── bd_spatial.png
+│   │   │   │   │   ├── bd_unique.png
+│   │   │   │   │   ├── centralColumns.png
+│   │   │   │   │   ├── centralColumns_add.png
+│   │   │   │   │   ├── centralColumns_delete.png
+│   │   │   │   │   ├── col_drop.png
+│   │   │   │   │   ├── col_pointer.png
+│   │   │   │   │   ├── col_pointer_ver.png
+│   │   │   │   │   ├── console.png
+│   │   │   │   │   ├── database.png
+│   │   │   │   │   ├── designer
+│   │   │   │   │   │   ├── 2leftarrow.png
+│   │   │   │   │   │   ├── 2leftarrow_m.png
+│   │   │   │   │   │   ├── 2rightarrow.png
+│   │   │   │   │   │   ├── 2rightarrow_m.png
+│   │   │   │   │   │   ├── FieldKey_small.png
+│   │   │   │   │   │   ├── Field_small.png
+│   │   │   │   │   │   ├── Field_small_char.png
+│   │   │   │   │   │   ├── Field_small_date.png
+│   │   │   │   │   │   ├── Field_small_int.png
+│   │   │   │   │   │   ├── Header_Linked.png
+│   │   │   │   │   │   ├── anchor.png
+│   │   │   │   │   │   ├── and_icon.png
+│   │   │   │   │   │   ├── ang_direct.png
+│   │   │   │   │   │   ├── bord.png
+│   │   │   │   │   │   ├── bottom.png
+│   │   │   │   │   │   ├── def.png
+│   │   │   │   │   │   ├── display_field.png
+│   │   │   │   │   │   ├── downarrow1.png
+│   │   │   │   │   │   ├── downarrow2.png
+│   │   │   │   │   │   ├── downarrow2_m.png
+│   │   │   │   │   │   ├── exec.png
+│   │   │   │   │   │   ├── exec_small.png
+│   │   │   │   │   │   ├── exitFullscreen.png
+│   │   │   │   │   │   ├── export.png
+│   │   │   │   │   │   ├── favicon.ico
+│   │   │   │   │   │   ├── grid.png
+│   │   │   │   │   │   ├── help.png
+│   │   │   │   │   │   ├── help_relation.png
+│   │   │   │   │   │   ├── left_panel_butt.png
+│   │   │   │   │   │   ├── left_panel_tab.png
+│   │   │   │   │   │   ├── minus.png
+│   │   │   │   │   │   ├── or_icon.png
+│   │   │   │   │   │   ├── page_add.png
+│   │   │   │   │   │   ├── page_delete.png
+│   │   │   │   │   │   ├── page_edit.png
+│   │   │   │   │   │   ├── pdf.png
+│   │   │   │   │   │   ├── plus.png
+│   │   │   │   │   │   ├── query_builder.png
+│   │   │   │   │   │   ├── relation.png
+│   │   │   │   │   │   ├── reload.png
+│   │   │   │   │   │   ├── resize.png
+│   │   │   │   │   │   ├── resizeright.png
+│   │   │   │   │   │   ├── rightarrow1.png
+│   │   │   │   │   │   ├── rightarrow2.png
+│   │   │   │   │   │   ├── save.png
+│   │   │   │   │   │   ├── save_as.png
+│   │   │   │   │   │   ├── table.png
+│   │   │   │   │   │   ├── toggle_lines.png
+│   │   │   │   │   │   ├── uparrow2_m.png
+│   │   │   │   │   │   ├── viewInFullscreen.png
+│   │   │   │   │   ├── docs_menu_bg.png
+│   │   │   │   │   ├── east-mini.png
+│   │   │   │   │   ├── error.ico
+│   │   │   │   │   ├── eye.png
+│   │   │   │   │   ├── eye_grey.png
+│   │   │   │   │   ├── hide.png
+│   │   │   │   │   ├── item.png
+│   │   │   │   │   ├── item_ltr.png
+│   │   │   │   │   ├── item_rtl.png
+│   │   │   │   │   ├── lightbulb.png
+│   │   │   │   │   ├── lightbulb_off.png
+│   │   │   │   │   ├── lock_open.png
+│   │   │   │   │   ├── more.png
+│   │   │   │   │   ├── new_data.png
+│   │   │   │   │   ├── new_data_hovered.png
+│   │   │   │   │   ├── new_data_selected.png
+│   │   │   │   │   ├── new_data_selected_hovered.png
+│   │   │   │   │   ├── new_struct.png
+│   │   │   │   │   ├── new_struct_hovered.png
+│   │   │   │   │   ├── new_struct_selected.png
+│   │   │   │   │   ├── new_struct_selected_hovered.png
+│   │   │   │   │   ├── normalize.png
+│   │   │   │   │   ├── north-mini.png
+│   │   │   │   │   ├── pause.png
+│   │   │   │   │   ├── php_sym.png
+│   │   │   │   │   ├── play.png
+│   │   │   │   │   ├── pma_logo.png
+│   │   │   │   │   ├── pma_logo2.png
+│   │   │   │   │   ├── s_asc.png
+│   │   │   │   │   ├── s_asci.png
+│   │   │   │   │   ├── s_attention.png
+│   │   │   │   │   ├── s_cancel.png
+│   │   │   │   │   ├── s_cancel2.png
+│   │   │   │   │   ├── s_cog.png
+│   │   │   │   │   ├── s_collapseall.png
+│   │   │   │   │   ├── s_db.png
+│   │   │   │   │   ├── s_desc.png
+│   │   │   │   │   ├── s_error.png
+│   │   │   │   │   ├── s_error2.png
+│   │   │   │   │   ├── s_fulltext.png
+│   │   │   │   │   ├── s_host.png
+│   │   │   │   │   ├── s_info.png
+│   │   │   │   │   ├── s_lang.png
+│   │   │   │   │   ├── s_link.png
+│   │   │   │   │   ├── s_lock.png
+│   │   │   │   │   ├── s_loggoff.png
+│   │   │   │   │   ├── s_notice.png
+│   │   │   │   │   ├── s_okay.png
+│   │   │   │   │   ├── s_partialtext.png
+│   │   │   │   │   ├── s_passwd.png
+│   │   │   │   │   ├── s_process.png
+│   │   │   │   │   ├── s_really.png
+│   │   │   │   │   ├── s_reload.png
+│   │   │   │   │   ├── s_replication.png
+│   │   │   │   │   ├── s_rights.png
+│   │   │   │   │   ├── s_sortable.png
+│   │   │   │   │   ├── s_status.png
+│   │   │   │   │   ├── s_success.png
+│   │   │   │   │   ├── s_sync.png
+│   │   │   │   │   ├── s_tbl.png
+│   │   │   │   │   ├── s_theme.png
+│   │   │   │   │   ├── s_top.png
+│   │   │   │   │   ├── s_unlink.png
+│   │   │   │   │   ├── s_vars.png
+│   │   │   │   │   ├── s_views.png
+│   │   │   │   │   ├── show.png
+│   │   │   │   │   ├── south-mini.png
+│   │   │   │   │   ├── spacer.png
+│   │   │   │   │   ├── sprites.png
+│   │   │   │   │   ├── toggle-ltr.png
+│   │   │   │   │   ├── toggle-rtl.png
+│   │   │   │   │   ├── user.svg
+│   │   │   │   │   ├── vertical_line.png
+│   │   │   │   │   ├── west-mini.png
+│   │   │   │   │   ├── window-new.png
+│   │   │   │   │   ├── zoom-minus-mini.png
+│   │   │   │   │   ├── zoom-plus-mini.png
+│   │   │   │   │   ├── zoom-world-mini.png
+│   │   │   │   ├── jquery
+│   │   │   │   │   ├── images
+│   │   │   │   │   │   ├── ui-bg_glass_55_fbf9ee_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_65_ffffff_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_75_dadada_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_75_e6e6e6_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_95_fef1ec_1x400.png
+│   │   │   │   │   │   ├── ui-bg_highlight-soft_75_cccccc_1x100.png
+│   │   │   │   │   │   ├── ui-icons_222222_256x240.png
+│   │   │   │   │   │   ├── ui-icons_2e83ff_256x240.png
+│   │   │   │   │   │   ├── ui-icons_454545_256x240.png
+│   │   │   │   │   │   ├── ui-icons_888888_256x240.png
+│   │   │   │   │   │   ├── ui-icons_cd0a0a_256x240.png
+│   │   │   │   │   ├── jquery-ui.css
+│   │   │   │   ├── screen.png
+│   │   │   │   ├── scss
+│   │   │   │   │   ├── _alert.scss
+│   │   │   │   │   ├── _breadcrumb.scss
+│   │   │   │   │   ├── _card.scss
+│   │   │   │   │   ├── _codemirror.scss
+│   │   │   │   │   ├── _common.scss
+│   │   │   │   │   ├── _designer.scss
+│   │   │   │   │   ├── _enum-editor.scss
+│   │   │   │   │   ├── _font.scss
+│   │   │   │   │   ├── _forms.scss
+│   │   │   │   │   ├── _icons.scss
+│   │   │   │   │   ├── _jqplot.scss
+│   │   │   │   │   ├── _list-group.scss
+│   │   │   │   │   ├── _modal.scss
+│   │   │   │   │   ├── _nav.scss
+│   │   │   │   │   ├── _navbar.scss
+│   │   │   │   │   ├── _navigation.scss
+│   │   │   │   │   ├── _print.scss
+│   │   │   │   │   ├── _reboot.scss
+│   │   │   │   │   ├── _tables.scss
+│   │   │   │   │   ├── _variables.scss
+│   │   │   │   │   ├── blueeyes-theme.scss
+│   │   │   │   │   ├── mono-theme.scss
+│   │   │   │   │   ├── redmond-theme.scss
+│   │   │   │   │   ├── teal-theme.scss
+│   │   │   │   │   ├── theme.scss
+│   │   │   │   ├── theme.json
+│   │   │   ├── original
+│   │   │   │   ├── css
+│   │   │   │   │   ├── theme.css
+│   │   │   │   │   ├── theme.css.map
+│   │   │   │   │   ├── theme.rtl.css
+│   │   │   │   ├── img
+│   │   │   │   │   ├── ajax_clock_small.gif
+│   │   │   │   │   ├── arrow_ltr.png
+│   │   │   │   │   ├── arrow_rtl.png
+│   │   │   │   │   ├── b_bookmark.png
+│   │   │   │   │   ├── b_browse.png
+│   │   │   │   │   ├── b_calendar.png
+│   │   │   │   │   ├── b_chart.png
+│   │   │   │   │   ├── b_close.png
+│   │   │   │   │   ├── b_column_add.png
+│   │   │   │   │   ├── b_comment.png
+│   │   │   │   │   ├── b_dbstatistics.png
+│   │   │   │   │   ├── b_deltbl.png
+│   │   │   │   │   ├── b_docs.png
+│   │   │   │   │   ├── b_drop.png
+│   │   │   │   │   ├── b_edit.png
+│   │   │   │   │   ├── b_empty.png
+│   │   │   │   │   ├── b_engine.png
+│   │   │   │   │   ├── b_event_add.png
+│   │   │   │   │   ├── b_events.png
+│   │   │   │   │   ├── b_export.png
+│   │   │   │   │   ├── b_favorite.png
+│   │   │   │   │   ├── b_find_replace.png
+│   │   │   │   │   ├── b_ftext.png
+│   │   │   │   │   ├── b_globe.gif
+│   │   │   │   │   ├── b_group.png
+│   │   │   │   │   ├── b_help.png
+│   │   │   │   │   ├── b_home.png
+│   │   │   │   │   ├── b_import.png
+│   │   │   │   │   ├── b_index.png
+│   │   │   │   │   ├── b_index_add.png
+│   │   │   │   │   ├── b_inline_edit.png
+│   │   │   │   │   ├── b_insrow.png
+│   │   │   │   │   ├── b_key.png
+│   │   │   │   │   ├── b_left.png
+│   │   │   │   │   ├── b_minus.png
+│   │   │   │   │   ├── b_more.png
+│   │   │   │   │   ├── b_move.png
+│   │   │   │   │   ├── b_newdb.png
+│   │   │   │   │   ├── b_newtbl.png
+│   │   │   │   │   ├── b_nextpage.png
+│   │   │   │   │   ├── b_no_favorite.png
+│   │   │   │   │   ├── b_plugin.png
+│   │   │   │   │   ├── b_plus.png
+│   │   │   │   │   ├── b_primary.png
+│   │   │   │   │   ├── b_print.png
+│   │   │   │   │   ├── b_props.png
+│   │   │   │   │   ├── b_relations.png
+│   │   │   │   │   ├── b_rename.svg
+│   │   │   │   │   ├── b_report.png
+│   │   │   │   │   ├── b_right.png
+│   │   │   │   │   ├── b_routine_add.png
+│   │   │   │   │   ├── b_routines.png
+│   │   │   │   │   ├── b_save.png
+│   │   │   │   │   ├── b_saveimage.png
+│   │   │   │   │   ├── b_sbrowse.png
+│   │   │   │   │   ├── b_search.png
+│   │   │   │   │   ├── b_select.png
+│   │   │   │   │   ├── b_snewtbl.png
+│   │   │   │   │   ├── b_spatial.png
+│   │   │   │   │   ├── b_sql.png
+│   │   │   │   │   ├── b_sqlhelp.png
+│   │   │   │   │   ├── b_table_add.png
+│   │   │   │   │   ├── b_tblanalyse.png
+│   │   │   │   │   ├── b_tblexport.png
+│   │   │   │   │   ├── b_tblimport.png
+│   │   │   │   │   ├── b_tblops.png
+│   │   │   │   │   ├── b_tbloptimize.png
+│   │   │   │   │   ├── b_tipp.png
+│   │   │   │   │   ├── b_trigger_add.png
+│   │   │   │   │   ├── b_triggers.png
+│   │   │   │   │   ├── b_undo.png
+│   │   │   │   │   ├── b_unique.png
+│   │   │   │   │   ├── b_usradd.png
+│   │   │   │   │   ├── b_usrcheck.png
+│   │   │   │   │   ├── b_usrdrop.png
+│   │   │   │   │   ├── b_usredit.png
+│   │   │   │   │   ├── b_usrlist.png
+│   │   │   │   │   ├── b_versions.png
+│   │   │   │   │   ├── b_view.png
+│   │   │   │   │   ├── b_view_add.png
+│   │   │   │   │   ├── b_views.png
+│   │   │   │   │   ├── bd_browse.png
+│   │   │   │   │   ├── bd_deltbl.png
+│   │   │   │   │   ├── bd_drop.png
+│   │   │   │   │   ├── bd_edit.png
+│   │   │   │   │   ├── bd_empty.png
+│   │   │   │   │   ├── bd_export.png
+│   │   │   │   │   ├── bd_ftext.png
+│   │   │   │   │   ├── bd_index.png
+│   │   │   │   │   ├── bd_insrow.png
+│   │   │   │   │   ├── bd_nextpage.png
+│   │   │   │   │   ├── bd_primary.png
+│   │   │   │   │   ├── bd_routine_add.png
+│   │   │   │   │   ├── bd_sbrowse.png
+│   │   │   │   │   ├── bd_select.png
+│   │   │   │   │   ├── bd_spatial.png
+│   │   │   │   │   ├── bd_unique.png
+│   │   │   │   │   ├── centralColumns.png
+│   │   │   │   │   ├── centralColumns_add.png
+│   │   │   │   │   ├── centralColumns_delete.png
+│   │   │   │   │   ├── cleardot.gif
+│   │   │   │   │   ├── col_drop.png
+│   │   │   │   │   ├── col_pointer.png
+│   │   │   │   │   ├── col_pointer_ver.png
+│   │   │   │   │   ├── console.png
+│   │   │   │   │   ├── east-mini.png
+│   │   │   │   │   ├── error.ico
+│   │   │   │   │   ├── eye.png
+│   │   │   │   │   ├── eye_grey.png
+│   │   │   │   │   ├── hide.png
+│   │   │   │   │   ├── lightbulb.png
+│   │   │   │   │   ├── lightbulb_off.png
+│   │   │   │   │   ├── logo_left.png
+│   │   │   │   │   ├── logo_right.png
+│   │   │   │   │   ├── more.png
+│   │   │   │   │   ├── new_data.png
+│   │   │   │   │   ├── new_data_hovered.png
+│   │   │   │   │   ├── new_data_selected.png
+│   │   │   │   │   ├── new_data_selected_hovered.png
+│   │   │   │   │   ├── new_struct.png
+│   │   │   │   │   ├── new_struct_hovered.png
+│   │   │   │   │   ├── new_struct_selected.png
+│   │   │   │   │   ├── new_struct_selected_hovered.png
+│   │   │   │   │   ├── normalize.png
+│   │   │   │   │   ├── north-mini.png
+│   │   │   │   │   ├── pause.png
+│   │   │   │   │   ├── play.png
+│   │   │   │   │   ├── s_asc.png
+│   │   │   │   │   ├── s_asci.png
+│   │   │   │   │   ├── s_attention.png
+│   │   │   │   │   ├── s_cancel.png
+│   │   │   │   │   ├── s_cog.png
+│   │   │   │   │   ├── s_collapseall.png
+│   │   │   │   │   ├── s_db.png
+│   │   │   │   │   ├── s_desc.png
+│   │   │   │   │   ├── s_error.png
+│   │   │   │   │   ├── s_fulltext.png
+│   │   │   │   │   ├── s_host.png
+│   │   │   │   │   ├── s_info.png
+│   │   │   │   │   ├── s_lang.png
+│   │   │   │   │   ├── s_link.png
+│   │   │   │   │   ├── s_lock.png
+│   │   │   │   │   ├── s_loggoff.png
+│   │   │   │   │   ├── s_notice.png
+│   │   │   │   │   ├── s_okay.png
+│   │   │   │   │   ├── s_partialtext.png
+│   │   │   │   │   ├── s_passwd.png
+│   │   │   │   │   ├── s_really.png
+│   │   │   │   │   ├── s_reload.png
+│   │   │   │   │   ├── s_replication.png
+│   │   │   │   │   ├── s_rights.png
+│   │   │   │   │   ├── s_sortable.png
+│   │   │   │   │   ├── s_status.png
+│   │   │   │   │   ├── s_success.png
+│   │   │   │   │   ├── s_sync.png
+│   │   │   │   │   ├── s_tbl.png
+│   │   │   │   │   ├── s_theme.png
+│   │   │   │   │   ├── s_top.png
+│   │   │   │   │   ├── s_unlink.png
+│   │   │   │   │   ├── s_vars.png
+│   │   │   │   │   ├── s_views.png
+│   │   │   │   │   ├── show.png
+│   │   │   │   │   ├── south-mini.png
+│   │   │   │   │   ├── spacer.png
+│   │   │   │   │   ├── toggle-ltr.png
+│   │   │   │   │   ├── toggle-rtl.png
+│   │   │   │   │   ├── vertical_line.png
+│   │   │   │   │   ├── west-mini.png
+│   │   │   │   │   ├── window-new.png
+│   │   │   │   │   ├── zoom-minus-mini.png
+│   │   │   │   │   ├── zoom-plus-mini.png
+│   │   │   │   │   ├── zoom-world-mini.png
+│   │   │   │   ├── jquery
+│   │   │   │   │   ├── images
+│   │   │   │   │   │   ├── ui-bg_glass_55_fbf9ee_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_65_ffffff_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_75_dadada_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_75_e6e6e6_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_95_fef1ec_1x400.png
+│   │   │   │   │   │   ├── ui-bg_highlight-soft_75_cccccc_1x100.png
+│   │   │   │   │   │   ├── ui-icons_222222_256x240.png
+│   │   │   │   │   │   ├── ui-icons_2e83ff_256x240.png
+│   │   │   │   │   │   ├── ui-icons_454545_256x240.png
+│   │   │   │   │   │   ├── ui-icons_888888_256x240.png
+│   │   │   │   │   │   ├── ui-icons_cd0a0a_256x240.png
+│   │   │   │   │   ├── jquery-ui.css
+│   │   │   │   ├── screen.png
+│   │   │   │   ├── scss
+│   │   │   │   │   ├── _alert.scss
+│   │   │   │   │   ├── _breadcrumb.scss
+│   │   │   │   │   ├── _card.scss
+│   │   │   │   │   ├── _common.scss
+│   │   │   │   │   ├── _forms.scss
+│   │   │   │   │   ├── _icons.scss
+│   │   │   │   │   ├── _list-group.scss
+│   │   │   │   │   ├── _modal.scss
+│   │   │   │   │   ├── _nav.scss
+│   │   │   │   │   ├── _navbar.scss
+│   │   │   │   │   ├── _navigation.scss
+│   │   │   │   │   ├── _reboot.scss
+│   │   │   │   │   ├── _tables.scss
+│   │   │   │   │   ├── _variables.scss
+│   │   │   │   │   ├── theme.scss
+│   │   │   │   ├── theme.json
+│   │   │   ├── pmahomme
+│   │   │   │   ├── css
+│   │   │   │   │   ├── theme.css
+│   │   │   │   │   ├── theme.css.map
+│   │   │   │   │   ├── theme.rtl.css
+│   │   │   │   ├── img
+│   │   │   │   │   ├── ajax_clock_small.gif
+│   │   │   │   │   ├── arrow_ltr.png
+│   │   │   │   │   ├── arrow_rtl.png
+│   │   │   │   │   ├── asc_order.png
+│   │   │   │   │   ├── b_bookmark.png
+│   │   │   │   │   ├── b_browse.png
+│   │   │   │   │   ├── b_calendar.png
+│   │   │   │   │   ├── b_chart.png
+│   │   │   │   │   ├── b_close.png
+│   │   │   │   │   ├── b_column_add.png
+│   │   │   │   │   ├── b_comment.png
+│   │   │   │   │   ├── b_dbstatistics.png
+│   │   │   │   │   ├── b_deltbl.png
+│   │   │   │   │   ├── b_docs.png
+│   │   │   │   │   ├── b_docsql.png
+│   │   │   │   │   ├── b_drop.png
+│   │   │   │   │   ├── b_edit.png
+│   │   │   │   │   ├── b_empty.png
+│   │   │   │   │   ├── b_engine.png
+│   │   │   │   │   ├── b_event_add.png
+│   │   │   │   │   ├── b_events.png
+│   │   │   │   │   ├── b_export.png
+│   │   │   │   │   ├── b_favorite.png
+│   │   │   │   │   ├── b_find_replace.png
+│   │   │   │   │   ├── b_firstpage.png
+│   │   │   │   │   ├── b_ftext.png
+│   │   │   │   │   ├── b_globe.gif
+│   │   │   │   │   ├── b_group.png
+│   │   │   │   │   ├── b_help.png
+│   │   │   │   │   ├── b_home.png
+│   │   │   │   │   ├── b_import.png
+│   │   │   │   │   ├── b_index.png
+│   │   │   │   │   ├── b_index_add.png
+│   │   │   │   │   ├── b_inline_edit.png
+│   │   │   │   │   ├── b_insrow.png
+│   │   │   │   │   ├── b_key.png
+│   │   │   │   │   ├── b_lastpage.png
+│   │   │   │   │   ├── b_left.png
+│   │   │   │   │   ├── b_minus.png
+│   │   │   │   │   ├── b_more.png
+│   │   │   │   │   ├── b_move.png
+│   │   │   │   │   ├── b_newdb.png
+│   │   │   │   │   ├── b_newtbl.png
+│   │   │   │   │   ├── b_nextpage.png
+│   │   │   │   │   ├── b_no_favorite.png
+│   │   │   │   │   ├── b_pdfdoc.png
+│   │   │   │   │   ├── b_plugin.png
+│   │   │   │   │   ├── b_plus.png
+│   │   │   │   │   ├── b_prevpage.png
+│   │   │   │   │   ├── b_primary.png
+│   │   │   │   │   ├── b_print.png
+│   │   │   │   │   ├── b_props.png
+│   │   │   │   │   ├── b_relations.png
+│   │   │   │   │   ├── b_rename.svg
+│   │   │   │   │   ├── b_report.png
+│   │   │   │   │   ├── b_right.png
+│   │   │   │   │   ├── b_routine_add.png
+│   │   │   │   │   ├── b_routines.png
+│   │   │   │   │   ├── b_save.png
+│   │   │   │   │   ├── b_saveimage.png
+│   │   │   │   │   ├── b_sbrowse.png
+│   │   │   │   │   ├── b_sdb.png
+│   │   │   │   │   ├── b_search.png
+│   │   │   │   │   ├── b_select.png
+│   │   │   │   │   ├── b_snewtbl.png
+│   │   │   │   │   ├── b_spatial.png
+│   │   │   │   │   ├── b_sql.png
+│   │   │   │   │   ├── b_sqldoc.png
+│   │   │   │   │   ├── b_sqlhelp.png
+│   │   │   │   │   ├── b_table_add.png
+│   │   │   │   │   ├── b_tblanalyse.png
+│   │   │   │   │   ├── b_tblexport.png
+│   │   │   │   │   ├── b_tblimport.png
+│   │   │   │   │   ├── b_tblops.png
+│   │   │   │   │   ├── b_tbloptimize.png
+│   │   │   │   │   ├── b_tipp.png
+│   │   │   │   │   ├── b_trigger_add.png
+│   │   │   │   │   ├── b_triggers.png
+│   │   │   │   │   ├── b_undo.png
+│   │   │   │   │   ├── b_unique.png
+│   │   │   │   │   ├── b_usradd.png
+│   │   │   │   │   ├── b_usrcheck.png
+│   │   │   │   │   ├── b_usrdrop.png
+│   │   │   │   │   ├── b_usredit.png
+│   │   │   │   │   ├── b_usrlist.png
+│   │   │   │   │   ├── b_versions.png
+│   │   │   │   │   ├── b_view.png
+│   │   │   │   │   ├── b_view_add.png
+│   │   │   │   │   ├── b_views.png
+│   │   │   │   │   ├── bd_browse.png
+│   │   │   │   │   ├── bd_deltbl.png
+│   │   │   │   │   ├── bd_drop.png
+│   │   │   │   │   ├── bd_edit.png
+│   │   │   │   │   ├── bd_empty.png
+│   │   │   │   │   ├── bd_export.png
+│   │   │   │   │   ├── bd_firstpage.png
+│   │   │   │   │   ├── bd_ftext.png
+│   │   │   │   │   ├── bd_index.png
+│   │   │   │   │   ├── bd_insrow.png
+│   │   │   │   │   ├── bd_lastpage.png
+│   │   │   │   │   ├── bd_nextpage.png
+│   │   │   │   │   ├── bd_prevpage.png
+│   │   │   │   │   ├── bd_primary.png
+│   │   │   │   │   ├── bd_routine_add.png
+│   │   │   │   │   ├── bd_sbrowse.png
+│   │   │   │   │   ├── bd_select.png
+│   │   │   │   │   ├── bd_spatial.png
+│   │   │   │   │   ├── bd_unique.png
+│   │   │   │   │   ├── centralColumns.png
+│   │   │   │   │   ├── centralColumns_add.png
+│   │   │   │   │   ├── centralColumns_delete.png
+│   │   │   │   │   ├── col_drop.png
+│   │   │   │   │   ├── col_pointer.png
+│   │   │   │   │   ├── col_pointer_ver.png
+│   │   │   │   │   ├── console.png
+│   │   │   │   │   ├── database.png
+│   │   │   │   │   ├── designer
+│   │   │   │   │   │   ├── 1.png
+│   │   │   │   │   │   ├── 2.png
+│   │   │   │   │   │   ├── 2leftarrow.png
+│   │   │   │   │   │   ├── 2leftarrow_m.png
+│   │   │   │   │   │   ├── 2rightarrow.png
+│   │   │   │   │   │   ├── 2rightarrow_m.png
+│   │   │   │   │   │   ├── 3.png
+│   │   │   │   │   │   ├── 4.png
+│   │   │   │   │   │   ├── 5.png
+│   │   │   │   │   │   ├── 6.png
+│   │   │   │   │   │   ├── 7.png
+│   │   │   │   │   │   ├── 8.png
+│   │   │   │   │   │   ├── FieldKey_small.png
+│   │   │   │   │   │   ├── Field_small.png
+│   │   │   │   │   │   ├── Field_small_char.png
+│   │   │   │   │   │   ├── Field_small_date.png
+│   │   │   │   │   │   ├── Field_small_int.png
+│   │   │   │   │   │   ├── anchor.png
+│   │   │   │   │   │   ├── and_icon.png
+│   │   │   │   │   │   ├── ang_direct.png
+│   │   │   │   │   │   ├── bottom.png
+│   │   │   │   │   │   ├── def.png
+│   │   │   │   │   │   ├── display_field.png
+│   │   │   │   │   │   ├── downarrow1.png
+│   │   │   │   │   │   ├── downarrow2.png
+│   │   │   │   │   │   ├── downarrow2_m.png
+│   │   │   │   │   │   ├── exec.png
+│   │   │   │   │   │   ├── exec_small.png
+│   │   │   │   │   │   ├── exitFullscreen.png
+│   │   │   │   │   │   ├── export.png
+│   │   │   │   │   │   ├── favicon.ico
+│   │   │   │   │   │   ├── grid.png
+│   │   │   │   │   │   ├── help.png
+│   │   │   │   │   │   ├── help_relation.png
+│   │   │   │   │   │   ├── left_panel_tab.png
+│   │   │   │   │   │   ├── minus.png
+│   │   │   │   │   │   ├── or_icon.png
+│   │   │   │   │   │   ├── other_table.png
+│   │   │   │   │   │   ├── page_add.png
+│   │   │   │   │   │   ├── page_delete.png
+│   │   │   │   │   │   ├── page_edit.png
+│   │   │   │   │   │   ├── pdf.png
+│   │   │   │   │   │   ├── plus.png
+│   │   │   │   │   │   ├── query_builder.png
+│   │   │   │   │   │   ├── relation.png
+│   │   │   │   │   │   ├── reload.png
+│   │   │   │   │   │   ├── resize.png
+│   │   │   │   │   │   ├── resizeright.png
+│   │   │   │   │   │   ├── rightarrow1.png
+│   │   │   │   │   │   ├── rightarrow2.png
+│   │   │   │   │   │   ├── save.png
+│   │   │   │   │   │   ├── save_as.png
+│   │   │   │   │   │   ├── small_tab.png
+│   │   │   │   │   │   ├── table.png
+│   │   │   │   │   │   ├── toggle_lines.png
+│   │   │   │   │   │   ├── top_panel.png
+│   │   │   │   │   │   ├── uparrow2_m.png
+│   │   │   │   │   │   ├── viewInFullscreen.png
+│   │   │   │   │   ├── east-mini.png
+│   │   │   │   │   ├── error.ico
+│   │   │   │   │   ├── eye.png
+│   │   │   │   │   ├── eye_grey.png
+│   │   │   │   │   ├── hide.png
+│   │   │   │   │   ├── item.png
+│   │   │   │   │   ├── lightbulb.png
+│   │   │   │   │   ├── lightbulb_off.png
+│   │   │   │   │   ├── lock_open.png
+│   │   │   │   │   ├── logo_left.png
+│   │   │   │   │   ├── logo_right.png
+│   │   │   │   │   ├── more.png
+│   │   │   │   │   ├── new_data.png
+│   │   │   │   │   ├── new_data_hovered.png
+│   │   │   │   │   ├── new_data_selected.png
+│   │   │   │   │   ├── new_data_selected_hovered.png
+│   │   │   │   │   ├── new_struct.png
+│   │   │   │   │   ├── new_struct_hovered.png
+│   │   │   │   │   ├── new_struct_selected.png
+│   │   │   │   │   ├── new_struct_selected_hovered.png
+│   │   │   │   │   ├── normalize.png
+│   │   │   │   │   ├── north-mini.png
+│   │   │   │   │   ├── pause.png
+│   │   │   │   │   ├── php_sym.png
+│   │   │   │   │   ├── play.png
+│   │   │   │   │   ├── pma_logo2.png
+│   │   │   │   │   ├── s_asc.png
+│   │   │   │   │   ├── s_asci.png
+│   │   │   │   │   ├── s_attention.png
+│   │   │   │   │   ├── s_cancel.png
+│   │   │   │   │   ├── s_cancel2.png
+│   │   │   │   │   ├── s_cog.png
+│   │   │   │   │   ├── s_collapseall.png
+│   │   │   │   │   ├── s_db.png
+│   │   │   │   │   ├── s_desc.png
+│   │   │   │   │   ├── s_error.png
+│   │   │   │   │   ├── s_fulltext.png
+│   │   │   │   │   ├── s_host.png
+│   │   │   │   │   ├── s_info.png
+│   │   │   │   │   ├── s_lang.png
+│   │   │   │   │   ├── s_link.png
+│   │   │   │   │   ├── s_lock.png
+│   │   │   │   │   ├── s_loggoff.png
+│   │   │   │   │   ├── s_notice.png
+│   │   │   │   │   ├── s_okay.png
+│   │   │   │   │   ├── s_partialtext.png
+│   │   │   │   │   ├── s_passwd.png
+│   │   │   │   │   ├── s_process.png
+│   │   │   │   │   ├── s_really.png
+│   │   │   │   │   ├── s_reload.png
+│   │   │   │   │   ├── s_replication.png
+│   │   │   │   │   ├── s_rights.png
+│   │   │   │   │   ├── s_sortable.png
+│   │   │   │   │   ├── s_status.png
+│   │   │   │   │   ├── s_success.png
+│   │   │   │   │   ├── s_sync.png
+│   │   │   │   │   ├── s_tbl.png
+│   │   │   │   │   ├── s_theme.png
+│   │   │   │   │   ├── s_top.png
+│   │   │   │   │   ├── s_unlink.png
+│   │   │   │   │   ├── s_vars.png
+│   │   │   │   │   ├── s_views.png
+│   │   │   │   │   ├── show.png
+│   │   │   │   │   ├── south-mini.png
+│   │   │   │   │   ├── spacer.png
+│   │   │   │   │   ├── toggle-ltr.png
+│   │   │   │   │   ├── toggle-rtl.png
+│   │   │   │   │   ├── vertical_line.png
+│   │   │   │   │   ├── west-mini.png
+│   │   │   │   │   ├── window-new.png
+│   │   │   │   │   ├── zoom-minus-mini.png
+│   │   │   │   │   ├── zoom-plus-mini.png
+│   │   │   │   │   ├── zoom-world-mini.png
+│   │   │   │   ├── jquery
+│   │   │   │   │   ├── images
+│   │   │   │   │   │   ├── ui-bg_glass_55_fbf9ee_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_65_ffffff_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_75_dadada_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_75_e6e6e6_1x400.png
+│   │   │   │   │   │   ├── ui-bg_glass_95_fef1ec_1x400.png
+│   │   │   │   │   │   ├── ui-bg_highlight-soft_75_cccccc_1x100.png
+│   │   │   │   │   │   ├── ui-icons_222222_256x240.png
+│   │   │   │   │   │   ├── ui-icons_2e83ff_256x240.png
+│   │   │   │   │   │   ├── ui-icons_454545_256x240.png
+│   │   │   │   │   │   ├── ui-icons_888888_256x240.png
+│   │   │   │   │   │   ├── ui-icons_cd0a0a_256x240.png
+│   │   │   │   │   ├── jquery-ui.css
+│   │   │   │   ├── screen.png
+│   │   │   │   ├── scss
+│   │   │   │   │   ├── _alert.scss
+│   │   │   │   │   ├── _breadcrumb.scss
+│   │   │   │   │   ├── _buttons.scss
+│   │   │   │   │   ├── _card.scss
+│   │   │   │   │   ├── _codemirror.scss
+│   │   │   │   │   ├── _common.scss
+│   │   │   │   │   ├── _designer.scss
+│   │   │   │   │   ├── _enum-editor.scss
+│   │   │   │   │   ├── _forms.scss
+│   │   │   │   │   ├── _icons.scss
+│   │   │   │   │   ├── _jqplot.scss
+│   │   │   │   │   ├── _list-group.scss
+│   │   │   │   │   ├── _modal.scss
+│   │   │   │   │   ├── _nav.scss
+│   │   │   │   │   ├── _navbar.scss
+│   │   │   │   │   ├── _navigation.scss
+│   │   │   │   │   ├── _pagination.scss
+│   │   │   │   │   ├── _print.scss
+│   │   │   │   │   ├── _reboot.scss
+│   │   │   │   │   ├── _tables.scss
+│   │   │   │   │   ├── _variables.scss
+│   │   │   │   │   ├── theme.scss
+│   │   │   │   ├── theme.json
+│   │   ├── tmp
+│   │   ├── url.php
+│   │   ├── yarn.lock
+│   ├── delivery-manifest.json
+│   ├── delivery-sw.js
+│   ├── favicon-arg.svg
+│   ├── favicon.ico
+│   ├── images
+│   │   ├── logo-baritienda.svg
+│   │   ├── og-image.png
+│   │   ├── products
+│   │   ├── qr-baritienda-web.png
+│   │   ├── qr-baritienda-web.svg
+│   │   ├── sorteo-banner.jpg
+│   ├── index.php
+│   ├── js
+│   │   ├── filament
+│   │   │   ├── filament
+│   │   │   │   ├── app.js
+│   │   │   │   ├── echo.js
+│   │   │   ├── forms
+│   │   │   │   ├── components
+│   │   │   │   │   ├── color-picker.js
+│   │   │   │   │   ├── date-time-picker.js
+│   │   │   │   │   ├── file-upload.js
+│   │   │   │   │   ├── key-value.js
+│   │   │   │   │   ├── markdown-editor.js
+│   │   │   │   │   ├── rich-editor.js
+│   │   │   │   │   ├── select.js
+│   │   │   │   │   ├── tags-input.js
+│   │   │   │   │   ├── textarea.js
+│   │   │   ├── notifications
+│   │   │   │   ├── notifications.js
+│   │   │   ├── support
+│   │   │   │   ├── support.js
+│   │   │   ├── tables
+│   │   │   │   ├── components
+│   │   │   │   │   ├── table.js
+│   │   │   ├── widgets
+│   │   │   │   ├── components
+│   │   │   │   │   ├── chart.js
+│   │   │   │   │   ├── stats-overview
+│   │   │   │   │   │   ├── stat
+│   │   │   │   │   │   │   ├── chart.js
+│   │   ├── pwa.js
+│   ├── manifest.json
+│   ├── qr-baritienda.png
+│   ├── qr.html
+│   ├── robots.txt
+│   ├── sounds
+│   │   ├── admin.mp3
+│   │   ├── order.mp3
+│   │   ├── retirar.mp3
+│   ├── sw.js
+│   ├── vendedor-manifest.json
+│   ├── vendedor-sw.js
+├── resources
+│   ├── css
+│   │   ├── app.css
+│   │   ├── home.css
+│   ├── js
+│   │   ├── admin-orders-listener.js
+│   │   ├── app.js
+│   │   ├── bootstrap.js
+│   │   ├── category.js
+│   │   ├── checkout.js
+│   │   ├── filament-echo.js
+│   │   ├── filament-vendor-order-notification.js
+│   │   ├── filament-vendor-order-polling.js
+│   │   ├── home.js
+│   ├── views
+│   │   ├── auth
+│   │   │   ├── confirm-password.blade.php
+│   │   │   ├── forgot-password-delivery.blade.php
+│   │   │   ├── forgot-password.blade.php
+│   │   │   ├── login-delivery.blade.php
+│   │   │   ├── login.blade.php
+│   │   │   ├── register-delivery.blade.php
+│   │   │   ├── register.blade.php
+│   │   │   ├── reset-password.blade.php
+│   │   │   ├── verify-email-delivery.blade.php
+│   │   │   ├── verify-email.blade.php
+│   │   ├── cart.blade.php
+│   │   ├── category.blade.php
+│   │   ├── checkout
+│   │   │   ├── index.blade.php
+│   │   │   ├── mercadopago.blade.php
+│   │   │   ├── success.blade.php
+│   │   │   ├── thankyou.blade.php
+│   │   ├── components
+│   │   │   ├── application-logo.blade.php
+│   │   │   ├── auth-session-status.blade.php
+│   │   │   ├── danger-button.blade.php
+│   │   │   ├── dropdown-link.blade.php
+│   │   │   ├── dropdown.blade.php
+│   │   │   ├── front-layout.blade.php
+│   │   │   ├── input-error.blade.php
+│   │   │   ├── input-label.blade.php
+│   │   │   ├── modal.blade.php
+│   │   │   ├── nav-link.blade.php
+│   │   │   ├── primary-button.blade.php
+│   │   │   ├── responsive-nav-link.blade.php
+│   │   │   ├── secondary-button.blade.php
+│   │   │   ├── text-input.blade.php
+│   │   ├── dashboard.blade.php
+│   │   ├── delivery
+│   │   │   ├── app.blade.php
+│   │   │   ├── pending-approval.blade.php
+│   │   ├── emails
+│   │   │   ├── admin_order_notification.blade.php
+│   │   │   ├── order_confirmation.blade.php
+│   │   │   ├── vendor_order_assigned.blade.php
+│   │   │   ├── verify-email.blade.php
+│   │   ├── filament
+│   │   │   ├── client
+│   │   │   │   ├── pages
+│   │   │   │   │   ├── dashboard.blade.php
+│   │   │   ├── pages
+│   │   │   │   ├── admin-orders.blade.php
+│   │   │   │   ├── orders-realtime.blade.php
+│   │   │   │   ├── price-control.blade.php
+│   │   │   │   ├── vendor-dashboard.blade.php
+│   │   │   │   ├── vendor-orders.blade.php
+│   │   │   ├── resources
+│   │   │   │   ├── client-order-resource
+│   │   │   │   │   ├── pages
+│   │   │   │   ├── custom-request-resource
+│   │   │   │   │   ├── pages
+│   │   │   │   │   │   ├── chat-custom-request.blade.php
+│   │   │   │   ├── delivery-support-resource
+│   │   │   │   │   ├── pages
+│   │   │   │   │   │   ├── chat-delivery-support.blade.php
+│   │   │   ├── widgets
+│   │   │   │   ├── analytics-overview-widget.blade.php
+│   │   │   │   ├── order-notification-widget.blade.php
+│   │   │   │   ├── vendor-order-polling-js.blade.php
+│   │   │   │   ├── vendor-order-polling-vars.blade.php
+│   │   ├── food-vendors
+│   │   │   ├── index.blade.php
+│   │   │   ├── menu.blade.php
+│   │   ├── home.blade.php
+│   │   ├── layouts
+│   │   │   ├── app.blade.php
+│   │   │   ├── front-navigation.blade.php
+│   │   │   ├── front.blade.php
+│   │   │   ├── guest.blade.php
+│   │   │   ├── navigation.blade.php
+│   │   │   ├── print.blade.php
+│   │   ├── livewire
+│   │   │   ├── admin-orders-table.blade.php
+│   │   │   ├── live-chat.blade.php
+│   │   │   ├── notification-bell.blade.php
+│   │   │   ├── order-notification-listener.blade.php
+│   │   │   ├── orders-table-realtime.blade.php
+│   │   │   ├── vendor-orders-table.blade.php
+│   │   ├── orders
+│   │   │   ├── print.blade.php
+│   │   ├── partials
+│   │   │   ├── ga4.blade.php
+│   │   │   ├── header.blade.php
+│   │   │   ├── quick-menu.blade.php
+│   │   ├── products
+│   │   │   ├── show.blade.php
+│   │   ├── profile
+│   │   │   ├── edit.blade.php
+│   │   │   ├── partials
+│   │   │   │   ├── delete-user-form.blade.php
+│   │   │   │   ├── update-password-form.blade.php
+│   │   │   │   ├── update-profile-information-form.blade.php
+│   │   ├── vendor-order-assigned-notification.blade.php
+│   │   ├── voice-order-result.blade.php
+├── routes
+│   ├── api.php
+│   ├── auth.php
+│   ├── channels.php
+│   ├── console.php
+│   ├── web.php
+├── tailwind.config.js
+├── tests
+│   ├── Feature
+│   │   ├── Auth
+│   │   │   ├── AuthenticationTest.php
+│   │   │   ├── EmailVerificationTest.php
+│   │   │   ├── PasswordConfirmationTest.php
+│   │   │   ├── PasswordResetTest.php
+│   │   │   ├── PasswordUpdateTest.php
+│   │   │   ├── RegistrationTest.php
+│   │   ├── ExampleTest.php
+│   │   ├── LiveChatTest.php
+│   │   ├── LoginDeliveryTest.php
+│   │   ├── ProfileTest.php
+│   │   ├── SupportChatTest.php
+│   │   ├── VendorDashboardTest.php
+│   ├── Pest.php
+│   ├── TestCase.php
+│   ├── Unit
+│   │   ├── ExampleTest.php
+├── vite.config.js

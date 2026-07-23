@@ -35,6 +35,7 @@
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-950 dark:text-white">Productos</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-950 dark:text-white">Estado</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-950 dark:text-white">Fecha</th>
+                            <th class="px-6 py-3 text-center text-sm font-semibold text-gray-950 dark:text-white">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="vendorOrdersTableBody">
@@ -42,7 +43,14 @@
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition" data-order-id="{{ $order->id }}">
                                 <td class="px-6 py-4 font-medium text-gray-950 dark:text-white">#{{ $order->id }}</td>
                                 <td class="px-6 py-4 font-medium text-green-600 dark:text-green-400">{{ number_format($order->total, 2) }} ARS</td>
-                                <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $order->user?->name ?? '-' }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="text-gray-900 dark:text-white font-medium">{{ $order->user?->name ?? '-' }}</div>
+                                    @if($order->deliveryRider)
+                                        <div class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 flex items-center gap-1 font-semibold" title="Repartidor asignado">
+                                            <span>🛵</span> {{ $order->deliveryRider->name }}
+                                        </div>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4">
                                     <div class="space-y-2">
                                         @forelse($order->items as $item)
@@ -62,10 +70,16 @@
                                             <option value="assigned" selected disabled>Asignado</option>
                                         @endif
                                         <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>En preparación</option>
-                                        <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Listo para retirar/enviado</option>
+                                        <option value="shipped" {{ $order->status === 'shipped' ? 'selected' : '' }}>Listo para retirar/enviado</option>
                                     </select>
                                 </td>
                                 <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="printOrder({{ $order->id }})" 
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-95">
+                                        🖨️ Imprimir
+                                    </button>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -91,6 +105,17 @@
     let vendorSoundEnabled = false;
     let wsInitialized = false;
     const VENDOR_USER_ID = {{ auth()->id() ?? 'null' }};
+
+    window.printOrder = function(orderId) {
+        const width = 450;
+        const height = 650;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+        const printWindow = window.open(`/orders/${orderId}/print`, `print_order_${orderId}`, `width=${width},height=${height},left=${left},top=${top},status=no,toolbar=no,menubar=no,location=no`);
+        if (printWindow) {
+            printWindow.focus();
+        }
+    };
 
     // ─── Auto-ocultar banner y desbloquear en 1er click ────────
     if (localStorage.getItem('vendorSoundAcknowledged') === 'true') {
@@ -223,10 +248,16 @@
                         class="px-3 py-1 text-xs font-medium rounded-md border transition-colors cursor-pointer bg-white text-gray-900 dark:bg-gray-800 dark:text-white">
                     <option value="assigned" selected disabled>Asignado</option>
                     <option value="processing">En preparación</option>
-                    <option value="completed">Listo para retirar/enviado</option>
+                    <option value="shipped">Listo para retirar/enviado</option>
                 </select>
             </td>
             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">${now}</td>
+            <td class="px-6 py-4 text-center">
+                <button onclick="printOrder(${order.order_id})" 
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-95">
+                    🖨️ Imprimir
+                </button>
+            </td>
         `;
         tbody.insertAdjacentElement('afterbegin', row);
         /* console.log */('%c✅ [Vendor] Fila #' + order.order_id + ' agregada a la tabla', 'color: green');
@@ -252,7 +283,6 @@
         if (wsInitialized) return;
 
         if (!window.Pusher) {
-            console.warn('%c⚠️ [Vendor] Pusher no disponible, reintentando en 300ms...', 'color: orange');
             setTimeout(() => initVendorPusher(userId), 300);
             return;
         }

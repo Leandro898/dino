@@ -14,7 +14,7 @@ class FoodVendorController extends Controller
         // Excluye a Masivo (user_id 6) por ahora
         $vendors = User::query()
             ->where('role', 'vendor')
-            ->where('id', '!=', 6)
+            ->where('is_masivo', false)
             ->whereHas('products', function ($query) {
                 $query->where('is_active', true);
             })

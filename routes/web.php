@@ -51,9 +51,15 @@ Route::middleware('auth')->group(function () {
     // Rutas para órdenes en el admin
     Route::patch('/api/custom/orders/{orderId}', [OrderController::class, 'update'])->name('orders.update.status');
     Route::delete('/api/custom/orders/{orderId}', [OrderController::class, 'destroy'])->name('orders.destroy.custom');
+    Route::get('/orders/{order}/print', [OrderController::class, 'printTicket'])->name('orders.print');
 
     Route::post('/push-subscribe', [PushNotificationController::class, 'subscribe'])->name('push.subscribe');
 });
+
+// Seguimiento público del pedido (URL firmada, accesible sin login)
+Route::get('/pedidos/{order}/seguimiento', [\App\Http\Controllers\OrderTrackingController::class, 'showPublic'])
+    ->name('orders.tracking.public')
+    ->middleware('signed');
 
 Route::post('/guest-push-subscribe', [PushNotificationController::class, 'guestSubscribe'])->name('guest-push.subscribe');
 
@@ -63,21 +69,12 @@ Route::view('/', 'home')->name('home');
 Route::get('/home/buscar-productos', [PublicProductController::class, 'homeSearchProducts'])
     ->name('home.search.products');
 
-// Categoria interna: Almacén
-Route::get('/categoria/almacen', [PublicProductController::class, 'almacen'])
-    ->name('categories.almacen');
-
-// Categoria interna: Farmacia (productos importados desde PedidosYa)
-Route::get('/categoria/farmacia', [PublicProductController::class, 'pharmacy'])
-    ->name('categories.pharmacy');
-
-// Bebidas de almacén.
-Route::get('/categoria/almacen/bebidas', [PublicProductController::class, 'almacenBeverages'])
-    ->name('categories.almacen.beverages');
-
-Route::get('/categoria/{categorySlug}', [PublicProductController::class, 'carrefourCategory'])
-    ->whereIn('categorySlug', ['desayuno-y-merienda'])
-    ->name('categories.carrefour');
+// Redirecciones por compatibilidad de rutas antiguas
+Route::redirect('/categoria/almacen/bebidas', '/bebidas', 301);
+Route::redirect('/categoria/almacen', '/almacen', 301);
+Route::redirect('/categoria/super-hogar', '/almacen', 301);
+Route::redirect('/categoria/farmacia', '/farmacia', 301);
+Route::redirect('/categoria/bebidas', '/bebidas', 301);
 
 
 // Sección de Comidas - Vendedores y menú
@@ -86,8 +83,8 @@ Route::get('/comidas/{user}', [FoodVendorController::class, 'show'])
     ->where('user', '[0-9]+')
     ->name('food-vendors.show');
 
-// Categorías desde la home principal
-Route::get('/categoria/{slug}', [CategoryController::class, 'show'])->name('category.show');
+// API para búsqueda de categorías
+Route::get('/api/categoria/{slug}', [CategoryController::class, 'apiSearch'])->name('category.api.search');
 Route::get('/pedido-voz', [VoiceOrderController::class, 'index'])->name('voice.order.result');
 
 // Acceso a la ruta de los productos con URL amigable
@@ -135,7 +132,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/repartidor/pedidos/ultimo', [DeliveryAppController::class, 'latest'])
         ->name('delivery.orders.latest');
+    Route::post('/repartidor/pedidos/{order}/aceptar', [DeliveryAppController::class, 'acceptOrder'])->name('delivery.orders.accept');
+    Route::post('/repartidor/pedidos/{order}/rechazar', [DeliveryAppController::class, 'rejectOrder'])->name('delivery.orders.reject');
+    Route::post('/repartidor/pedidos/{order}/retirado', [DeliveryAppController::class, 'markAsPickedUp'])->name('delivery.orders.pickedup');
+    Route::post('/repartidor/pedidos/{order}/entregado', [DeliveryAppController::class, 'markAsDelivered'])->name('delivery.orders.delivered');
+
+    Route::get('/repartidor/soporte/mensajes', [DeliveryAppController::class, 'getSupportMessages'])
+        ->name('delivery.support.messages');
+    Route::post('/repartidor/soporte/mensajes', [DeliveryAppController::class, 'sendSupportMessage'])
+        ->name('delivery.support.send');
+
+    // Nueva ruta para actualizar ubicación en tiempo real
+    Route::post('/repartidor/ubicacion', [DeliveryAppController::class, 'updateLocation'])
+        ->name('delivery.location.update');
 });
 
 require __DIR__ . '/auth.php';
 
+// Catch-all route para las categorías limpias (debe ir al final)
+Route::get('/{slug}', [CategoryController::class, 'show'])->name('category.show');

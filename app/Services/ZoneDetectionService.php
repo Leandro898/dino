@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\StreetZone;
-
 class ZoneDetectionService
 {
     /**
@@ -12,88 +10,88 @@ class ZoneDetectionService
      */
     public function detect(string $street, ?int $number = null): ?string
     {
-        $normalized = $this->normalize($street);
-
-        if (empty($normalized)) {
-            return null;
-        }
-
-        // 1. Intentar buscar en la base de datos local
-        $zoneKey = $this->detectLocal($normalized, $number);
-        if ($zoneKey) {
-            return $zoneKey;
-        }
-
-        // 2. Fallback: geocodificar usando Nominatim de OpenStreetMap
         return $this->geocodeFallback($street, $number);
     }
 
     /**
-     * Busca la calle y altura directamente en la base de datos local.
+     * Obtiene las coordenadas (lat, lng) de una dirección de texto.
      */
-    private function detectLocal(string $normalized, ?int $number = null): ?string
+    public function getCoordinates(string $address): ?array
     {
-        $zoneKey = $this->queryLocalExact($normalized, $number);
-        if ($zoneKey) {
-            return $zoneKey;
+        $query = $address;
+        
+        if (empty(trim($query))) {
+            return null;
         }
 
-        $allZones = StreetZone::all();
-        foreach ($allZones as $zone) {
-            $dbStreet = $zone->street_name;
-            if (str_ends_with($normalized, ' ' . $dbStreet) || str_starts_with($normalized, $dbStreet . ' ')) {
-                if ($number !== null) {
-                    if (($zone->number_from === null || $number >= $zone->number_from) &&
-                        ($zone->number_to === null || $number <= $zone->number_to)) {
-                        return $zone->zone_key;
-                    }
-                } else {
-                    if ($zone->number_from === null && $zone->number_to === null) {
-                        return $zone->zone_key;
+        if (strpos(strtolower($query), 'bariloche') === false) {
+            $query .= ', San Carlos de Bariloche, Rio Negro, Argentina';
+        }
+
+        // 1. Google Maps Geocoding
+        $googleKey = config('services.google_maps.key');
+        if ($googleKey) {
+            try {
+                $url = 'https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query([
+                    'address' => $query,
+                    'key' => $googleKey,
+                ]);
+
+                $response = file_get_contents($url);
+                if ($response) {
+                    $data = json_decode($response, true);
+                    if (($data['status'] ?? '') === 'OK' && !empty($data['results'])) {
+                        $result = $data['results'][0];
+                        if (isset($result['geometry']['location']['lat']) && isset($result['geometry']['location']['lng'])) {
+                            return [
+                                'lat' => (float) $result['geometry']['location']['lat'],
+                                'lng' => (float) $result['geometry']['location']['lng']
+                            ];
+                        }
                     }
                 }
+            } catch (\Throwable $e) {
+                // Silencioso
             }
+        }
+
+        // 2. OpenStreetMap Nominatim Geocoding
+        try {
+            $url = 'https://nominatim.openstreetmap.org/search?' . http_build_query([
+                'q' => $query,
+                'format' => 'json',
+                'limit' => 1,
+                'countrycodes' => 'ar',
+            ]);
+
+            $options = [
+                'http' => [
+                    'header' => "User-Agent: DinoApp/1.0 (contact@baritienda.online)\r\n",
+                    'timeout' => 3,
+                ]
+            ];
+            $context = stream_context_create($options);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response) {
+                $places = json_decode($response, true);
+                if (is_array($places) && isset($places[0]['lat']) && isset($places[0]['lon'])) {
+                    return [
+                        'lat' => (float) $places[0]['lat'],
+                        'lng' => (float) $places[0]['lon']
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            // Silencioso
         }
 
         return null;
     }
 
-    private function queryLocalExact(string $normalized, ?int $number = null): ?string
-    {
-        $query = StreetZone::where('street_name', $normalized);
-
-        if ($number !== null) {
-            $withRange = (clone $query)
-                ->whereNotNull('number_from')
-                ->whereNotNull('number_to')
-                ->where('number_from', '<=', $number)
-                ->where('number_to', '>=', $number)
-                ->first();
-
-            if ($withRange) {
-                return $withRange->zone_key;
-            }
-
-            $noRange = (clone $query)
-                ->whereNull('number_from')
-                ->first();
-
-            if ($noRange) {
-                $boundaryZone = $this->resolveBoundaryZone($normalized, $number, $noRange->zone_key);
-                if ($boundaryZone !== null) {
-                    return $boundaryZone;
-                }
-            }
-
-            return $noRange?->zone_key;
-        }
-
-        return $query->whereNull('number_from')->first()?->zone_key;
-    }
-
     /**
-     * Hace un lookup en OpenStreetMap Nominatim para obtener la calle oficial
-     * y el suburbio (barrio) de la dirección ingresada, e intenta mapearlo.
+     * Hace un lookup en OpenStreetMap Nominatim / Google Maps para obtener las coordenadas
+     * de la dirección ingresada, e intenta mapearlo a un polígono.
      */
     private function geocodeFallback(string $street, ?int $number = null): ?string
     {
@@ -119,53 +117,12 @@ class ZoneDetectionService
                         $result = $data['results'][0];
 
                         if (isset($result['geometry']['location']['lat']) && isset($result['geometry']['location']['lng'])) {
-                            $coordZone = $this->checkCoordinateFallback(
+                            $coordZone = $this->detectByCoordinates(
                                 (float) $result['geometry']['location']['lat'],
                                 (float) $result['geometry']['location']['lng']
                             );
                             if ($coordZone) {
                                 return $coordZone;
-                            }
-                        }
-
-                        $components = $result['address_components'] ?? [];
-
-                        $road = null;
-                        $suburbs = [];
-
-                        foreach ($components as $comp) {
-                            $types = $comp['types'] ?? [];
-                            if (in_array('route', $types, true)) {
-                                $road = $comp['long_name'];
-                            }
-                            if (array_intersect(['neighborhood', 'sublocality', 'sublocality_level_1', 'sublocality_level_2'], $types)) {
-                                $suburbs[] = $comp['long_name'];
-                            }
-                        }
-
-                        if ($road) {
-                            $roadNormalized = $this->normalize($road);
-                            $zoneFromRoad = $this->detectLocal($roadNormalized, $number);
-                            if ($zoneFromRoad) {
-                                return $zoneFromRoad;
-                            }
-                        }
-
-                        foreach ($suburbs as $suburb) {
-                            $suburbNormalized = $this->normalize($suburb);
-                            $zoneFromSuburb = $this->detectLocal($suburbNormalized, null);
-                            if ($zoneFromSuburb) {
-                                return $zoneFromSuburb;
-                            }
-
-                            $words = preg_split('/[\s,\-_]+/', $suburbNormalized);
-                            foreach ($words as $word) {
-                                if (strlen($word) > 3) {
-                                    $zoneFromWord = $this->detectLocal($word, null);
-                                    if ($zoneFromWord) {
-                                        return $zoneFromWord;
-                                    }
-                                }
                             }
                         }
                     }
@@ -205,7 +162,7 @@ class ZoneDetectionService
             }
 
             if (isset($match['lat']) && isset($match['lon'])) {
-                $coordZone = $this->checkCoordinateFallback(
+                $coordZone = $this->detectByCoordinates(
                     (float) $match['lat'],
                     (float) $match['lon']
                 );
@@ -213,119 +170,8 @@ class ZoneDetectionService
                     return $coordZone;
                 }
             }
-
-            $address = $match['address'] ?? [];
-
-            // A. Intentar con el nombre oficial de la calle ("road")
-            if (isset($address['road'])) {
-                $roadNormalized = $this->normalize($address['road']);
-                $zoneFromRoad = $this->detectLocal($roadNormalized, $number);
-                if ($zoneFromRoad) {
-                    return $zoneFromRoad;
-                }
-            }
-
-            // B. Intentar buscar por el suburbio o barrio ("suburb", "neighbourhood", "hamlet", "village")
-            $suburbKeys = ['suburb', 'neighbourhood', 'hamlet', 'village'];
-            foreach ($suburbKeys as $key) {
-                if (isset($address[$key])) {
-                    $suburbNormalized = $this->normalize($address[$key]);
-
-                    // 1. Buscar coincidencia exacta del suburbio
-                    $zoneFromSuburb = $this->detectLocal($suburbNormalized, null);
-                    if ($zoneFromSuburb) {
-                        return $zoneFromSuburb;
-                    }
-
-                    // 2. Buscar coincidencia por palabra (ej: "Belgrano Sudeste" -> probar con "Belgrano")
-                    $words = preg_split('/[\s,\-_]+/', $suburbNormalized);
-                    foreach ($words as $word) {
-                        if (strlen($word) > 3) {
-                            $zoneFromWord = $this->detectLocal($word, null);
-                            if ($zoneFromWord) {
-                                  return $zoneFromWord;
-                            }
-                        }
-                    }
-                }
-            }
         } catch (\Throwable $e) {
             // Silencioso
-        }
-
-        return null;
-    }
-
-    /**
-     * Normaliza un nombre de calle: minúsculas, sin tildes, sin prefijos comunes.
-     */
-    public function normalize(string $street): string
-    {
-        $street = mb_strtolower(trim($street));
-
-        // Reemplazar tildes y ñ
-        $from = ['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ', 'à', 'è', 'ì', 'ò', 'ù'];
-        $to   = ['a', 'e', 'i', 'o', 'u', 'u', 'n', 'a', 'e', 'i', 'o', 'u'];
-        $street = str_replace($from, $to, $street);
-
-        // Quitar prefijos comunes
-        $prefixes = [
-            'avenida ', 'av. ', 'av ', 'avda. ', 'avda ',
-            'gral. ', 'gral ', 'general ', 'gral.',
-            'dr. ', 'dr ', 'doctor ',
-            'ing. ', 'ing ', 'ingeniero ',
-            'comodoro ', 'cmdte. ', 'cmdte ',
-            'comandante ', 'alm. ', 'alm ',
-            'almirante ', 'pje. ', 'pje ', 'pasaje ',
-            'calle ', 'ruta ',
-        ];
-
-        foreach ($prefixes as $prefix) {
-            if (str_starts_with($street, $prefix)) {
-                $street = substr($street, strlen($prefix));
-                break;
-            }
-        }
-
-        // Quitar números y caracteres especiales al final (ej: "mitre 450" → "mitre")
-        $street = preg_replace('/\s+\d+.*$/', '', $street);
-
-        return trim($street);
-    }
-
-    /**
-     * Permite aplicar reglas globales de corte por altura para calles
-     * que estaban cargadas como "toda la calle".
-     */
-    private function resolveBoundaryZone(string $street, int $number, string $currentZone): ?string
-    {
-        $rule = config('shipping.height_boundary_rule', []);
-
-        if (!($rule['enabled'] ?? false)) {
-            return null;
-        }
-
-        $fromNumber = (int) ($rule['from_number'] ?? 0);
-        $fromZone   = (string) ($rule['from_zone'] ?? '');
-        $toZone     = (string) ($rule['to_zone'] ?? '');
-        $streets    = (array) ($rule['streets'] ?? []);
-
-        if ($fromNumber <= 0 || $fromZone === '' || $toZone === '' || empty($streets)) {
-            return null;
-        }
-
-        if ($currentZone !== $fromZone) {
-            return null;
-        }
-
-        if ($number < $fromNumber) {
-            return null;
-        }
-
-        $normalizedStreets = array_map(fn ($name) => $this->normalize((string) $name), $streets);
-
-        if (in_array($street, $normalizedStreets, true)) {
-            return $toZone;
         }
 
         return null;
@@ -422,7 +268,90 @@ class ZoneDetectionService
     }
 
     /**
-     * Verifica si las coordenadas caen al oeste de 20 de Junio y asigna zona_6000.
+     * Detecta la zona de envío a partir de coordenadas geográficas.
+     */
+    public function detectByCoordinates(float $lat, float $lon): ?string
+    {
+        $zones = \App\Models\ShippingZone::query()
+            ->where('is_active', true)
+            ->whereNotNull('coordinates')
+            ->orderBy('sort_order')
+            ->get(['zone_key', 'coordinates']);
+
+        foreach ($zones as $zone) {
+            $polygon = $zone->coordinates;
+            
+            // Si viene como string, decodificarlo
+            if (is_string($polygon)) {
+                $polygon = json_decode($polygon, true);
+            }
+            
+            // Auto-unwrap GeoJSON outer ring array [[[lng, lat], ...]]
+            if (is_array($polygon) && isset($polygon[0]) && is_array($polygon[0]) && isset($polygon[0][0]) && is_array($polygon[0][0])) {
+                $polygon = $polygon[0];
+            }
+
+            if (is_array($polygon) && count($polygon) >= 3) {
+                if ($this->isPointInPolygon($lat, $lon, $polygon)) {
+                    return $zone->zone_key;
+                }
+            }
+        }
+
+        // Si no coincide con ningún polígono de la DB, usar el fallback por coordenadas
+        return $this->checkCoordinateFallback($lat, $lon);
+    }
+
+    /**
+     * Algoritmo Ray-Casting (Jordan curve theorem) para verificar si un punto está dentro de un polígono.
+     */
+    public function isPointInPolygon(float $latitude, float $longitude, array $polygon): bool
+    {
+        $inside = false;
+        $numVertices = count($polygon);
+        
+        $j = $numVertices - 1;
+        for ($i = 0; $i < $numVertices; $i++) {
+            $vertex1 = $polygon[$i];
+            $vertex2 = $polygon[$j];
+            
+            $val1_0 = isset($vertex1[0]) ? (float) $vertex1[0] : (float) ($vertex1['lat'] ?? $vertex1['latitude'] ?? 0);
+            $val1_1 = isset($vertex1[1]) ? (float) $vertex1[1] : (float) ($vertex1['lng'] ?? $vertex1['longitude'] ?? $vertex1['lon'] ?? 0);
+            
+            $val2_0 = isset($vertex2[0]) ? (float) $vertex2[0] : (float) ($vertex2['lat'] ?? $vertex2['latitude'] ?? 0);
+            $val2_1 = isset($vertex2[1]) ? (float) $vertex2[1] : (float) ($vertex2['lng'] ?? $vertex2['longitude'] ?? $vertex2['lon'] ?? 0);
+
+            // Auto-detect [lng, lat] (GeoJSON format, e.g. -71.xxx is longitude) vs [lat, lng]
+            if ($val1_0 < -60) {
+                $lat1 = $val1_1;
+                $lng1 = $val1_0;
+            } else {
+                $lat1 = $val1_0;
+                $lng1 = $val1_1;
+            }
+
+            if ($val2_0 < -60) {
+                $lat2 = $val2_1;
+                $lng2 = $val2_0;
+            } else {
+                $lat2 = $val2_0;
+                $lng2 = $val2_1;
+            }
+            
+            $intersect = (($lng1 > $longitude) !== ($lng2 > $longitude))
+                && ($latitude < ($lat2 - $lat1) * ($longitude - $lng1) / ($lng2 - $lng1) + $lat1);
+                
+            if ($intersect) {
+                $inside = !$inside;
+            }
+            $j = $i;
+        }
+        
+        return $inside;
+    }
+
+    /**
+     * Verifica si las coordenadas caen al oeste de 20 de Junio y asigna zona_2.
      */
     private function checkCoordinateFallback(float $lat, float $lon): ?string
     {
@@ -431,7 +360,7 @@ class ZoneDetectionService
         }
 
         if ($lon < -71.316) {
-            return 'zone_6000';
+            return 'zona_2';
         }
 
         return null;

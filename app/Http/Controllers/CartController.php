@@ -11,7 +11,7 @@ class CartController extends Controller
 {
     public function index()
     {
-        $cart = $this->syncCartPrices(session()->get('cart', []));
+        $cart = Product::syncCartPrices(session()->get('cart', []));
         session()->put('cart', $cart);
 
         if (empty($cart)) {
@@ -26,7 +26,12 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
         
-        if (!empty($cart)) {
+        if (request()->has('force_clear')) {
+            session()->forget('cart');
+            session()->forget('shipping_zone');
+            session()->forget('shipping_price');
+            $cart = [];
+        } elseif (!empty($cart)) {
             $firstProductId = array_key_first($cart);
             $firstProductInCart = Product::find((int) $firstProductId);
             
@@ -34,6 +39,7 @@ class CartController extends Controller
                 if (request()->ajax()) {
                     return response()->json([
                         'success' => false,
+                        'error_code' => 'different_vendor',
                         'message' => 'Solo puedes pedir de un comercio a la vez. Vacía tu carrito para agregar este producto.',
                     ], 422);
                 }
@@ -109,36 +115,5 @@ class CartController extends Controller
         }
 
         return redirect()->back()->withErrors(['raffle_number' => $message]);
-    }
-
-    private function syncCartPrices(array $cart): array
-    {
-        $productIds = collect($cart)
-            ->map(fn(array $item, string|int $key) => (int) ($item['product_id'] ?? $key))
-            ->filter(fn(int $id) => $id > 0)
-            ->unique()
-            ->values();
-
-        if ($productIds->isEmpty()) {
-            return $cart;
-        }
-
-        $products = Product::query()
-            ->whereIn('id', $productIds)
-            ->get()
-            ->keyBy('id');
-
-        foreach ($cart as $key => $item) {
-            $productId = (int) ($item['product_id'] ?? $key);
-            $product = $products->get($productId);
-
-            if (!$product) {
-                continue;
-            }
-
-            $cart[$key]['price'] = $product->adjusted_price;
-        }
-
-        return $cart;
     }
 }

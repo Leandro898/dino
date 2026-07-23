@@ -50,7 +50,7 @@ class VendorOrdersTable extends Component
 
         // Mostrar solo pedidos asignados o en proceso por el vendor
         $orders = Order::query()
-            ->with(['items.product.user', 'user'])
+            ->with(['items.product.user', 'user', 'deliveryRider'])
             ->whereIn('status', ['assigned', 'processing', 'completed'])
             ->whereHas('items.product', function ($query) use ($user) {
                 $query->where('user_id', $user->id);

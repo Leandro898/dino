@@ -14,21 +14,72 @@
 
     <main class="pb-[calc(8rem+env(safe-area-inset-bottom))] md:pb-10">
         
-        <!-- HEADER DEL COMERCIO -->
-        <div class="bg-white dark:bg-[#161615] border-b border-gray-200 dark:border-[#2a2a2a] sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-6 py-4">
-                <div class="flex items-center justify-between mb-4">
-                    <a href="{{ route('food-vendors.index') }}" class="text-gray-600 dark:text-gray-400 hover:text-purple-600 transition">
+        <!-- BANNER DEL COMERCIO -->
+        @if ($vendor->banner)
+            <div class="w-full relative bg-white dark:bg-[#111] border-b border-gray-200 dark:border-[#2a2a2a] flex justify-center items-center overflow-hidden" style="height: 220px;">
+                <!-- Botón Volver -->
+                <div class="absolute top-4 left-6 z-10">
+                    <a href="{{ route('food-vendors.index') }}" class="bg-black/50 hover:bg-black/75 text-white px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm transition inline-flex items-center gap-1">
                         ← Volver
                     </a>
-                    <div class="text-center flex-1">
-                        <h1 class="text-2xl font-black text-[#1b1b18] dark:text-white">{{ $vendor->name }}</h1>
-                    </div>
-                    <div class="w-12"></div>
                 </div>
 
-
+                <img src="{{ $vendor->banner_url }}" alt="{{ $vendor->name }} Banner" style="max-height: 100%; max-width: 100%; object-fit: contain; padding: 16px;">
             </div>
+        @else
+            <!-- Si no hay banner, mostramos un fondo degradado con el botón Volver -->
+            <div class="w-full relative bg-gradient-to-r from-purple-600 to-indigo-750 flex justify-center items-center overflow-hidden" style="height: 140px;">
+                <!-- Botón Volver -->
+                <div class="absolute top-4 left-6 z-10">
+                    <a href="{{ route('food-vendors.index') }}" class="bg-black/30 hover:bg-black/50 text-white px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm transition inline-flex items-center gap-1">
+                        ← Volver
+                    </a>
+                </div>
+                
+                <h2 class="text-white text-3xl font-black">{{ $vendor->name }}</h2>
+            </div>
+        @endif
+
+        <!-- INFORMACIÓN DEL COMERCIO -->
+        <div class="max-w-7xl mx-auto px-6 pt-6 pb-4">
+            <div class="flex flex-wrap items-center justify-between gap-4 w-full">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <h1 class="text-3xl font-black text-[#1b1b18] dark:text-white">{{ $vendor->name }}</h1>
+                    @if ($vendor->isOpen())
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
+                            🟢 Abierto ahora
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
+                            🔴 Cerrado ahora
+                        </span>
+                    @endif
+                </div>
+
+                <button x-data @click="$dispatch('open-live-chat')" class="flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800/40 rounded-full text-xs font-bold transition-colors shadow-sm ml-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15c4.418 0 8-3.134 8-7s-3.582-7-8-7-8 3.134-8 7c0 1.76.743 3.37 1.97 4.6-.097.42-.26.868-.495 1.32-.236.452-.524.872-.857 1.229-.148.158-.292.302-.423.428a.5.5 0 0 0 .315.864c.164.004.331.002.502-.008.232-.014.472-.038.718-.073a9.026 9.026 0 0 0 2.508-.667 9.176 9.176 0 0 0 2.257.507zM5 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                    </svg>
+                    Chatear
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Comercio adherido • Horario: {{ $vendor->formatted_opening_hours }} • {{ $products->count() }} productos disponibles
+            </p>
+            @if (!$vendor->isOpen())
+                <div class="mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl dark:bg-red-950/20 dark:border-red-600">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            ⚠️
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700 dark:text-red-400 font-bold">
+                                Este comercio se encuentra actualmente fuera de su horario de atención. Tus pedidos podrían demorarse o procesarse al abrir.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <!-- GRID DE PRODUCTOS TIPO PEDIDOSYA -->
@@ -118,7 +169,8 @@
 
     </main>
 
-
+    <!-- Chat directo con el local -->
+    <livewire:live-chat :vendor_id="$vendor->id" />
 
     <style>
         .scrollbar-hide::-webkit-scrollbar {

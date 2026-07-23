@@ -37,3 +37,286 @@
     border: 1px solid #d9def3;
     margin: 0;
 }
+/* ==========================================
+   Live Chat Component Styles
+   ========================================== */
+.lc-fab {
+    position: fixed;
+    bottom: 100px; /* Above mobile menu */
+    right: 24px;
+    background-color: var(--brand, #8b5cf6);
+    color: white;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    cursor: pointer;
+    z-index: 9999;
+    border: none;
+    transition: transform 0.2s;
+}
+@media (min-width: 768px) {
+    .lc-fab {
+        bottom: 24px;
+    }
+}
+.lc-fab:hover {
+    transform: scale(1.05);
+}
+.lc-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+.lc-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.lc-modal {
+    background-color: white;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    max-height: 600px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+.lc-header {
+    background-color: var(--brand, #8b5cf6);
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+.lc-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.lc-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    opacity: 0.8;
+}
+.lc-close:hover { opacity: 1; }
+
+.lc-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background-color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.lc-msg-row {
+    display: flex;
+    width: 100%;
+}
+.lc-msg-row.user { justify-content: flex-end; }
+.lc-msg-row.admin { justify-content: flex-start; }
+.lc-msg-row.system { justify-content: center; }
+
+.lc-bubble {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative;
+}
+.lc-bubble.user {
+    background-color: var(--brand, #8b5cf6);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+.lc-bubble.admin {
+    background-color: white;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 4px;
+}
+.lc-bubble.system {
+    background-color: #fef3c7;
+    color: #92400e;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    width: 100%;
+}
+.lc-bubble-text {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.lc-time {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-top: 4px;
+    display: block;
+}
+.lc-bubble.user .lc-time { text-align: right; }
+.lc-bubble.admin .lc-time { text-align: left; }
+
+.lc-quote-area {
+    background-color: #eff6ff;
+    border-top: 1px solid #bfdbfe;
+    padding: 16px;
+}
+.lc-quote-title {
+    color: #1e40af;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+.lc-quote-desc {
+    color: #2563eb;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+.lc-quote-btn {
+    width: 100%;
+    background-color: #22c55e;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.lc-quote-btn:hover { background-color: #16a34a; }
+
+.lc-input-area {
+    padding: 12px;
+    background-color: white;
+    border-top: 1px solid #e5e7eb;
+}
+.lc-input-form {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+.lc-textarea {
+    flex: 1;
+    border: 1px solid #d1d5db;
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    max-height: 120px;
+    background: #f9fafb;
+    font-family: inherit;
+}
+.lc-textarea:focus {
+    border-color: var(--brand, #8b5cf6);
+    background: white;
+}
+.lc-send-btn {
+    background-color: var(--brand, #8b5cf6);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.lc-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.lc-empty-state {
+    text-align: center;
+    color: #6b7280;
+    margin-top: 40px;
+}
+.lc-empty-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.lc-empty-subtitle {
+    font-size: 13px;
+}
+
+/* Push Notification Banner */
+.lc-push-banner {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    text-align: center;
+    color: #1e40af;
+}
+.lc-push-banner p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.lc-push-banner-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.lc-push-banner-btn:hover { background-color: #2563eb; }
+
+.results-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.results-space {
+    width: 100%;
+}
+
+.results-space.has-no-results ~ .results-mic-btn {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.results-space.has-no-results ~ .results-mic-btn:hover {
+    transform: translate(-50%, -52%);
+}
+.results-space.has-no-results ~ .results-mic-label {
+    position: absolute;
+    top: calc(70% + 45px);
+    left: 50%;
+    transform: translateX(-50%);
+}

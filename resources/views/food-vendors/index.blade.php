@@ -36,26 +36,45 @@
                 <a href="{{ route('food-vendors.show', $vendor) }}"
                     class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition transform hover:scale-105">
                     <!-- Imagen de portada del lugar -->
-                    <div class="aspect-video bg-gradient-to-br from-purple-400 to-orange-400 flex items-center justify-center relative">
-                        @if ($vendor->products->first()?->image)
-                            <img src="{{ $vendor->products->first()->image }}" alt="{{ $vendor->name }}"
+                    <div class="aspect-video bg-white border-b border-gray-150 flex items-center justify-center relative overflow-hidden">
+                        @if ($vendor->banner)
+                            <img src="{{ $vendor->banner_url }}" alt="{{ $vendor->name }}"
+                                style="max-height: 100%; max-width: 100%; object-fit: contain; padding: 8px;">
+                        @elseif ($vendor->products->first()?->image)
+                            <img src="{{ $vendor->products->first()->image_src }}" alt="{{ $vendor->name }}"
                                 class="w-full h-full object-cover">
                         @else
-                            <div class="text-white text-center">
-                                <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6v6m0 0v6m0-6h6m0 0h6m-6 0h-6">
-                                    </path>
-                                </svg>
-                                <span class="text-sm font-semibold">{{ $vendor->products->count() }} productos</span>
+                            <div class="w-full h-full bg-gradient-to-br from-purple-400 to-orange-400 flex items-center justify-center text-white text-center">
+                                <div>
+                                    <svg class="w-12 h-12 mx-auto mb-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6v6m0 0v6m0-6h6m0 0h6m-6 0h-6">
+                                        </path>
+                                    </svg>
+                                    <span class="text-xs font-semibold">{{ $vendor->products->count() }} productos</span>
+                                </div>
                             </div>
                         @endif
                     </div>
 
                     <!-- Info del lugar -->
                     <div class="p-4">
-                        <h3 class="font-bold text-xl text-gray-900 mb-1">{{ $vendor->name }}</h3>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <h3 class="font-bold text-xl text-gray-900 truncate">{{ $vendor->name }}</h3>
+                            @if ($vendor->isOpen())
+                                <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">
+                                    Abierto
+                                </span>
+                            @else
+                                <span class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500 text-white">
+                                    Cerrado
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2">
+                            Horario: {{ $vendor->formatted_opening_hours }}
+                        </p>
                         <p class="text-gray-600 text-sm mb-3">
                             {{ $vendor->products->count() }}
                             {{ $vendor->products->count() === 1 ? 'producto' : 'productos' }} disponibles

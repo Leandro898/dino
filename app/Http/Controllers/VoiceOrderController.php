@@ -42,14 +42,13 @@ class VoiceOrderController extends Controller
             ], true)
         ));
 
-        $categoryHints = [
-            'comida' => ['comida', 'pan', 'pizz', 'empan', 'hamburg', 'pollo', 'pastel'],
-            'regalos' => ['regalo', 'gift', 'torta', 'cumple', 'detalle'],
-            'super hogar' => ['super', 'hogar', 'limpieza', 'almacen', 'leche', 'cafe', 'azucar'],
-            'farmacia' => ['farmacia', 'medic', 'vitamina', 'analg', 'ibuprof', 'paracetam'],
-            'bebidas' => ['coca', 'fanta', 'sprite', 'agua', 'cerveza', 'vino', 'fernet', 'bebida', 'gaseosa'],
-            'snacks' => ['snack', 'papas', 'chocolate', 'alfajor', 'gallet', 'caramelo'],
-        ];
+        $categories = \App\Models\Category::where('is_active', true)->get();
+        $categoryHints = [];
+        foreach ($categories as $category) {
+            // Reemplazamos guiones por espacios para la búsqueda del slug en la frase (ej: super-hogar a super hogar)
+            $normalizedSlug = str_replace('-', ' ', $category->slug);
+            $categoryHints[$normalizedSlug] = $category->keywords ?? [];
+        }
 
         $mentionedCategories = collect($categoryHints)
             ->filter(function (array $keywords, string $category) use ($normalizedPedido, $pedidoTokens) {

@@ -45,7 +45,7 @@
     <style>
         .support-whatsapp-fab {
             left: 50%;
-            bottom: 16px;
+            bottom: 20px;
             transform: translateX(-50%);
         }
     </style>

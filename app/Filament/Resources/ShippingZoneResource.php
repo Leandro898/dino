@@ -14,7 +14,8 @@ class ShippingZoneResource extends Resource
 {
     public static function shouldRegisterNavigation(): bool
     {
-        return false;
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
     }
     protected static ?string $model = ShippingZone::class;
 
@@ -56,6 +57,32 @@ class ShippingZoneResource extends Resource
                 ->label('Activa')
                 ->default(true)
                 ->inline(false),
+
+            Forms\Components\Textarea::make('coordinates')
+                ->label('Coordenadas del Polígono (JSON)')
+                ->helperText('Formato: [[lat1, lng1], [lat2, lng2], ...]. Puedes dibujar polígonos gratis en geojson.io (formato [lat, lng]).')
+                ->nullable()
+                ->rows(5)
+                ->columnSpanFull()
+                ->dehydrateStateUsing(fn ($state) => is_string($state) ? json_decode($state, true) : $state)
+                ->afterStateHydrated(function ($component, $state) {
+                    if (is_array($state)) {
+                        $component->state(json_encode($state));
+                    }
+                })
+                ->rules([
+                    fn () => function (string $attribute, $value, $fail) {
+                        if (empty($value)) return;
+                        $decoded = json_decode($value, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            $fail('Las coordenadas deben ser un JSON válido.');
+                            return;
+                        }
+                        if (!is_array($decoded)) {
+                            $fail('Las coordenadas deben ser un array de puntos (ej: [[lat, lng], ...]).');
+                        }
+                    },
+                ]),
         ]);
     }
 

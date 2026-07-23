@@ -14,8 +14,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $host = $request->getHost();
+        $isDelivery = str_starts_with($host, 'repartidor.') 
+            || $request->query('role') === 'delivery' 
+            || $request->query('role') === 'repartidor';
+
+        if ($isDelivery) {
+            return view('auth.login-delivery');
+        }
+
         return view('auth.login');
     }
 

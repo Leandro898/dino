@@ -5,9 +5,9 @@
         <script>
             window.HomeConfig = {
                 searchEndpoint: @json(route('home.search.products')),
-                bebidasUrl: @json(route('categories.almacen.beverages')),
-                pharmacyUrl: @json(route('categories.pharmacy')),
-                almacenUrl: @json(route('categories.almacen')),
+                bebidasUrl: @json(route('category.show', ['slug' => 'bebidas'])),
+                pharmacyUrl: @json(route('category.show', ['slug' => 'farmacia'])),
+                almacenUrl: @json(route('category.show', ['slug' => 'almacen'])),
                 comidasUrl: @json(route('food-vendors.index'))
             };
         </script>

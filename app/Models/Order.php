@@ -10,9 +10,12 @@ class Order extends Model
         'user_id',
         'vendor_id',
         'delivery_user_id',
+        'is_accepted_by_rider',
         'name',
         'email',
         'address',
+        'latitude',
+        'longitude',
         'phone',
         'total',
         'status', // 'pending', 'processing', 'completed'
@@ -59,9 +62,9 @@ class Order extends Model
         static::updated(function ($order) {
             \Illuminate\Support\Facades\Log::info("MODELO ORDER: [updated] Guardado exitoso", ['order_id' => $order->id]);
             
-            if ($order->wasChanged('status')) {
-                $oldStatus = $order->getOriginal('status');
-                \Illuminate\Support\Facades\Log::info("MODELO ORDER: Status cambiado, emitiendo OrderStatusUpdated", [
+            if ($order->wasChanged('status') || $order->wasChanged('delivery_user_id') || $order->wasChanged('is_accepted_by_rider')) {
+                $oldStatus = $order->getOriginal('status') ?? $order->status;
+                \Illuminate\Support\Facades\Log::info("MODELO ORDER: Datos actualizados, emitiendo OrderStatusUpdated", [
                     'order_id' => $order->id,
                     'old' => $oldStatus,
                     'new' => $order->status

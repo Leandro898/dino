@@ -292,7 +292,7 @@
     <main class="card">
         <div class="top">
             <div class="badge"><span class="dot" aria-hidden="true"></span> Pedido por voz</div>
-            <a class="btn secondary" href="{{ route('home.parallel') }}">Volver a la home paralela</a>
+            <a class="btn secondary" href="{{ route('home') }}">Volver a la home</a>
         </div>
 
         <h1>Esto es lo que entendimos.</h1>
@@ -306,9 +306,9 @@
         </section>
 
         <div class="actions">
-            <a class="btn primary" href="{{ route('home.parallel') }}?q={{ urlencode($pedido) }}#productos">Buscar esto
+            <a class="btn primary" href="{{ route('home') }}?q={{ urlencode($pedido) }}#productos">Buscar esto
                 en el catálogo</a>
-            <a class="btn secondary" href="{{ route('home.parallel') }}">Dictar otro pedido</a>
+            <a class="btn secondary" href="{{ route('home') }}">Dictar otro pedido</a>
         </div>
 
         <section class="suggestions" aria-label="Productos sugeridos">

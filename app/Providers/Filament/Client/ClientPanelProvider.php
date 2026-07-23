@@ -28,8 +28,27 @@ class ClientPanelProvider extends PanelProvider
             ->id('client')
             ->path('panel') // Ahora el panel de vendors está en /panel
             ->login()
+            ->colors([
+                'primary' => Color::Purple,
+            ])
+            ->discoverResources(in: app_path('Filament/Client/Resources'), for: 'App\\Filament\\Client\\Resources')
+            ->discoverPages(in: app_path('Filament/Client/Pages'), for: 'App\\Filament\\Client\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+            ])
+            ->middleware([
+                EncryptCookies::class,
+                AddQueuedCookiesToResponse::class,
+                StartSession::class,
+                AuthenticateSession::class,
+                ShareErrorsFromSession::class,
+                VerifyCsrfToken::class,
+                SubstituteBindings::class,
+                DisableBladeIconComponents::class,
+                DispatchServingFilamentEvent::class,
+            ])
+            ->authMiddleware([
+                Authenticate::class,
             ]);
     }
 }

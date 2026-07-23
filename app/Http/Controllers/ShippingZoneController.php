@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShippingZone;
-use App\Models\StreetZone;
 use App\Services\ZoneDetectionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,30 +16,8 @@ class ShippingZoneController extends Controller
      */
     public function suggestions(Request $request): JsonResponse
     {
-        $query = trim($request->query('q', ''));
-
-        if (mb_strlen($query) < 2) {
-            return response()->json(['suggestions' => []]);
-        }
-
-        $normalized = $this->detector->normalize($query);
-
-        if ($normalized === '') {
-            return response()->json(['suggestions' => []]);
-        }
-
-        $streets = StreetZone::query()
-            ->select('street_name')
-            ->where('street_name', 'like', $normalized . '%')
-            ->distinct()
-            ->orderBy('street_name')
-            ->limit(12)
-            ->pluck('street_name')
-            ->map(fn ($name) => mb_convert_case($name, MB_CASE_TITLE, 'UTF-8'))
-            ->values();
-
         return response()->json([
-            'suggestions' => $streets,
+            'suggestions' => [],
         ]);
     }
 
@@ -62,20 +39,7 @@ class ShippingZoneController extends Controller
             return response()->json(['zone_key' => null]);
         }
 
-        $zones = ShippingZone::query()
-            ->where('is_active', true)
-            ->get(['zone_key', 'label', 'price'])
-            ->mapWithKeys(fn ($zone) => [
-                $zone->zone_key => [
-                    'label' => $zone->label,
-                    'price' => (int) $zone->price,
-                ],
-            ])
-            ->toArray();
-
-        if (empty($zones)) {
-            $zones = config('shipping.zones', []);
-        }
+        $zones = ShippingZone::getActiveWithPrices();
 
         $zone  = $zones[$zoneKey] ?? null;
 
@@ -103,6 +67,13 @@ class ShippingZoneController extends Controller
         }
 
         $result = $this->detector->reverseGeocode($lat, $lon);
+
+        if (!empty($result['street'])) {
+            $result['success'] = true;
+            $result['zone_key'] = $this->detector->detectByCoordinates($lat, $lon);
+        } else {
+            $result['success'] = false;
+        }
 
         return response()->json($result);
     }

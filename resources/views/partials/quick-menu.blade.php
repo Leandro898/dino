@@ -2,12 +2,11 @@
 
 @php
     $quickMenuIndex = 1;
-    $isHome = request()->routeIs('home', 'home.parallel');
-    $isBebidas = request()->routeIs('categories.almacen.beverages')
-        || (request()->routeIs('catalog') && str_contains(strtolower((string) request('q', '')), 'bebida'));
-    $isAlmacen = request()->routeIs('categories.almacen');
+    $isHome = request()->routeIs('home');
+    $isBebidas = request()->routeIs('category.show') && request()->route('slug') === 'bebidas';
+    $isAlmacen = request()->routeIs('category.show') && request()->route('slug') === 'almacen';
     $isComidas = request()->routeIs('food-vendors.*');
-    $isFarmacia = request()->routeIs('categories.pharmacy');
+    $isFarmacia = request()->routeIs('category.show') && request()->route('slug') === 'farmacia';
 @endphp
 
 <aside id="quickMenu" class="quick-menu" aria-label="Accesos rápidos">
@@ -25,7 +24,7 @@
         @endunless
 
         @unless ($isBebidas)
-            <a href="{{ route('categories.almacen.beverages') }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
+            <a href="{{ route('category.show', ['slug' => 'bebidas']) }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
                 aria-label="Ir a Bebidas">
                 <span class="quick-menu-item-icon" aria-hidden="true">🍾</span>
                 <span class="quick-menu-label">Bebidas</span>
@@ -33,7 +32,7 @@
         @endunless
 
         @unless ($isAlmacen)
-            <a href="{{ route('categories.almacen') }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
+            <a href="{{ route('category.show', ['slug' => 'almacen']) }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
                 aria-label="Ir a Almacen">
                 <span class="quick-menu-item-icon" aria-hidden="true">🛒</span>
                 <span class="quick-menu-label">Almacen</span>
@@ -49,7 +48,7 @@
         @endunless
 
         @unless ($isFarmacia)
-            <a href="{{ route('categories.pharmacy') }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
+            <a href="{{ route('category.show', ['slug' => 'farmacia']) }}" class="quick-menu-item" data-index="{{ $quickMenuIndex++ }}"
                 aria-label="Ir a Farmacia">
                 <span class="quick-menu-item-icon" aria-hidden="true">💊</span>
                 <span class="quick-menu-label">Farmacia</span>

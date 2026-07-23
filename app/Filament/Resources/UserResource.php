@@ -41,6 +41,44 @@ class UserResource extends Resource
                 Forms\Components\Toggle::make('is_approved')
                     ->label('Aprobado')
                     ->default(false),
+                Forms\Components\TextInput::make('address')
+                    ->label('Dirección (solo vendedores/repartidores)')
+                    ->maxLength(255),
+                Forms\Components\TimePicker::make('opening_time')
+                    ->label('Hora de Apertura (vendedores)')
+                    ->seconds(false)
+                    ->nullable(),
+                Forms\Components\TimePicker::make('closing_time')
+                    ->label('Hora de Cierre (vendedores)')
+                    ->seconds(false)
+                    ->nullable(),
+                Forms\Components\TimePicker::make('opening_time_2')
+                    ->label('Hora de Apertura - Turno 2 (vendedores)')
+                    ->seconds(false)
+                    ->nullable(),
+                Forms\Components\TimePicker::make('closing_time_2')
+                    ->label('Hora de Cierre - Turno 2 (vendedores)')
+                    ->seconds(false)
+                    ->nullable(),
+                Forms\Components\CheckboxList::make('closed_days')
+                    ->label('Días Cerrado (vendedores)')
+                    ->options([
+                        'Monday' => 'Lunes',
+                        'Tuesday' => 'Martes',
+                        'Wednesday' => 'Miércoles',
+                        'Thursday' => 'Jueves',
+                        'Friday' => 'Viernes',
+                        'Saturday' => 'Sábado',
+                        'Sunday' => 'Domingo',
+                    ])
+                    ->columns(4)
+                    ->nullable(),
+                Forms\Components\TextInput::make('latitude')
+                    ->label('Latitud')
+                    ->numeric(),
+                Forms\Components\TextInput::make('longitude')
+                    ->label('Longitud')
+                    ->numeric(),
             ]);
     }
 

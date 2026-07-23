@@ -15,23 +15,18 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-{
-    // 1. Agregá esta línea arriba de todo
-    \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+    {
+        // SEEDERS DESACTIVADOS PARA SEGURIDAD EN PRODUCCIÓN.
+        // No se ejecutan para evitar sobrescribir o limpiar datos reales en el servidor (usuarios, categorías, etc.).
+        // Si necesitas volver a sembrar datos de base en el futuro, puedes descomentar las líneas de abajo.
+        
+        /*
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
 
-    DB::table('users')->truncate();
+        $this->call(CategorySeeder::class);
+        $this->call(ShippingZoneSeeder::class);
 
-    User::factory()->create([
-        'name' => 'Test User',
-        'email' => 'test@example.com',
-        'password' => bcrypt('password'),
-    ]);
-
-    $this->call(ShippingZoneSeeder::class);
-
-    // 2. Agregá esta línea al final
-    $this->call(StreetZoneSeeder::class);
-
-    \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
-}
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+        */
+    }
 }

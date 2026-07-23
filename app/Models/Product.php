@@ -95,4 +95,35 @@ class Product extends Model
             ->where('external_source', 'carrefour')
             ->where('external_category', 'almacen');
     }
+
+    public static function syncCartPrices(array $cart): array
+    {
+        $productIds = collect($cart)
+            ->map(fn(array $item, string|int $key) => (int) ($item['product_id'] ?? $key))
+            ->filter(fn(int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($productIds->isEmpty()) {
+            return $cart;
+        }
+
+        $products = self::query()
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        foreach ($cart as $key => $item) {
+            $productId = (int) ($item['product_id'] ?? $key);
+            $product = $products->get($productId);
+
+            if (!$product) {
+                continue;
+            }
+
+            $cart[$key]['price'] = $product->adjusted_price;
+        }
+
+        return $cart;
+    }
 }

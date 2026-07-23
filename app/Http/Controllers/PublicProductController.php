@@ -37,96 +37,6 @@ class PublicProductController extends Controller
         ]);
     }
 
-    public function almacen(Request $request): View
-    {
-        $search = trim((string) $request->string('q'));
-
-        $products = $this->masivoCatalogQuery(false)
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(24)
-            ->withQueryString();
-
-        return view('categories.almacen', [
-            'categoryTitle' => 'Almacén',
-            'categorySlug' => 'almacen',
-            'products' => $products,
-            'search' => $search,
-        ]);
-    }
-
-    public function carrefourCategory(string $categorySlug, Request $request): View
-    {
-        $categoryMap = [
-            'desayuno-y-merienda' => 'Desayuno y merienda',
-        ];
-
-        abort_unless(isset($categoryMap[$categorySlug]), 404);
-
-        $search = trim((string) $request->string('q'));
-
-        $products = Product::query()
-            ->where('external_source', 'carrefour')
-            ->where('external_category', $categorySlug)
-            ->where('is_active', true)
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(24)
-            ->withQueryString();
-
-        return view('categories.supermarkets', [
-            'categoryTitle' => $categoryMap[$categorySlug],
-            'categorySlug' => $categorySlug,
-            'products' => $products,
-            'search' => $search,
-        ]);
-    }
-
-    public function pharmacy(Request $request): View
-    {
-        $search = trim((string) $request->string('q'));
-
-        $products = Product::query()
-            ->where('external_source', 'pedidosya')
-            ->where('external_category', 'farmacia')
-            ->where('is_active', true)
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(24)
-            ->withQueryString();
-
-        return view('categories.supermarkets', [
-            'categoryTitle' => 'Farmacia',
-            'categorySlug'  => 'farmacia',
-            'products'      => $products,
-            'search'        => $search,
-        ]);
-    }
-
-    public function almacenBeverages(Request $request): View
-    {
-        $search = trim((string) $request->string('q'));
-
-        $products = $this->masivoCatalogQuery(true)
-            ->when($search !== '', function (Builder $query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->orderBy('name')
-            ->paginate(24)
-            ->withQueryString();
-
-        return view('categories.almacen-beverages', [
-            'products' => $products,
-            'search' => $search,
-        ]);
-    }
-
     public function homeSearchProducts(Request $request): JsonResponse
     {
         $search = trim((string) $request->string('q'));
@@ -138,14 +48,14 @@ class PublicProductController extends Controller
         $products = Product::query()
             ->where('is_active', true)
             ->where(function ($query) {
-                // Solo incluir Farmacia y Comidas (vendedores locales, excluyendo masivo/supermercado)
+                // Solo incluir Farmacia, Comidas (vendedores locales) y productos propios (sin external_source)
                 $query->where(function ($pharmacy) {
                     $pharmacy
                         ->where('external_source', 'pedidosya')
                         ->where('external_category', 'farmacia');
                 })->orWhereHas('user', function ($vendor) {
-                    $vendor->where('role', 'vendor')->where('id', '!=', 6);
-                });
+                    $vendor->where('role', 'vendor')->where('is_masivo', false);
+                })->orWhereNull('external_source');
             })
             ->where('name', 'like', '%' . $search . '%')
             ->orderBy('name')
@@ -190,66 +100,7 @@ class PublicProductController extends Controller
 
     private function almacenBeverageKeywords(): array
     {
-        return [
-            'agua',
-            'agua con gas',
-            'agua saborizada',
-            'aquarius',
-            'aperol',
-            'bebida',
-            'bebida deportiva',
-            'bebida energizante',
-            'bonaqua',
-            'branca',
-            'campari',
-            'cerveza',
-            'cinzano',
-            'coca',
-            'coca cola',
-            'coca-cola',
-            'coñac',
-            'cognac',
-            'energético',
-            'energetico',
-            'espumante',
-            'fanta',
-            'fernet',
-            'gancia',
-            'gaseosa',
-            'gaseos',
-            'gatorade',
-            'gin',
-            'isotonica',
-            'isotónica',
-            'jugo',
-            'licor',
-            'monster',
-            'moster',
-            'néctar',
-            'nectar',
-            'pepsi',
-            'powerade',
-            'red bull',
-            'refresco',
-            'ron',
-            'saborizada',
-            'schweppes',
-            'seven up',
-            'sidra',
-            'skyy',
-            'smirnoff',
-            'soda',
-            'sprite',
-            'tequila',
-            'terma',
-            'tonica',
-            'tónica',
-            'vodka',
-            'vino',
-            'whiskey',
-            'whisky',
-            '7up',
-        ];
+        return config('beverages.keywords', []);
     }
 
     private function determineCategoryLabel(Product $product): string
@@ -270,7 +121,9 @@ class PublicProductController extends Controller
         $keywords = $this->almacenBeverageKeywords();
 
         return Product::query()
-            ->where('user_id', 6)
+            ->whereHas('user', function ($q) {
+                $q->where('is_masivo', true);
+            })
             ->where('is_active', true)
             ->where(function (Builder $query) use ($keywords, $beverages) {
                 if ($beverages) {

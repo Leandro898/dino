@@ -147,6 +147,66 @@
             input.addEventListener('input', clamp);
             input.addEventListener('blur', clamp);
         })();
+    </script>
+
+    <!-- Modal de carrito diferente -->
+    <div id="different-vendor-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeDifferentVendorModal()"></div>
+        <!-- Modal Content -->
+        <div class="relative bg-white dark:bg-[#161615] rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-200 dark:border-[#2a2a2a] transform transition-all">
+            <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            
+            <h3 class="text-xl font-bold text-center text-gray-900 dark:text-white mb-2">¡Comercio diferente!</h3>
+            <p class="text-center text-gray-500 dark:text-gray-400 mb-8">
+                Solo puedes pedir de un comercio a la vez. ¿Quieres vaciar tu carrito actual y empezar un pedido nuevo con este producto?
+            </p>
+            
+            <div class="flex flex-col gap-3">
+                <button type="button" onclick="forceAddProduct()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-colors">
+                    Vaciar carrito y agregar
+                </button>
+                <a href="{{ route('cart.index') }}" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-[#2a2a2a] dark:hover:bg-[#333] text-gray-900 dark:text-white font-bold py-3 px-6 rounded-xl transition-colors text-center">
+                    Ver mi carrito actual
+                </a>
+                <button type="button" onclick="closeDifferentVendorModal()" class="w-full bg-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-semibold py-2 px-6 rounded-xl transition-colors mt-2">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closeDifferentVendorModal() {
+            document.getElementById('different-vendor-modal').classList.add('hidden');
+            document.getElementById('different-vendor-modal').classList.remove('flex');
+        }
+
+        function forceAddProduct() {
+            const form = document.getElementById('addToCartForm');
+            const formData = new FormData(form);
+            formData.set('quantity', '1');
+            formData.set('force_clear', '1');
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '{{ route('cart.index') }}';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
 
         document.getElementById('addToCartForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -168,6 +228,12 @@
                     if (data.success) {
                         // Redirect al carrito para revisar antes del checkout
                         window.location.href = '{{ route('cart.index') }}';
+                        return;
+                    }
+
+                    if (data.error_code === 'different_vendor') {
+                        document.getElementById('different-vendor-modal').classList.remove('hidden');
+                        document.getElementById('different-vendor-modal').classList.add('flex');
                         return;
                     }
 

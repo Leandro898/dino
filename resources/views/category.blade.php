@@ -1,66 +1,58 @@
-<!DOCTYPE html>
-<html lang="es">
+<x-front-layout bodyClass="home-body">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $categoryName }} - {{ config('app.name') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
+    @push('styles')
+        <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700" rel="stylesheet" />
+        <script>
+            window.CategoryConfig = {
+                searchEndpoint: @json(route('category.api.search', ['slug' => $slug]))
+            };
+        </script>
+        @vite(['resources/css/home.css'])
+    @endpush
 
-<body class="bg-gray-100 text-gray-900">
-    @include('partials.header')
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-[calc(13rem+env(safe-area-inset-bottom))] md:pb-10">
-        <div class="flex items-center justify-between mb-8">
-            <div>
+    <main>
+        <section class="panel">
+            <div class="flex items-center justify-between mb-2">
                 <a href="{{ route('home') }}"
-                    class="text-purple-600 hover:text-purple-700 font-semibold text-sm mb-3 inline-flex items-center gap-1">
+                    class="text-purple-600 hover:text-purple-700 font-semibold text-sm inline-flex items-center gap-1">
                     ← Volver a home
                 </a>
-                <h1 class="text-4xl font-bold text-gray-900">{{ $categoryName }}</h1>
             </div>
-        </div>
+            
+            <h1 class="text-4xl font-bold text-gray-900 text-center mb-2">{{ $categoryName }}</h1>
+            <p class="title" style="margin-top: 1rem;">Buscá lo que necesitas</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse ($products as $product)
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
-                    <div class="aspect-square bg-gray-200 flex items-center justify-center">
-                        @if ($product->image_url)
-                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                                class="w-full h-full object-cover">
-                        @else
-                            <span class="text-gray-400">Sin imagen</span>
-                        @endif
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg text-gray-900 mb-2">{{ $product->name }}</h3>
-                        <p class="text-gray-600 text-sm mb-4">{{ Str::limit($product->description, 60) }}</p>
-                        <div class="flex items-center justify-between">
-                            <span
-                                class="text-purple-600 font-bold text-lg">${{ number_format($product->adjusted_price, 2, ',', '.') }}</span>
-                            <a href="{{ route('products.show', $product->slug) }}"
-                                class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition">
-                                Ver
-                            </a>
-                        </div>
+            <div class="search-wrap" style="margin-bottom: 1.5rem;">
+                <span class="search-icon">🔎</span>
+                <input id="quickSearch" class="search" type="search" placeholder="Buscar productos en {{ $categoryName }}..."
+                    aria-label="Buscar categoria" value="{{ $search ?? '' }}">
+            </div>
+
+            <div class="results-wrapper">
+                <div id="searchResultsGallery" class="results-space is-empty" aria-live="polite">
+                    <div class="results-track is-placeholder"></div>
+                </div>
+                <button type="button" id="galleryMicBtn" class="results-mic-btn" aria-label="Buscar por voz">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22"
+                        height="22">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z" />
+                    </svg>
+                </button>
+                <p class="results-mic-label" aria-hidden="true">Pedí con tu voz</p>
+                <div id="micStopLoader" class="mic-stop-loader" aria-hidden="true">
+                    <div class="mic-stop-loader-inner">
+                        <span class="mic-stop-loader-spinner" aria-hidden="true"></span>
+                        <span>Apagando mic...</span>
                     </div>
                 </div>
-            @empty
-                <div class="col-span-full text-center py-12">
-                    <p class="text-gray-500 text-lg">No hay productos en esta categoría</p>
-                    <a href="{{ route('home') }}"
-                        class="text-purple-600 hover:text-purple-700 font-semibold mt-4 inline-block">
-                        Volver a home
-                    </a>
-                </div>
-            @endforelse
-        </div>
-
-        <div class="mt-8">
-            {{ $products->links() }}
-        </div>
+            </div>
+        </section>
     </main>
-</body>
 
-</html>
+    <livewire:live-chat />
+
+    @push('scripts')
+        @vite(['resources/js/category.js'])
+    @endpush
+</x-front-layout>

@@ -61,6 +61,12 @@ class OrderController extends Controller
 
             // Actualizar repartidor si se proporciona
             if ($request->has('delivery_user_id')) {
+                $ineligibleStatuses = ['completed', 'cancelled'];
+                if (in_array($order->status, $ineligibleStatuses)) {
+                    return response()->json([
+                        'error' => 'No se puede asignar un repartidor a un pedido completado o cancelado.'
+                    ], 422);
+                }
                 $order->delivery_user_id = $request->input('delivery_user_id') ?: null;
             }
             
@@ -104,5 +110,34 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al eliminar la orden: ' . $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Print the specified order ticket (comanda).
+     */
+    public function printTicket(Order $order)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        if ($user->role !== 'admin') {
+            if ($user->role === 'vendor') {
+                $isRelated = ($order->vendor_id === $user->id) || $order->items()->whereHas('product', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })->exists();
+
+                if (!$isRelated) {
+                    abort(403, 'No tienes acceso a este pedido.');
+                }
+            } else {
+                abort(403, 'Acceso denegado.');
+            }
+        }
+
+        $order->load(['items.product', 'vendor']);
+
+        return view('orders.print', compact('order'));
     }
 }

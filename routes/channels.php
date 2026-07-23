@@ -31,3 +31,18 @@ Broadcast::channel('vendor.{vendorId}', function (User $user, int $vendorId): bo
 
     return $allowed;
 });
+
+// 🚴 Canal privado para seguimiento de la ubicación del rider de una orden
+Broadcast::channel('order.{orderId}', function (User $user, int $orderId): bool {
+    $order = \App\Models\Order::find($orderId);
+    if (!$order) {
+        return false;
+    }
+    
+    // El repartidor asignado, el vendedor asociado, el administrador o el cliente dueño del pedido
+    return $user->role === 'admin'
+        || ($user->role === 'vendor' && (int) $user->id === (int) $order->vendor_id)
+        || ($user->role === 'delivery' && (int) $user->id === (int) $order->delivery_user_id)
+        || ((int) $user->id === (int) $order->user_id)
+        || ($user->name === $order->name || $user->email === $order->email);
+});
