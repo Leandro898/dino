@@ -1076,10 +1076,15 @@
 
         if (bottomSheet) {
             bottomSheet.addEventListener('touchstart', (e) => {
-                if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
-                    return;
-                }
                 dragStartY = e.touches[0].clientY;
+                
+                const isExpanded = bottomSheet.classList.contains('expanded');
+                if (isExpanded && sheetContent && sheetContent.contains(e.target)) {
+                    if (sheetContent.scrollTop > 0) {
+                        return; // let native scroll
+                    }
+                }
+                
                 bottomSheet.style.transition = 'none';
                 
                 const maxTranslate = bottomSheet.offsetHeight;
@@ -1093,28 +1098,49 @@
             }, { passive: true });
 
             bottomSheet.addEventListener('touchmove', (e) => {
-                if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
-                    return;
-                }
                 const currentY = e.touches[0].clientY;
                 const deltaY = currentY - dragStartY;
+                
+                const isExpanded = bottomSheet.classList.contains('expanded');
+                
+                if (isExpanded && sheetContent && sheetContent.contains(e.target)) {
+                    if (sheetContent.scrollTop > 0) {
+                        return; // let native scroll
+                    }
+                    if (deltaY < 0) {
+                        return; // dragging up: let native scroll scroll the content
+                    }
+                }
+                
+                // We are dragging the sheet, prevent native scroll
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
                 
                 let newTranslate = initialSheetTranslate + deltaY;
                 if (newTranslate < 0) newTranslate = 0;
                 bottomSheet.style.transform = `translateY(${newTranslate}px)`;
-            }, { passive: true });
+            }, { passive: false });
 
             bottomSheet.addEventListener('touchend', (e) => {
-                if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
-                    return;
+                const currentY = e.changedTouches[0].clientY;
+                const deltaY = currentY - dragStartY;
+                
+                const isExpanded = bottomSheet.classList.contains('expanded');
+                
+                if (isExpanded && sheetContent && sheetContent.contains(e.target)) {
+                    if (sheetContent.scrollTop > 0) {
+                        return;
+                    }
+                    if (deltaY < 0) {
+                        return; 
+                    }
                 }
+                
                 bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
                 bottomSheet.style.transform = ''; 
                 
-                const currentY = e.changedTouches[0].clientY;
-                const deltaY = currentY - dragStartY;
                 const currentTranslate = initialSheetTranslate + deltaY;
-                
                 const maxTranslate = bottomSheet.offsetHeight;
                 
                 bottomSheet.classList.remove('expanded', 'half', 'collapsed');
@@ -1127,10 +1153,9 @@
                 const distHalf = Math.abs(currentTranslate - snapHalf);
                 const distCollapsed = Math.abs(currentTranslate - snapCollapsed);
                 
-                // Add momentum logic: if swiped fast, jump to next state
+                // Momentum logic
                 if (deltaY < -30 && distExpanded < distCollapsed) {
                     if (initialSheetTranslate === snapCollapsed) {
-                         // if swiped up from collapsed, check if we should go half or expanded
                          if (deltaY < -150) bottomSheet.classList.add('expanded');
                          else bottomSheet.classList.add('half');
                          return;
@@ -1146,6 +1171,7 @@
                 }
             });
         }
+
 
         // Marker for rider location and custom icons
         const riderIcon = L.divIcon({
