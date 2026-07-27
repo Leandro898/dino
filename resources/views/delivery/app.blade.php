@@ -1053,8 +1053,8 @@
         const riderIcon = L.divIcon({
             html: `
                 <div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                    <div style="position: absolute; width: 100%; height: 100%; background-color: var(--primary); border-radius: 50%; opacity: 0.5; animation: pulse-rider 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"></div>
-                    <div style="position: relative; width: 12px; height: 12px; background-color: var(--primary); border: 2px solid white; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.3); z-index: 2;"></div>
+                    <div style="position: absolute; width: 100%; height: 100%; background-color: #8b5cf6; border-radius: 50%; opacity: 0.5; animation: pulse-rider 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"></div>
+                    <div style="position: relative; width: 12px; height: 12px; background-color: #7c3aed; border: 2px solid white; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.3); z-index: 2;"></div>
                 </div>
             `,
             className: 'rider-location-icon',
