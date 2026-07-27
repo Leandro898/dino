@@ -194,7 +194,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 85vh;
+            height: 90vh; /* A bit taller to cover most of screen */
             background: var(--bg-sheet);
             border-radius: 28px 28px 0 0;
             padding: 24px 24px 0 24px;
@@ -203,13 +203,16 @@
             display: flex;
             flex-direction: column;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateY(calc(100% - 280px));
+            transform: translateY(calc(100% - 130px)); /* default collapsed: shows handle and Comenzar button */
         }
         .bottom-sheet.expanded {
             transform: translateY(0) !important;
         }
+        .bottom-sheet.half {
+            transform: translateY(calc(100% - 380px)) !important;
+        }
         .bottom-sheet.collapsed {
-            transform: translateY(calc(100% - 60px)) !important;
+            transform: translateY(calc(100% - 130px)) !important;
         }
         .bottom-sheet-content {
             flex: 1;
@@ -1058,50 +1061,77 @@
         }).addTo(map);
 
         const bottomSheet = document.getElementById('bottomSheet');
-        const sheetHandle = document.getElementById('sheetHandle');
         let dragStartY = 0;
         let initialSheetTranslate = 0;
+        let sheetContent = document.querySelector('.bottom-sheet-content');
 
         map.on('click', () => {
-            if (bottomSheet && !bottomSheet.classList.contains('collapsed')) {
+            if (bottomSheet && (!bottomSheet.classList.contains('collapsed'))) {
                 bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                bottomSheet.classList.remove('expanded');
+                bottomSheet.classList.remove('expanded', 'half');
                 bottomSheet.classList.add('collapsed');
                 bottomSheet.style.transform = '';
             }
         });
 
-        if (sheetHandle && bottomSheet) {
-            sheetHandle.addEventListener('touchstart', (e) => {
+        if (bottomSheet) {
+            bottomSheet.addEventListener('touchstart', (e) => {
+                // If touching inside a scrollable area that is not at the top, ignore sheet drag
+                if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
+                    return; // let native scroll happen
+                }
                 dragStartY = e.touches[0].clientY;
                 bottomSheet.style.transition = 'none';
                 const rect = bottomSheet.getBoundingClientRect();
                 initialSheetTranslate = rect.top - (window.innerHeight - rect.height);
-            });
+            }, { passive: true });
 
-            sheetHandle.addEventListener('touchmove', (e) => {
+            bottomSheet.addEventListener('touchmove', (e) => {
+                if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
+                    return; // let native scroll happen
+                }
                 const currentY = e.touches[0].clientY;
                 const deltaY = currentY - dragStartY;
+                
+                // If trying to drag down but content is at scrollTop 0, we should drag the sheet.
+                // If trying to drag up, drag the sheet if we are not fully expanded.
+                
                 let newTranslate = initialSheetTranslate + deltaY;
-                if (newTranslate < 0) newTranslate = 0;
+                if (newTranslate < 0) newTranslate = 0; // max expand (top)
                 bottomSheet.style.transform = `translateY(${newTranslate}px)`;
-            });
+            }, { passive: true });
 
-            sheetHandle.addEventListener('touchend', (e) => {
+            bottomSheet.addEventListener('touchend', (e) => {
+                if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
+                    return;
+                }
                 bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                bottomSheet.style.transform = '';
+                bottomSheet.style.transform = ''; // clear inline to use classes
+                
                 const currentY = e.changedTouches[0].clientY;
                 const deltaY = currentY - dragStartY;
-
-                if (deltaY < -40) {
-                    bottomSheet.classList.remove('collapsed');
+                const rect = bottomSheet.getBoundingClientRect();
+                const currentTranslate = rect.top - (window.innerHeight - rect.height);
+                
+                const maxTranslate = bottomSheet.offsetHeight; // total height
+                
+                bottomSheet.classList.remove('expanded', 'half', 'collapsed');
+                
+                // Determine closest snap point
+                const snapExpanded = 0;
+                const snapHalf = maxTranslate - 380;
+                const snapCollapsed = maxTranslate - 130;
+                
+                const distExpanded = Math.abs(currentTranslate - snapExpanded);
+                const distHalf = Math.abs(currentTranslate - snapHalf);
+                const distCollapsed = Math.abs(currentTranslate - snapCollapsed);
+                
+                if (distExpanded < distHalf && distExpanded < distCollapsed) {
                     bottomSheet.classList.add('expanded');
-                } else if (deltaY > 40) {
-                    if (bottomSheet.classList.contains('expanded')) {
-                        bottomSheet.classList.remove('expanded');
-                    } else {
-                        bottomSheet.classList.add('collapsed');
-                    }
+                } else if (distHalf < distExpanded && distHalf < distCollapsed) {
+                    bottomSheet.classList.add('half');
+                } else {
+                    bottomSheet.classList.add('collapsed');
                 }
             });
         }
