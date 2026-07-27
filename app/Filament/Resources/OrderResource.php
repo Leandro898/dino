@@ -114,12 +114,36 @@ class OrderResource extends Resource
                     ->visible(fn () => auth()->user()?->role === "admin")
                     ->visibleFrom('md'),
                 
+                Tables\Columns\TextColumn::make('deliveryUser.name')
+                    ->label('🏍️ Repartidor')
+                    ->visible(fn () => auth()->user()?->role === "admin")
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('shipping_cost')
-                    ->label('📦 Envío')
+                    ->label('📦 Envío (Cobrado)')
                     ->money('ARS')
                     ->sortable()
                     ->visible(fn () => auth()->user()?->role === "admin")
                     ->visibleFrom('lg'),
+
+                Tables\Columns\TextColumn::make('rider_earnings')
+                    ->label('💸 Pago a Rider')
+                    ->getStateUsing(function (Order $record) {
+                        return max(0, $record->shipping_cost - 1000);
+                    })
+                    ->money('ARS')
+                    ->color('success')
+                    ->visible(fn () => auth()->user()?->role === "admin"),
+
+                Tables\Columns\TextColumn::make('admin_earnings')
+                    ->label('💼 Comisión Servicio')
+                    ->getStateUsing(function (Order $record) {
+                        return $record->shipping_cost > 0 ? 1000 : 0;
+                    })
+                    ->money('ARS')
+                    ->color('primary')
+                    ->visible(fn () => auth()->user()?->role === "admin"),
                 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime('d/m/y H:i')

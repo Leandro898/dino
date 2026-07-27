@@ -62,6 +62,7 @@ class DeliveryApiController extends Controller implements HasMiddleware
             'vendor_longitude' => optional($latestOrder->vendor)->longitude ? (float) $latestOrder->vendor->longitude : null,
             'is_accepted' => (bool) $latestOrder->is_accepted_by_rider,
             'shipping_cost' => (float) $latestOrder->shipping_cost,
+            'rider_earnings' => max(0, (float) $latestOrder->shipping_cost - 1000),
             'payment_method' => $latestOrder->payment_method,
         ]);
     }

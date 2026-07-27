@@ -1302,7 +1302,7 @@
 
             if (Notification.permission === 'granted') {
                 new Notification(`¡Nuevo Pedido #${order.id}!`, {
-                    body: `Retiro: ${order.vendor_name || 'Comercio'}\nEntrega: ${order.customer_name}\nGanancia: $${Number(order.shipping_cost).toFixed(0)}`,
+                    body: `Retiro: ${order.vendor_name || 'Comercio'}\nEntrega: ${order.customer_name}\nGanancia: $${Number(order.rider_earnings).toFixed(0)}`,
                     icon: '{{ asset('images/og-image.png') }}'
                 });
             }
@@ -1391,6 +1391,7 @@
                 const isCash = data.payment_method === 'efectivo';
                 const total = Number(data.total) || 0;
                 const shipping = Number(data.shipping_cost) || 0;
+                const earnings = Number(data.rider_earnings) || 0;
                 const payToStore = Math.max(0, total - shipping);
 
                 let paymentBadgeHtml = '';
@@ -1461,7 +1462,7 @@
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                             <span style="font-size: 1.05rem; font-weight: 800; color: #ff5722;">🔥 Tu ganancia</span>
-                            <span style="font-size: 1.25rem; font-weight: 900; color: #ff5722;">$${shipping.toFixed(0)}</span>
+                            <span style="font-size: 1.25rem; font-weight: 900; color: #ff5722;">$${earnings.toFixed(0)}</span>
                         </div>
 
                         ${!data.is_accepted ? `
