@@ -612,7 +612,7 @@
 
         .recenter-btn {
             position: absolute;
-            top: calc(env(safe-area-inset-top, 16px) + 80px);
+            bottom: 320px;
             right: 16px;
             width: 44px;
             height: 44px;
