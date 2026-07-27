@@ -1076,28 +1076,31 @@
 
         if (bottomSheet) {
             bottomSheet.addEventListener('touchstart', (e) => {
-                // If touching inside a scrollable area that is not at the top, ignore sheet drag
                 if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
-                    return; // let native scroll happen
+                    return;
                 }
                 dragStartY = e.touches[0].clientY;
                 bottomSheet.style.transition = 'none';
-                const rect = bottomSheet.getBoundingClientRect();
-                initialSheetTranslate = rect.top - (window.innerHeight - rect.height);
+                
+                const maxTranslate = bottomSheet.offsetHeight;
+                if (bottomSheet.classList.contains('expanded')) {
+                    initialSheetTranslate = 0;
+                } else if (bottomSheet.classList.contains('half')) {
+                    initialSheetTranslate = maxTranslate - 380;
+                } else {
+                    initialSheetTranslate = maxTranslate - 130; // default collapsed
+                }
             }, { passive: true });
 
             bottomSheet.addEventListener('touchmove', (e) => {
                 if (sheetContent && sheetContent.contains(e.target) && sheetContent.scrollTop > 0) {
-                    return; // let native scroll happen
+                    return;
                 }
                 const currentY = e.touches[0].clientY;
                 const deltaY = currentY - dragStartY;
                 
-                // If trying to drag down but content is at scrollTop 0, we should drag the sheet.
-                // If trying to drag up, drag the sheet if we are not fully expanded.
-                
                 let newTranslate = initialSheetTranslate + deltaY;
-                if (newTranslate < 0) newTranslate = 0; // max expand (top)
+                if (newTranslate < 0) newTranslate = 0;
                 bottomSheet.style.transform = `translateY(${newTranslate}px)`;
             }, { passive: true });
 
@@ -1106,18 +1109,16 @@
                     return;
                 }
                 bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                bottomSheet.style.transform = ''; // clear inline to use classes
+                bottomSheet.style.transform = ''; 
                 
                 const currentY = e.changedTouches[0].clientY;
                 const deltaY = currentY - dragStartY;
-                const rect = bottomSheet.getBoundingClientRect();
-                const currentTranslate = rect.top - (window.innerHeight - rect.height);
+                const currentTranslate = initialSheetTranslate + deltaY;
                 
-                const maxTranslate = bottomSheet.offsetHeight; // total height
+                const maxTranslate = bottomSheet.offsetHeight;
                 
                 bottomSheet.classList.remove('expanded', 'half', 'collapsed');
                 
-                // Determine closest snap point
                 const snapExpanded = 0;
                 const snapHalf = maxTranslate - 380;
                 const snapCollapsed = maxTranslate - 130;
@@ -1125,6 +1126,16 @@
                 const distExpanded = Math.abs(currentTranslate - snapExpanded);
                 const distHalf = Math.abs(currentTranslate - snapHalf);
                 const distCollapsed = Math.abs(currentTranslate - snapCollapsed);
+                
+                // Add momentum logic: if swiped fast, jump to next state
+                if (deltaY < -30 && distExpanded < distCollapsed) {
+                    if (initialSheetTranslate === snapCollapsed) {
+                         // if swiped up from collapsed, check if we should go half or expanded
+                         if (deltaY < -150) bottomSheet.classList.add('expanded');
+                         else bottomSheet.classList.add('half');
+                         return;
+                    }
+                }
                 
                 if (distExpanded < distHalf && distExpanded < distCollapsed) {
                     bottomSheet.classList.add('expanded');
