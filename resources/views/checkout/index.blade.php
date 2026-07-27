@@ -42,10 +42,8 @@
         <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
             @csrf
 
-            <div class="grid lg:grid-cols-3 gap-6 lg:gap-10">
-
-                <!-- COLUMNA IZQUIERDA: DATOS + MAPA (2/3 de ancho en pantallas grandes) -->
-                <div class="lg:col-span-2 grid md:grid-cols-2 gap-6 h-fit">
+            <div id="step-1" class="max-w-5xl mx-auto">
+                <div class="grid md:grid-cols-2 gap-6 h-fit">
                     <!-- 1. DATOS DE ENVÍO -->
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm h-full flex flex-col justify-between">
                         <div>
@@ -98,9 +96,24 @@
                         <input type="hidden" id="lng" name="lng" value="{{ old('lng', -71.310278) }}">
                     </div>
                 </div>
+                
+                <div class="mt-8 text-right mb-20 md:mb-0">
+                    <button type="button" id="btn-next-step" class="bg-black text-white px-8 py-4 rounded-xl font-bold uppercase text-sm shadow-lg hover:shadow-xl hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-700 transition-all w-full md:w-auto">
+                        Continuar al pago
+                    </button>
+                </div>
+            </div>
 
-                <!-- COLUMNA DERECHA: RESUMEN Y MÉTODO DE PAGO (1/3 de ancho en pantallas grandes) -->
-                <div class="lg:col-span-1 space-y-6 lg:sticky lg:top-24 h-fit">
+            <div id="step-2" class="hidden max-w-5xl mx-auto">
+                <div class="mb-6">
+                    <button type="button" id="btn-prev-step" class="flex items-center gap-2 text-gray-500 hover:text-black dark:hover:text-white font-bold uppercase text-sm transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        </svg>
+                        Volver a los datos de envío
+                    </button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 lg:gap-10 h-fit">
                     <!-- MÉTODO DE PAGO -->
                     <div class="bg-white dark:bg-[#161615] p-6 rounded-2xl shadow-sm">
                         <h2 class="text-lg font-bold mb-4 dark:text-white">Método de pago</h2>
@@ -122,8 +135,18 @@
                                         {{ old('payment_method') === 'transferencia' ? 'checked' : '' }}>
                                     <span id="dot-transferencia" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-purple-600 peer-checked:border-[5px] transition-all"></span>
                                     <span>
-                                        <span class="block text-sm font-bold dark:text-white">Efectivo / Transf.</span>
-                                        <span class="block text-xs text-gray-500">Por WhatsApp.</span>
+                                        <span class="block text-sm font-bold dark:text-white">Transferencia</span>
+                                        <span class="block text-xs text-gray-500">Enviar comprobante por WhatsApp.</span>
+                                    </span>
+                                </label>
+
+                                <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-[#2a2a2a] cursor-pointer has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50 dark:has-[:checked]:bg-purple-900/20 transition-colors">
+                                    <input type="radio" name="payment_method" id="pm-efectivo" value="efectivo" class="sr-only peer"
+                                        {{ old('payment_method') === 'efectivo' ? 'checked' : '' }}>
+                                    <span id="dot-efectivo" class="flex-shrink-0 mt-1 w-4 h-4 rounded-full border-2 border-gray-300 peer-checked:border-purple-600 peer-checked:border-[5px] transition-all"></span>
+                                    <span>
+                                        <span class="block text-sm font-bold dark:text-white">Efectivo</span>
+                                        <span class="block text-xs text-gray-500">Pagas al recibir tu pedido.</span>
                                     </span>
                                 </label>
                             @endif
@@ -175,7 +198,7 @@
                                                     data-id="{{ $id }}" data-url="{{ route('cart.update', $id) }}">+</button>
                                             </div>
                                             <!-- Price -->
-                                            <div class="font-bold text-sm text-purple-700 dark:text-purple-400">
+                                            <div class="font-bold text-sm text-purple-700 dark:text-purple-400" id="item-subtotal-{{ $id }}">
                                                 ${{ number_format($subtotal, 0, ',', '.') }}
                                             </div>
                                         </div>
@@ -232,7 +255,6 @@
 
                     </div>
                 </div>
-
             </div>
 
         </form>

@@ -1,19 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $vendor->name }} - {{ config('app.name') }}</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
-    @include('partials.header')
-
+<x-front-layout title="{{ $vendor->name }} - {{ config('app.name') }}" bodyClass="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
     <main class="pb-[calc(8rem+env(safe-area-inset-bottom))] md:pb-10">
-        
         <!-- BANNER DEL COMERCIO -->
         @if ($vendor->banner)
             <div class="w-full relative bg-white dark:bg-[#111] border-b border-gray-200 dark:border-[#2a2a2a] flex justify-center items-center overflow-hidden" style="height: 220px;">
@@ -171,16 +157,4 @@
 
     <!-- Chat directo con el local -->
     <livewire:live-chat :vendor_id="$vendor->id" />
-
-    <style>
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
-</body>
-
-</html>
+</x-front-layout>

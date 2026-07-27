@@ -332,11 +332,11 @@
                         <div class="w-full max-w-xs rounded-xl border border-slate-300 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/30 space-y-2.5 text-sm">
                             <div class="flex justify-between text-slate-600 dark:text-slate-400">
                                 <span class="font-bold">Subtotal</span>
-                                <span class="font-bold text-slate-900 dark:text-slate-200">${{ number_format($viewingOrder->total, 2) }}</span>
+                                <span class="font-bold text-slate-900 dark:text-slate-200">${{ number_format($viewingOrder->total - ($viewingOrder->shipping_cost ?? 0), 2) }}</span>
                             </div>
                             <div class="flex justify-between text-slate-600 dark:text-slate-400">
                                 <span class="font-bold">Envío</span>
-                                <span class="font-bold text-emerald-600 dark:text-emerald-400">Gratis</span>
+                                <span class="font-bold text-slate-900 dark:text-slate-200">${{ number_format($viewingOrder->shipping_cost ?? 0, 2) }}</span>
                             </div>
                             <div class="flex justify-between border-t border-slate-300 pt-2.5 dark:border-slate-700">
                                 <span class="text-base font-extrabold text-slate-900 dark:text-slate-100">Total</span>

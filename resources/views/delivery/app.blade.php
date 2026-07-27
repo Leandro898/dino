@@ -1,14 +1,6 @@
-<!doctype html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <meta name="theme-color" content="#ffffff">
-    <title>Bari Rider</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+<x-delivery-layout title="Bari Rider" themeColor="#ffffff" :useVite="false">
+    @push('head')
     <link rel="manifest" href="{{ asset('delivery-manifest.json') }}?v=6">
-    <link rel="icon" href="https://ui-avatars.com/api/?name=B&size=192&background=ffffff&color=7e22ce&bold=true">
-    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=B&size=192&background=ffffff&color=7e22ce&bold=true">
     <!-- Pusher & Echo CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
@@ -20,7 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @endpush
 
+    @push('styles')
     <style>
         :root {
             --primary: #ff3366; /* Un color vibrante estilo PedidosYa/Rappi */
@@ -604,6 +598,38 @@
             background: white;
             border-radius: 16px;
             padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 70;
+            transform: translateY(-150%);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .order-alert.show {
+            transform: translateY(0);
+        }
+
+        .recenter-btn {
+            position: absolute;
+            top: calc(env(safe-area-inset-top, 16px) + 80px);
+            right: 16px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .recenter-btn:active {
+            transform: scale(0.9);
+        }
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             z-index: 100;
             transform: translateY(-150%);
@@ -633,9 +659,14 @@
 
         /* Form hidden */
         #logout-form { display: none; }
+
+        @keyframes pulse-rider {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(0.9); opacity: 0; }
+        }
     </style>
-</head>
-<body>
+    @endpush
     <!-- Custom Modal Overlay -->
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
@@ -650,6 +681,18 @@
 
     <!-- Map Background -->
     <div id="map"></div>
+
+    <!-- Recenter Map Button -->
+    <button class="recenter-btn" onclick="recenterMap()" title="Centrar mi ubicación">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+            <line x1="12" y1="2" x2="12" y2="4"></line>
+            <line x1="12" y1="20" x2="12" y2="22"></line>
+            <line x1="2" y1="12" x2="4" y2="12"></line>
+            <line x1="20" y1="12" x2="22" y2="12"></line>
+        </svg>
+    </button>
 
     <!-- Drawer / Sidebar -->
     <div class="drawer-backdrop" id="drawerBackdrop" onclick="history.back()"></div>
@@ -938,9 +981,9 @@
         window.Echo = new Echo({
             broadcaster: 'reverb',
             key: '{{ config('broadcasting.connections.reverb.key') }}',
-            wsHost: '{{ config('broadcasting.connections.reverb.options.host') }}',
-            wsPort: {{ config('broadcasting.connections.reverb.options.port') }},
-            wssPort: {{ config('broadcasting.connections.reverb.options.port') }},
+            wsHost: window.location.hostname,
+            wsPort: {{ config('broadcasting.connections.reverb.options.port') ?? 8080 }},
+            wssPort: {{ config('broadcasting.connections.reverb.options.port') ?? 8080 }},
             forceTLS: {{ config('broadcasting.connections.reverb.options.scheme') === 'https' ? 'true' : 'false' }},
             enabledTransports: ['ws', 'wss'],
             authEndpoint: '/broadcasting/auth',
@@ -1007,7 +1050,19 @@
         });
 
         // Marker for rider location and custom icons
-        let riderMarker = L.marker([-41.1335, -71.3103]).addTo(map);
+        const riderIcon = L.divIcon({
+            html: `
+                <div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                    <div style="position: absolute; width: 100%; height: 100%; background-color: var(--primary); border-radius: 50%; opacity: 0.5; animation: pulse-rider 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"></div>
+                    <div style="position: relative; width: 12px; height: 12px; background-color: var(--primary); border: 2px solid white; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.3); z-index: 2;"></div>
+                </div>
+            `,
+            className: 'rider-location-icon',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+
+        let riderMarker = L.marker([-41.1335, -71.3103], { icon: riderIcon, zIndexOffset: 1000 }).addTo(map);
         let vendorMarker = null;
         let customerMarker = null;
         let routeLine = null;
@@ -1123,7 +1178,7 @@
 
             if (Notification.permission === 'granted') {
                 new Notification(`¡Nuevo Pedido #${order.id}!`, {
-                    body: `Retiro: ${order.vendor_name || 'Comercio'}\nEntrega: ${order.customer_name}\nCobrar: $${Number(order.total).toFixed(0)}`,
+                    body: `Retiro: ${order.vendor_name || 'Comercio'}\nEntrega: ${order.customer_name}\nGanancia: $${Number(order.shipping_cost).toFixed(0)}`,
                     icon: '{{ asset('images/og-image.png') }}'
                 });
             }
@@ -1203,126 +1258,114 @@
                 }
 
                 saveOrderId(data.id);
+                const distToVendor = calculateDistance(riderLatLng.lat, riderLatLng.lng, data.vendor_latitude, data.vendor_longitude);
+                const distToCust = calculateDistance(data.vendor_latitude, data.vendor_longitude, data.latitude, data.longitude);
 
-                if (!data.is_accepted) {
-                    const riderLatLng = riderMarker.getLatLng();
-                    const distToVendor = calculateDistance(riderLatLng.lat, riderLatLng.lng, data.vendor_latitude, data.vendor_longitude);
-                    const distToCust = calculateDistance(data.vendor_latitude, data.vendor_longitude, data.latitude, data.longitude);
+                const distToVendorStr = distToVendor ? `${distToVendor.toFixed(2)} km` : '— km';
+                const distToCustStr = distToCust ? `${distToCust.toFixed(2)} km` : '— km';
 
-                    const distToVendorStr = distToVendor ? `${distToVendor.toFixed(2)} km` : '— km';
-                    const distToCustStr = distToCust ? `${distToCust.toFixed(2)} km` : '— km';
+                const isCash = data.payment_method === 'efectivo';
+                const total = Number(data.total) || 0;
+                const shipping = Number(data.shipping_cost) || 0;
+                const payToStore = Math.max(0, total - shipping);
 
-                    // Payment method styling
-                    let paymentMethodLabel = 'Pago Online';
-                    if (data.payment_method === 'transferencia') {
-                        paymentMethodLabel = 'Transferencia necesaria';
-                    } else if (data.payment_method === 'mercadopago') {
-                        paymentMethodLabel = 'Mercado Pago';
-                    } else {
-                        paymentMethodLabel = 'Efectivo necesario';
-                    }
-
-                    infoTitle.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                            <span class="badge" style="background: #f3f4f6; color: #4b5563; padding: 4px 10px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
-                                ${paymentMethodLabel}
-                            </span>
-                            <button onclick="rejectCurrentOrder(${data.id})" style="background: #f3f4f6; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; color: #4b5563; cursor: pointer; transition: all 0.2s;">
-                                ✕
-                            </button>
-                        </div>
-                    `;
-
-                    infoDesc.innerHTML = `
-                        <!-- Timeline de Entrega estilo PedidosYa -->
-                        <div style="position: relative; margin-top: 12px; padding-left: 28px;">
-                            <!-- Línea vertical conectora -->
-                            <div style="position: absolute; left: 12px; top: 20px; bottom: 20px; width: 2px; border-left: 2px dashed #d1d5db;"></div>
-                            
-                            <!-- Comercio (Retiro) -->
-                            <div style="position: relative; margin-bottom: 16px;">
-                                <div style="position: absolute; left: -28px; top: 1px; width: 24px; height: 24px; background: #111827; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white;">🏪</div>
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <div>
-                                        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #1f2937;">${data.vendor_name}</h4>
-                                        <p style="margin: 1px 0 0 0; font-size: 0.78rem; color: #6b7280; line-height:1.2;">${data.vendor_address}</p>
-                                    </div>
-                                    <span style="font-size: 0.78rem; font-weight: 600; color: #4b5563; shrink-0; padding-left: 8px;">${distToVendorStr}</span>
-                                </div>
-                                <div style="margin-top: 4px;">
-                                    <span style="display: inline-block; background: #f3f4f6; border: 1px solid #e5e7eb; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; color: #475569;">
-                                        Retirar pedido #${data.id}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Cliente (Entrega) -->
-                            <div style="position: relative;">
-                                <div style="position: absolute; left: -28px; top: 1px; width: 24px; height: 24px; background: #ff3366; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white;">👤</div>
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <div>
-                                        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #1f2937;">Entrega</h4>
-                                        <p style="margin: 1px 0 0 0; font-size: 0.78rem; color: #6b7280; line-height:1.2;">${data.address || 'Sin dirección'}</p>
-                                        <p style="margin: 1px 0 0 0; font-size: 0.72rem; color: #9ca3af;">Destinatario: ${data.customer_name}</p>
-                                    </div>
-                                    <span style="font-size: 0.78rem; font-weight: 600; color: #4b5563; shrink-0; padding-left: 8px;">${distToCustStr}</span>
-                                </div>
-                                <div style="margin-top: 4px;">
-                                    <span style="display: inline-block; background: #fee2e2; border: 1px solid #fecaca; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; color: #ef4444;">
-                                        Cobrar al usuario $${Number(data.total).toFixed(0)}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Resumen y Botón de Aceptar -->
-                        <div style="margin-top: 14px; border-top: 1px solid #e5e7eb; padding-top: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <span style="font-size: 0.85rem; font-weight: 700; color: #475569;">Pagar por el pedido</span>
-                                <span style="font-size: 1.05rem; font-weight: 800; color: #111827;">$${Number(data.total).toFixed(0)}</span>
-                            </div>
-                            <button onclick="acceptCurrentOrder(${data.id})" class="btn" style="width: 100%; height: 46px; background: #111827; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                Aceptar pedido
-                            </button>
-                        </div>
-                    `;
-                    disconnectedActions.style.display = 'none';
-                    connectedActions.style.display = 'none';
-                    return;
+                let paymentBadgeHtml = '';
+                if (isCash) {
+                    paymentBadgeHtml = `<span style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">Efectivo necesario</span>`;
+                } else {
+                    paymentBadgeHtml = `<span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700;">Pago Online (No cobrar)</span>`;
                 }
 
-                infoTitle.textContent = `Pedido asignado #${data.id}`;
-                infoDesc.innerHTML = `
-                    <strong>Cliente:</strong> ${data.customer_name}<br>
-                    <strong>Dirección:</strong> ${data.address || 'Sin dirección'}<br>
-                    <strong>Total:</strong> $${Number(data.total).toFixed(0)}<br>
-                    <strong>Estado:</strong> <span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">${data.status.toUpperCase()}</span>
-                    
-                    ${(data.latitude && data.longitude) ? `
-                        <div style="margin-top: 14px; display: flex; gap: 8px;">
-                            <a href="https://www.google.com/maps/dir/?api=1&destination=${data.latitude},${data.longitude}&travelmode=driving" 
-                               target="_blank" 
-                               style="flex: 1; text-align: center; background: #22c55e; color: white; padding: 8px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                                📍 Navegar GPS
-                            </a>
-                        </div>
-                    ` : ''}
-                    
-                    ${['assigned', 'processing'].includes(data.status) ? `
-                        <div style="margin-top: 14px;">
-                            <button onclick="markPickedUp(${data.id})" class="btn" style="width: 100%; height: 46px; background: #f59e0b; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                🛍️ Confirmar Retiro del Local
-                            </button>
-                        </div>
-                    ` : ''}
+                // Header
+                infoTitle.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        ${paymentBadgeHtml}
+                        ${!data.is_accepted ? `
+                        <button onclick="rejectCurrentOrder(${data.id})" style="background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #64748b; cursor: pointer; transition: all 0.2s;">✕</button>
+                        ` : `
+                        <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Pedido #${data.id}</span>
+                        `}
+                    </div>
+                `;
 
-                    ${data.status === 'shipped' ? `
-                        <div style="margin-top: 14px;">
-                            <button onclick="markDelivered(${data.id})" class="btn" style="width: 100%; height: 46px; background: #3b82f6; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                ✅ Marcar como Entregado
-                            </button>
+                infoDesc.innerHTML = `
+                    <!-- Timeline de Entrega -->
+                    <div style="position: relative; margin-top: 16px; padding-left: 28px;">
+                        <!-- Línea conectora -->
+                        <div style="position: absolute; left: 12px; top: 24px; bottom: 24px; width: 2px; border-left: 2px solid #e2e8f0;"></div>
+                        
+                        <!-- Comercio -->
+                        <div style="position: relative; margin-bottom: 24px;">
+                            <div style="position: absolute; left: -28px; top: 2px; width: 24px; height: 24px; background: white; border: 2px solid #111827; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px;">🏪</div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1rem; font-weight: 700; color: #1e293b;">${data.vendor_name || 'Comercio'}</h4>
+                                    <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.4;">${data.vendor_address || 'Dirección local'}</p>
+                                </div>
+                                <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">${distToVendorStr}</span>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <span style="display: inline-block; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #64748b;">
+                                    Pagar al local $${isCash ? payToStore.toFixed(0) : '0'}
+                                </span>
+                            </div>
                         </div>
-                    ` : ''}
+
+                        <!-- Cliente -->
+                        <div style="position: relative;">
+                            <div style="position: absolute; left: -28px; top: 2px; width: 24px; height: 24px; background: white; border: 2px solid #111827; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px;">👤</div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1rem; font-weight: 700; color: #1e293b;">Entrega a ${data.customer_name}</h4>
+                                    <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.4;">${data.address || 'Sin dirección'}</p>
+                                </div>
+                                <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">${distToCustStr}</span>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                <span style="display: inline-block; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #64748b;">
+                                    Cobrar al usuario $${isCash ? total.toFixed(0) : '0'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen Financiero -->
+                    <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem; font-weight: 700; color: #475569;">Pagar por el pedido</span>
+                            <span style="font-size: 1rem; font-weight: 800; color: #1e293b;">$${isCash ? payToStore.toFixed(0) : '0'}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #ff5722;">🔥 Tu ganancia</span>
+                            <span style="font-size: 1.25rem; font-weight: 900; color: #ff5722;">$${shipping.toFixed(0)}</span>
+                        </div>
+
+                        ${!data.is_accepted ? `
+                            <button onclick="acceptCurrentOrder(${data.id})" class="btn" style="width: 100%; height: 50px; background: #111827; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                                Aceptar pedido
+                            </button>
+                        ` : `
+                            ${(data.latitude && data.longitude) ? `
+                                <a href="https://www.google.com/maps/dir/?api=1&destination=${data.latitude},${data.longitude}&travelmode=driving" 
+                                   target="_blank" 
+                                   style="width: 100%; height: 46px; margin-bottom: 10px; background: #22c55e; color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 700; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.12);">
+                                    📍 Navegar con GPS
+                                </a>
+                            ` : ''}
+                            
+                            ${['assigned', 'processing'].includes(data.status) ? `
+                                <button onclick="markPickedUp(${data.id})" class="btn" style="width: 100%; height: 50px; background: #f59e0b; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                                    🛍️ Confirmar Retiro del Local
+                                </button>
+                            ` : ''}
+
+                            ${data.status === 'shipped' ? `
+                                <button onclick="markDelivered(${data.id})" class="btn" style="width: 100%; height: 50px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                                    ✅ Marcar como Entregado
+                                </button>
+                            ` : ''}
+                        `}
+                    </div>
                 `;
 
                 disconnectedActions.style.display = 'none';
@@ -1463,9 +1506,12 @@
 
         async function toggleConnection(connect) {
             if (connect) {
-                // Request permissions
                 if ('Notification' in window) {
-                    await Notification.requestPermission();
+                    try {
+                        await Notification.requestPermission();
+                    } catch (e) {
+                        console.warn('Permiso de notificación denegado o no soportado en contexto no seguro.', e);
+                    }
                 }
 
                 isConnected = true;
@@ -1500,15 +1546,23 @@
                                 id: data.order_id,
                                 customer_name: data.customer_name,
                                 total: data.total,
+                                shipping_cost: data.shipping_cost,
+                                payment_method: data.payment_method,
                                 vendor_name: data.vendor_name,
                                 vendor_address: data.vendor_address,
                                 customer_address: data.customer_address
                             });
+                        } else if (data.status === 'cancelled') {
+                            showCustomModal('Pedido Cancelado', `El pedido #${data.order_id} ha sido cancelado.`, false);
+                            playAlertSound();
                         }
+                        
                         fetchOrders();
                     })
                     .listen('.order-unassigned-from-rider', (data) => {
                         console.log('Order unassigned received:', data);
+                        showCustomModal('Pedido Quitado', `El pedido #${data.order_id} ya no está asignado a ti.`, false);
+                        playAlertSound();
                         fetchOrders();
                     });
 
@@ -1595,6 +1649,22 @@
             if (gpsTrackingInterval) {
                 clearInterval(gpsTrackingInterval);
                 gpsTrackingInterval = null;
+            }
+        }
+
+        function recenterMap() {
+            if (riderMarker) {
+                map.setView(riderMarker.getLatLng(), 15, { animate: true, duration: 0.5 });
+            } else {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        map.setView([position.coords.latitude, position.coords.longitude], 15, { animate: true });
+                    },
+                    (error) => {
+                        console.warn('Error centrando el mapa:', error.message);
+                    },
+                    { enableHighAccuracy: true }
+                );
             }
         }
 
@@ -1793,5 +1863,4 @@
         }
 
     </script>
-</body>
-</html>
+</x-delivery-layout>

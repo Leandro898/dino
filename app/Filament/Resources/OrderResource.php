@@ -188,6 +188,20 @@ class OrderResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('whatsapp')
+                    ->label('WhatsApp')
+                    ->icon('heroicon-m-chat-bubble-oval-left-ellipsis')
+                    ->color('success')
+                    ->url(function (Order $record) {
+                        $phone = preg_replace('/[^0-9]/', '', $record->phone ?? '');
+                        if (strlen($phone) == 10) {
+                            $phone = '549' . $phone;
+                        }
+                        $text = urlencode('Hola soy de baritienda y le escribo para confirmar su pedido #' . $record->id);
+                        return "https://wa.me/{$phone}?text={$text}";
+                    })
+                    ->openUrlInNewTab()
+                    ->visible(fn (Order $record) => auth()->user()?->role === 'admin' && !empty($record->phone)),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([

@@ -16,7 +16,7 @@ class ProcessCheckoutRequest extends FormRequest
     public function rules(): array
     {
         $shippingZones = ShippingZone::getActiveWithPrices();
-        $allowedPaymentMethods = ['mercadopago', 'transferencia'];
+        $allowedPaymentMethods = ['mercadopago', 'transferencia', 'efectivo'];
 
         return [
             'name'          => 'required|string|max:255|min:3',

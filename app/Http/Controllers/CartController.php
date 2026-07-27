@@ -81,13 +81,29 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
         $quantity = (int) $request->input('quantity');
 
+        $itemSubtotal = 0;
+        $cartTotal = 0;
+
         if (isset($cart[$id]) && $quantity > 0) {
             $cart[$id]['quantity'] = $quantity;
             session()->put('cart', $cart);
         }
 
+        foreach ($cart as $itemId => $details) {
+            $sub = (float) $details['price'] * (int) $details['quantity'];
+            $cartTotal += $sub;
+            if ($itemId == $id) {
+                $itemSubtotal = $sub;
+            }
+        }
+
         if ($request->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Cantidad actualizada']);
+            return response()->json([
+                'success' => true, 
+                'message' => 'Cantidad actualizada',
+                'item_subtotal' => $itemSubtotal,
+                'cart_total' => $cartTotal
+            ]);
         }
 
         return redirect()->back();

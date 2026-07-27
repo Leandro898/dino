@@ -10,16 +10,93 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Events\NewOrderCreated;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class OrderProcessingService
 {
     protected OrderEmailService $orderEmailService;
     protected OrderNotificationService $orderNotificationService;
+    protected ZoneDetectionService $zoneDetectionService;
 
-    public function __construct(OrderEmailService $orderEmailService, OrderNotificationService $orderNotificationService)
-    {
+    public function __construct(
+        OrderEmailService $orderEmailService, 
+        OrderNotificationService $orderNotificationService,
+        ZoneDetectionService $zoneDetectionService
+    ) {
         $this->orderEmailService = $orderEmailService;
         $this->orderNotificationService = $orderNotificationService;
+        $this->zoneDetectionService = $zoneDetectionService;
+    }
+
+    /**
+     * Prepare the cart items, calculate subtotals, and format them for MercadoPago.
+     */
+    public function prepareCartItems(array $cart, array $shippingZoneData, string $shippingZone): array
+    {
+        $productsSubtotal = 0;
+        $itemsMP = [];
+        $preparedItems = [];
+
+        $productIds = collect($cart)
+            ->map(fn(array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
+            ->filter(fn(int $id) => $id > 0)
+            ->unique()
+            ->values();
+
+        $products = Product::query()
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        $vendorId = $products->isNotEmpty() ? $products->first()->user_id : null;
+
+        foreach ($cart as $id => $details) {
+            $productId = (int) ($details['product_id'] ?? $id);
+            $product = $products->get($productId);
+
+            if (!$product) {
+                throw ValidationException::withMessages([
+                    'cart' => 'Hay un producto en el carrito que ya no existe.',
+                ]);
+            }
+
+            $quantity = (int) $details['quantity'];
+            $unitPrice = (float) $product->adjusted_price;
+            $subtotal = $unitPrice * $quantity;
+            $productsSubtotal += $subtotal;
+            
+            $preparedItems[$id] = [
+                'unit_price' => $unitPrice,
+                'quantity' => $quantity,
+                'subtotal' => $subtotal,
+            ];
+
+            $itemsMP[] = [
+                "id" => (string) $productId,
+                "title" => $details['name'] ?? $product->name ?? "Producto $id",
+                "quantity" => $quantity,
+                "unit_price" => $unitPrice,
+                "currency_id" => "ARS"
+            ];
+        }
+
+        $shippingCost = (float) ($shippingZoneData['price'] ?? 0);
+        if ($shippingCost > 0) {
+            $itemsMP[] = [
+                'id' => 'shipping-' . $shippingZone,
+                'title' => 'Costo de envio - ' . ($shippingZoneData['label'] ?? 'Zona seleccionada'),
+                'quantity' => 1,
+                'unit_price' => $shippingCost,
+                'currency_id' => 'ARS',
+            ];
+        }
+
+        return [
+            'vendorId' => $vendorId,
+            'productsSubtotal' => $productsSubtotal,
+            'preparedItems' => $preparedItems,
+            'itemsMP' => $itemsMP
+        ];
     }
 
     public function createOrder(Request $request, array $cart, array $shippingZoneData, array $preparedItems, float $productsSubtotal, ?int $vendorId): Order
@@ -41,7 +118,7 @@ class OrderProcessingService
         $lng = $request->input('lng');
 
         if (blank($lat) || blank($lng)) {
-            $coords = app(ZoneDetectionService::class)->getCoordinates($request->address);
+            $coords = $this->zoneDetectionService->getCoordinates($request->address);
             if ($coords) {
                 $lat = $coords['lat'];
                 $lng = $coords['lng'];

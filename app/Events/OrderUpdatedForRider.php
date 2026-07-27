@@ -23,6 +23,9 @@ class OrderUpdatedForRider implements ShouldBroadcastNow
     public ?string $vendor_address;
     public ?string $customer_address;
 
+    public float $shipping_cost;
+    public string $payment_method;
+
     /**
      * Create a new event instance.
      */
@@ -34,6 +37,8 @@ class OrderUpdatedForRider implements ShouldBroadcastNow
         $this->total = (float) $order->total;
         $this->rider_id = (int) $order->delivery_user_id;
         $this->is_new_assignment = $isNewAssignment;
+        $this->shipping_cost = (float) $order->shipping_cost;
+        $this->payment_method = $order->payment_method ?? 'efectivo';
         
         $order->loadMissing('vendor');
         $this->vendor_name = optional($order->vendor)->name ?? 'Comercio';

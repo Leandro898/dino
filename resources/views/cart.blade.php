@@ -1,18 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tu Carrito - Marketplace Bariloche</title>
-        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
-
-    @include('partials.header')
-
+<x-front-layout title="Tu Carrito - Marketplace Bariloche" bodyClass="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
     <main class="max-w-7xl mx-auto px-6 py-10 lg:py-20 pb-36 md:pb-10">
 
         <h1 class="text-4xl font-black dark:text-white uppercase mb-10 tracking-tighter">
@@ -144,6 +130,7 @@
 
     </main>
 
+    @push('scripts')
     <script>
         function increaseQuantity(button) {
             const form = button.closest('form');
@@ -264,7 +251,5 @@
             if (totalElement) totalElement.textContent = '$' + total.toLocaleString('es-AR');
         }
     </script>
-
-</body>
-
-</html>
+    @endpush
+</x-front-layout>

@@ -1,18 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pago - Marketplace Bariloche</title>
-        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
-
-    @include('partials.header')
-
+<x-front-layout title="Pago - Marketplace Bariloche" bodyClass="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
     <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 lg:py-20 text-center">
         <div class="bg-white dark:bg-[#161615] p-5 sm:p-10 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 dark:border-[#2a2a2a] overflow-hidden">
 
@@ -48,6 +34,7 @@
         </div>
     </main>
 
+    @push('scripts')
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <script>
         const mp = new MercadoPago("{{ config('mercadopago.public_key') }}");
@@ -66,6 +53,5 @@
             },
         });
     </script>
-</body>
-
-</html>
+    @endpush
+</x-front-layout>

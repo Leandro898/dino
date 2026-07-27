@@ -12,6 +12,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ShippingZoneController;
 use App\Http\Controllers\FoodVendorController;
 use App\Http\Controllers\DeliveryAppController;
+use App\Http\Controllers\Api\DeliveryApiController;
 use App\Http\Controllers\OrderController;
 use App\Models\Product;
 use App\Models\User;
@@ -130,20 +131,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/repartidor/app', [DeliveryAppController::class, 'index'])
         ->name('delivery.app');
 
-    Route::get('/repartidor/pedidos/ultimo', [DeliveryAppController::class, 'latest'])
+    Route::get('/repartidor/pedidos/ultimo', [DeliveryApiController::class, 'latest'])
         ->name('delivery.orders.latest');
-    Route::post('/repartidor/pedidos/{order}/aceptar', [DeliveryAppController::class, 'acceptOrder'])->name('delivery.orders.accept');
-    Route::post('/repartidor/pedidos/{order}/rechazar', [DeliveryAppController::class, 'rejectOrder'])->name('delivery.orders.reject');
-    Route::post('/repartidor/pedidos/{order}/retirado', [DeliveryAppController::class, 'markAsPickedUp'])->name('delivery.orders.pickedup');
-    Route::post('/repartidor/pedidos/{order}/entregado', [DeliveryAppController::class, 'markAsDelivered'])->name('delivery.orders.delivered');
+    Route::post('/repartidor/pedidos/{order}/aceptar', [DeliveryApiController::class, 'acceptOrder'])->name('delivery.orders.accept');
+    Route::post('/repartidor/pedidos/{order}/rechazar', [DeliveryApiController::class, 'rejectOrder'])->name('delivery.orders.reject');
+    Route::post('/repartidor/pedidos/{order}/retirado', [DeliveryApiController::class, 'markAsPickedUp'])->name('delivery.orders.pickedup');
+    Route::post('/repartidor/pedidos/{order}/entregado', [DeliveryApiController::class, 'markAsDelivered'])->name('delivery.orders.delivered');
 
-    Route::get('/repartidor/soporte/mensajes', [DeliveryAppController::class, 'getSupportMessages'])
+    Route::get('/repartidor/soporte/mensajes', [DeliveryApiController::class, 'getSupportMessages'])
         ->name('delivery.support.messages');
-    Route::post('/repartidor/soporte/mensajes', [DeliveryAppController::class, 'sendSupportMessage'])
+    Route::post('/repartidor/soporte/mensajes', [DeliveryApiController::class, 'sendSupportMessage'])
         ->name('delivery.support.send');
 
     // Nueva ruta para actualizar ubicación en tiempo real
-    Route::post('/repartidor/ubicacion', [DeliveryAppController::class, 'updateLocation'])
+    Route::post('/repartidor/ubicacion', [DeliveryApiController::class, 'updateLocation'])
         ->name('delivery.location.update');
 });
 

@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Seguimiento Pedido #{{ $order->id }} - Bari Tienda</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+<x-front-layout title="Seguimiento Pedido #{{ $order->id }} - Bari Tienda" bodyClass="antialiased">
+    @push('styles')
     {{-- Leaflet CSS --}}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
     {{-- Google Font --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    {{-- Pusher & Echo (Se cargan globalmente via Vite en app.js) --}}
 
     <style>
         body {
@@ -209,12 +200,7 @@
             .tracking-header h1 { font-size: 1.3rem; }
         }
     </style>
-</head>
-
-<body class="antialiased">
-
-    @include('partials.header')
-
+    @endpush
     <div class="tracking-container">
         {{-- Header --}}
         <div class="tracking-header">
@@ -286,6 +272,7 @@
         <a href="{{ route('home') }}" class="back-link">← Volver a la tienda</a>
     </div>
 
+    @push('scripts')
     {{-- Leaflet JS --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
@@ -489,6 +476,5 @@
         }, 30000);
     });
     </script>
-</body>
-
-</html>
+    @endpush
+</x-front-layout>

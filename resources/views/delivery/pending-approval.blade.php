@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#4F46E5">
-    <title>Bari Rider — Cuenta en Revisión</title>
-    
+<x-delivery-layout title="Bari Rider — Cuenta en Revisión" themeColor="#4F46E5">
+    @push('head')
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    
-    <!-- Scripts & Tailwind via Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endpush
 
+    @push('styles')
     <style>
         html, body {
             height: 100%;
@@ -131,8 +121,8 @@
             box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
         }
     </style>
-</head>
-<body>
+    </style>
+    @endpush
     <div class="relative w-full h-full min-h-screen flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
         <!-- Background Decor -->
         <div class="glow-circle glow-1"></div>
@@ -185,5 +175,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+</x-delivery-layout>

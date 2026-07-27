@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $product->name }} — Bari Tienda</title>
-
-    {{-- Open Graph / WhatsApp --}}
+<x-front-layout title="{{ $product->name }} — Bari Tienda" bodyClass="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
+    @push('og_tags')
     <meta property="og:type" content="product">
     <meta property="og:site_name" content="Bari Tienda">
     <meta property="og:title" content="{{ $product->name }} — Bari Tienda">
@@ -21,26 +14,7 @@
         <meta property="product:price:amount" content="{{ $product->adjusted_price }}">
         <meta property="product:price:currency" content="ARS">
     @endif
-
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @include('partials.ga4')
-    <style>
-        #qty-input::-webkit-outer-spin-button,
-        #qty-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-    </style>
-</head>
-
-<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] antialiased">
-
-
-
-    @include('partials.header')
+    @endpush
 
     <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-10 lg:py-20 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-10">
         <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-20 lg:items-start">
@@ -98,7 +72,7 @@
                                             class="w-11 h-11 bg-gray-50 dark:bg-[#0f0f0f] hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-xl font-bold">-</button>
                                         <input id="qty-input" type="number" name="quantity" min="1"
                                             value="1"
-                                            class="w-16 h-11 text-center bg-white dark:bg-[#161615] font-bold border-x border-gray-200 dark:border-[#2a2a2a]"
+                                            class="w-16 h-11 text-center bg-white dark:bg-[#161615] font-bold border-x border-gray-200 dark:border-[#2a2a2a] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0"
                                             style="-moz-appearance:textfield;appearance:textfield;">
                                         <button type="button" id="qty-increase"
                                             class="w-11 h-11 bg-gray-50 dark:bg-[#0f0f0f] hover:bg-gray-100 dark:hover:bg-[#1a1a1a] text-xl font-bold">+</button>
@@ -245,6 +219,4 @@
         });
 
     </script>
-</body>
-
-</html>
+</x-front-layout>

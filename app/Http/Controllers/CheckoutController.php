@@ -119,68 +119,17 @@ class CheckoutController extends Controller
             Log::info('Iniciando transacción...');
             DB::beginTransaction();
 
-            $productsSubtotal = 0;
-            $itemsMP = [];
-            $preparedItems = [];
-
-            $productIds = collect($cart)
-                ->map(fn(array $details, string|int $key) => (int) ($details['product_id'] ?? $key))
-                ->filter(fn(int $id) => $id > 0)
-                ->unique()
-                ->values();
-
-            $products = Product::query()
-                ->whereIn('id', $productIds)
-                ->get()
-                ->keyBy('id');
-
-            $vendorId = null;
-            if ($products->isNotEmpty()) {
-                $vendorId = $products->first()->user_id;
-            }
-
-            foreach ($cart as $id => $details) {
-                $productId = (int) ($details['product_id'] ?? $id);
-                $product = $products->get($productId);
-
-                if (!$product) {
-                    throw ValidationException::withMessages([
-                        'cart' => 'Hay un producto en el carrito que ya no existe.',
-                    ]);
-                }
-
-                $quantity = (int) $details['quantity'];
-                $unitPrice = (float) $product->adjusted_price;
-                $subtotal = $unitPrice * $quantity;
-                $productsSubtotal += $subtotal;
-                $preparedItems[$id] = [
-                    'unit_price' => $unitPrice,
-                    'quantity' => $quantity,
-                    'subtotal' => $subtotal,
-                ];
-
-                $itemsMP[] = [
-                    "id" => (string) $productId,
-                    "title" => $details['name'] ?? $product->name ?? "Producto $id",
-                    "quantity" => $quantity,
-                    "unit_price" => $unitPrice,
-                    "currency_id" => "ARS"
-                ];
-            }
-
-            $shippingCost = (float) ($shippingZoneData['price'] ?? 0);
-            if ($shippingCost > 0) {
-                $itemsMP[] = [
-                    'id' => 'shipping-' . $shippingZone,
-                    'title' => 'Costo de envio - ' . ($shippingZoneData['label'] ?? 'Zona seleccionada'),
-                    'quantity' => 1,
-                    'unit_price' => $shippingCost,
-                    'currency_id' => 'ARS',
-                ];
-            }
+            $preparedData = $this->orderProcessingService->prepareCartItems($cart, $shippingZoneData, $shippingZone);
 
             // Uso del nuevo servicio para crear la orden
-            $order = $this->orderProcessingService->createOrder($request, $cart, $shippingZoneData, $preparedItems, $productsSubtotal, $vendorId);
+            $order = $this->orderProcessingService->createOrder(
+                $request,
+                $cart,
+                $shippingZoneData,
+                $preparedData['preparedItems'],
+                $preparedData['productsSubtotal'],
+                $preparedData['vendorId']
+            );
 
             if ($paymentMethod !== 'mercadopago') {
                 $this->orderProcessingService->finalizeManualOrder($order, $paymentMethod);
@@ -206,7 +155,7 @@ class CheckoutController extends Controller
 
             // Uso del nuevo servicio de pagos
             $preference = $this->paymentService->createPreference(
-                $itemsMP,
+                $preparedData['itemsMP'],
                 (string) $order->id,
                 url(route('mercadopago.callback')),
                 url(route('mercadopago.callback')),

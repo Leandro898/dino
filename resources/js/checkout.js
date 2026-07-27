@@ -310,6 +310,14 @@ document.addEventListener('DOMContentLoaded', function () {
             inputEl.value = currentQty;
             displayEl.textContent = currentQty;
             
+            const increaseBtn = this.closest('div').querySelector('.btn-increase-qty');
+            const decreaseBtn = this.closest('div').querySelector('.btn-decrease-qty');
+            
+            // Bloquear botones
+            if (increaseBtn) increaseBtn.disabled = true;
+            if (decreaseBtn) decreaseBtn.disabled = true;
+            this.classList.add('opacity-50', 'cursor-wait');
+
             // Actualizar en backend
             fetch(url, {
                 method: 'POST',
@@ -323,8 +331,34 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    window.location.reload(); 
+                    // Actualizar subtotal del item
+                    const itemSubtotalEl = document.getElementById(`item-subtotal-${productId}`);
+                    if (itemSubtotalEl && data.item_subtotal !== undefined) {
+                        itemSubtotalEl.textContent = '$' + data.item_subtotal.toLocaleString('es-AR');
+                    }
+
+                    // Actualizar subtotal general del carrito
+                    const subtotalEl = document.getElementById('summary-subtotal');
+                    if (subtotalEl && data.cart_total !== undefined) {
+                        subtotalEl.dataset.value = data.cart_total;
+                        subtotalEl.textContent = '$' + data.cart_total.toLocaleString('es-AR');
+                    }
+
+                    // Disparar recálculo de envío + total final
+                    const shippingSelect = document.getElementById('shipping-zone-hidden');
+                    let shippingPrice = null;
+                    if (shippingSelect && shippingSelect.value && shippingZones[shippingSelect.value]) {
+                        shippingPrice = shippingZones[shippingSelect.value].price;
+                    }
+                    updateTotals(shippingPrice);
                 }
+            })
+            .catch(err => console.error("Error actualizando cantidad:", err))
+            .finally(() => {
+                // Desbloquear botones
+                if (increaseBtn) increaseBtn.disabled = false;
+                if (decreaseBtn) decreaseBtn.disabled = false;
+                this.classList.remove('opacity-50', 'cursor-wait');
             });
         });
     });
@@ -340,6 +374,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = 'Procesando... <svg class="animate-spin h-5 w-5 ml-2 inline-block text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
             }
+        });
+    }
+
+    // =====================================================================
+    // 8) LÓGICA DE MULTI-PASO (WIZARD)
+    // =====================================================================
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const btnNextStep = document.getElementById('btn-next-step');
+    const btnPrevStep = document.getElementById('btn-prev-step');
+
+    if (btnNextStep && step1 && step2) {
+        btnNextStep.addEventListener('click', () => {
+            if (checkoutForm && !checkoutForm.reportValidity()) {
+                return;
+            }
+
+            const shippingSelect = document.getElementById('shipping-zone-hidden');
+            if (!shippingSelect || !shippingSelect.value) {
+                alert('Por favor ingresá una calle y altura válidas para que podamos calcular la zona de envío.');
+                return;
+            }
+
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    if (btnPrevStep && step1 && step2) {
+        btnPrevStep.addEventListener('click', () => {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 });

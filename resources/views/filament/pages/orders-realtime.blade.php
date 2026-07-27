@@ -201,6 +201,24 @@
                 .catch(err => console.warn('⚠️ Error al reproducir audio de pedido especial:', err));
         }
 
+        // 🔊 Función para reproducir sonido de Soporte de Repartidor
+        function playSupportSound() {
+            const audio = new Audio('{{ asset('sounds/order.mp3') }}');
+            audio.volume = 1.0;
+            audio.play()
+                .then(() => {
+                    if ('speechSynthesis' in window) {
+                        setTimeout(() => {
+                            const utterance = new SpeechSynthesisUtterance('Nuevo mensaje de soporte de repartidor');
+                            utterance.lang = 'es-ES';
+                            utterance.rate = 0.95;
+                            window.speechSynthesis.speak(utterance);
+                        }, 1200);
+                    }
+                })
+                .catch(err => console.warn('⚠️ Error al reproducir audio de soporte:', err));
+        }
+
         // 🔔 Función para mostrar notificación de Pedido Especial
         function showSpecialOrderNotification(requestId) {
             if ('Notification' in window && Notification.permission === 'granted') {
@@ -406,7 +424,7 @@
                 console.log('🎉 ¡MENSAJE DE SOPORTE DE REPARTIDOR RECIBIDO!', data);
                 const currentUserId = {{ auth()->id() }};
                 if (data.senderId !== currentUserId) {
-                    playSpecialOrderSound();
+                    playSupportSound();
                     showSupportNotification(data.deliveryUserId, data.senderName);
                 }
             });

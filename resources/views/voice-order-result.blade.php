@@ -1,357 +1,71 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bari Tienda | Pedido por voz</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
+<x-front-layout title="Bari Tienda | Pedido por voz" bodyClass="font-['Outfit',sans-serif]">
+    @push('styles')
     <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,700|outfit:300,400,600,700" rel="stylesheet" />
-    <style>
-        :root {
-            --brand: #6d28d9;
-            --brand-dark: #4c1d95;
-            --panel: #ffffff;
-            --ink: #1f2937;
-            --muted: #66547f;
-            --soft: #f4f0ff;
-            --border: #e5dbff;
-        }
+    @endpush
 
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: 'Outfit', sans-serif;
-            color: var(--ink);
-            background:
-                radial-gradient(900px 460px at -15% -20%, rgba(124, 58, 237, 0.18) 0%, transparent 65%),
-                radial-gradient(560px 320px at 110% 0%, rgba(34, 197, 94, 0.1) 0%, transparent 70%),
-                linear-gradient(160deg, #f8f7ff 0%, #f2efff 45%, #eef7ff 100%);
-            display: grid;
-            place-items: center;
-            padding: 1rem;
-        }
-
-        .card {
-            width: min(100%, 720px);
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            box-shadow: 0 20px 44px rgba(69, 36, 140, 0.12);
-            padding: 1.2rem;
-        }
-
-        .top {
-            display: flex;
-            justify-content: space-between;
-            gap: 0.75rem;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-
-        .badge {
-            display: inline-flex;
-            gap: 0.5rem;
-            align-items: center;
-            padding: 0.38rem 0.7rem;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #f0eaff 0%, #e6f8ed 100%);
-            color: #3b2070;
-            font-size: 0.8rem;
-            font-weight: 800;
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            background: #16a34a;
-        }
-
-        h1 {
-            margin: 0.2rem 0 0.6rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(1.8rem, 5vw, 3rem);
-            line-height: 0.95;
-            letter-spacing: -0.04em;
-        }
-
-        .sub {
-            color: var(--muted);
-            font-size: 1rem;
-            margin: 0 0 1rem;
-            max-width: 52ch;
-        }
-
-        .result {
-            border-radius: 22px;
-            background: linear-gradient(180deg, #fcfaff 0%, #f7f4ff 100%);
-            border: 1px solid var(--border);
-            padding: 1rem;
-        }
-
-        .label {
-            font-size: 0.78rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: #7b61c3;
-            margin-bottom: 0.55rem;
-        }
-
-        .text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(1.35rem, 4vw, 2.2rem);
-            font-weight: 700;
-            color: #24154a;
-            line-height: 1.12;
-            word-break: break-word;
-        }
-
-        .empty {
-            color: #8477a4;
-            font-weight: 600;
-        }
-
-        .actions {
-            display: flex;
-            gap: 0.7rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-
-        .btn {
-            border: 0;
-            border-radius: 14px;
-            padding: 0.78rem 1rem;
-            font-family: inherit;
-            font-size: 0.92rem;
-            font-weight: 800;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 180ms ease, box-shadow 180ms ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .primary {
-            color: #fff;
-            background: linear-gradient(145deg, var(--brand) 0%, var(--brand-dark) 100%);
-            box-shadow: 0 12px 24px rgba(70, 30, 152, 0.2);
-        }
-
-        .secondary {
-            color: #4b2c86;
-            background: #f5f2ff;
-            border: 1px solid #ddd0ff;
-        }
-
-        .meta {
-            margin-top: 0.9rem;
-            color: var(--muted);
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .suggestions {
-            margin-top: 1rem;
-        }
-
-        .suggestions-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .suggestions-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #24154a;
-            margin: 0;
-        }
-
-        .suggestions-count {
-            font-size: 0.84rem;
-            font-weight: 800;
-            color: #6d28d9;
-            background: #f4f0ff;
-            border: 1px solid #e5dbff;
-            padding: 0.35rem 0.7rem;
-            border-radius: 999px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.85rem;
-        }
-
-        .product-card {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-            background: #fff;
-            border: 1px solid #e9e0ff;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 12px 28px rgba(69, 36, 140, 0.08);
-            transition: transform 180ms ease, box-shadow 180ms ease;
-        }
-
-        .product-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 18px 34px rgba(69, 36, 140, 0.12);
-        }
-
-        .product-media {
-            aspect-ratio: 1 / 1;
-            background: linear-gradient(180deg, #faf7ff 0%, #f3efff 100%);
-            display: grid;
-            place-items: center;
-            padding: 0.8rem;
-        }
-
-        .product-media img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .product-empty {
-            color: #8a84a5;
-            font-size: 0.9rem;
-            font-weight: 700;
-        }
-
-        .product-body {
-            padding: 0.85rem;
-        }
-
-        .product-name {
-            margin: 0 0 0.45rem;
-            font-size: 0.92rem;
-            font-weight: 800;
-            line-height: 1.25;
-            color: #27144b;
-            min-height: 2.4em;
-        }
-
-        .product-price {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-
-        .price {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #4c1d95;
-        }
-
-        .view-more {
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #6d28d9;
-        }
-
-        .no-suggestions {
-            margin-top: 0.9rem;
-            padding: 0.85rem 0.95rem;
-            border-radius: 18px;
-            background: #faf7ff;
-            border: 1px solid #e5dbff;
-            color: #5e4b84;
-            font-weight: 700;
-        }
-    </style>
-</head>
-
-<body>
     @php
         $pedido = request('pedido', '');
     @endphp
 
-    <main class="card">
-        <div class="top">
-            <div class="badge"><span class="dot" aria-hidden="true"></span> Pedido por voz</div>
-            <a class="btn secondary" href="{{ route('home') }}">Volver a la home</a>
-        </div>
-
-        <h1>Esto es lo que entendimos.</h1>
-        <p class="sub">La voz se transcribió y te mostramos el texto para que puedas confirmarlo antes de seguir.</p>
-
-        <section class="result" aria-label="Resultado del pedido por voz">
-            <div class="label">Tu pedido</div>
-            <div class="text {{ $pedido ? '' : 'empty' }}">
-                {{ $pedido ?: 'No llegó ningún texto todavía.' }}
-            </div>
-        </section>
-
-        <div class="actions">
-            <a class="btn primary" href="{{ route('home') }}?q={{ urlencode($pedido) }}#productos">Buscar esto
-                en el catálogo</a>
-            <a class="btn secondary" href="{{ route('home') }}">Dictar otro pedido</a>
-        </div>
-
-        <section class="suggestions" aria-label="Productos sugeridos">
-            <div class="suggestions-head">
-                <h2 class="suggestions-title">Algunos productos que coinciden</h2>
-                <span class="suggestions-count">{{ isset($suggestedProducts) ? $suggestedProducts->count() : 0 }}
-                    sugerencias</span>
+    <div class="min-h-screen grid place-items-center p-4" style="background: radial-gradient(900px 460px at -15% -20%, rgba(124, 58, 237, 0.18) 0%, transparent 65%), radial-gradient(560px 320px at 110% 0%, rgba(34, 197, 94, 0.1) 0%, transparent 70%), linear-gradient(160deg, #f8f7ff 0%, #f2efff 45%, #eef7ff 100%);">
+        <main class="w-full max-w-[720px] bg-white border border-[#e5dbff] rounded-[30px] shadow-[0_20px_44px_rgba(69,36,140,0.12)] p-5">
+            <div class="flex justify-between gap-3 items-center flex-wrap mb-4">
+                <div class="inline-flex gap-2 items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-[#f0eaff] to-[#e6f8ed] text-[#3b2070] text-sm font-extrabold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-600" aria-hidden="true"></span> Pedido por voz
+                </div>
+                <a class="border border-[#ddd0ff] rounded-xl px-4 py-3 text-[0.92rem] font-extrabold cursor-pointer no-underline inline-flex items-center justify-center transition-all hover:-translate-y-[1px] text-[#4b2c86] bg-[#f5f2ff]" href="{{ route('home') }}">Volver a la home</a>
             </div>
 
-            @if (!empty($suggestedProducts) && $suggestedProducts->isNotEmpty())
-                <div class="cards">
-                    @foreach ($suggestedProducts as $product)
-                        <a class="product-card" href="{{ route('products.show', ['product' => $product->slug]) }}">
-                            <div class="product-media">
-                                @if ($product->image)
-                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-                                @else
-                                    <div class="product-empty">Sin imagen</div>
-                                @endif
-                            </div>
-                            <div class="product-body">
-                                <p class="product-name">{{ $product->name }}</p>
-                                <div class="product-price">
-                                    <span
-                                        class="price">${{ number_format($product->adjusted_price, 0, ',', '.') }}</span>
-                                    <span class="view-more">Ver</span>
+            <h1 class="mt-1 mb-2 font-['Space_Grotesk'] text-[clamp(1.8rem,5vw,3rem)] leading-none tracking-tight">Esto es lo que entendimos.</h1>
+            <p class="text-[#66547f] text-base mb-4 max-w-[52ch]">La voz se transcribió y te mostramos el texto para que puedas confirmarlo antes de seguir.</p>
+
+            <section class="rounded-[22px] bg-gradient-to-b from-[#fcfaff] to-[#f7f4ff] border border-[#e5dbff] p-4" aria-label="Resultado del pedido por voz">
+                <div class="text-[0.78rem] font-extrabold uppercase tracking-widest text-[#7b61c3] mb-2">Tu pedido</div>
+                <div class="font-['Space_Grotesk'] text-[clamp(1.35rem,4vw,2.2rem)] font-bold text-[#24154a] leading-[1.12] break-words {{ $pedido ? '' : 'text-[#8477a4] font-semibold' }}">
+                    {{ $pedido ?: 'No llegó ningún texto todavía.' }}
+                </div>
+            </section>
+
+            <div class="flex gap-3 flex-wrap mt-4">
+                <a class="border-0 rounded-xl px-4 py-3 text-[0.92rem] font-extrabold cursor-pointer no-underline inline-flex items-center justify-center transition-all hover:-translate-y-[1px] text-white bg-gradient-to-br from-[#6d28d9] to-[#4c1d95] shadow-[0_12px_24px_rgba(70,30,152,0.2)]" href="{{ route('home') }}?q={{ urlencode($pedido) }}#productos">Buscar esto en el catálogo</a>
+                <a class="border border-[#ddd0ff] rounded-xl px-4 py-3 text-[0.92rem] font-extrabold cursor-pointer no-underline inline-flex items-center justify-center transition-all hover:-translate-y-[1px] text-[#4b2c86] bg-[#f5f2ff]" href="{{ route('home') }}">Dictar otro pedido</a>
+            </div>
+
+            <section class="mt-4" aria-label="Productos sugeridos">
+                <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                    <h2 class="font-['Space_Grotesk'] text-[1.15rem] font-bold text-[#24154a] m-0">Algunos productos que coinciden</h2>
+                    <span class="text-[0.84rem] font-extrabold text-[#6d28d9] bg-[#f4f0ff] border border-[#e5dbff] px-3 py-1.5 rounded-full">{{ isset($suggestedProducts) ? $suggestedProducts->count() : 0 }} sugerencias</span>
+                </div>
+
+                @if (!empty($suggestedProducts) && $suggestedProducts->isNotEmpty())
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3.5">
+                        @foreach ($suggestedProducts as $product)
+                            <a class="block no-underline text-inherit bg-white border border-[#e9e0ff] rounded-2xl overflow-hidden shadow-[0_12px_28px_rgba(69,36,140,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(69,36,140,0.12)]" href="{{ route('products.show', ['product' => $product->slug]) }}">
+                                <div class="aspect-square bg-gradient-to-b from-[#faf7ff] to-[#f3efff] grid place-items-center p-3">
+                                    @if ($product->image)
+                                        <img class="w-full h-full object-contain" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                                    @else
+                                        <div class="text-[#8a84a5] text-sm font-bold">Sin imagen</div>
+                                    @endif
                                 </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            @else
-                <div class="no-suggestions">
-                    Todavía no encontré productos claros para ese pedido. Probá decir una bebida, un snack, farmacia o
-                    algo de súper.
-                </div>
-            @endif
-        </section>
+                                <div class="p-3.5">
+                                    <p class="m-0 mb-2 text-[0.92rem] font-extrabold leading-tight text-[#27144b] min-h-[2.4em]">{{ $product->name }}</p>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="font-['Space_Grotesk'] text-base font-bold text-[#4c1d95]">${{ number_format($product->adjusted_price, 0, ',', '.') }}</span>
+                                        <span class="text-[0.72rem] font-extrabold uppercase tracking-wide text-[#6d28d9]">Ver</span>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="mt-4 p-3.5 rounded-[18px] bg-[#faf7ff] border border-[#e5dbff] text-[#5e4b84] font-bold">
+                        Todavía no encontré productos claros para ese pedido. Probá decir una bebida, un snack, farmacia o algo de súper.
+                    </div>
+                @endif
+            </section>
 
-        <p class="meta">Si querés, en el siguiente paso puedo hacer que este texto se convierta automáticamente en
-            categorías o productos concretos de tu tienda.</p>
-    </main>
-
-</body>
-
-</html>
+            <p class="mt-4 text-[#66547f] text-sm leading-relaxed">Si querés, en el siguiente paso puedo hacer que este texto se convierta automáticamente en categorías o productos concretos de tu tienda.</p>
+        </main>
+    </div>
+</x-front-layout>
