@@ -194,16 +194,30 @@
             bottom: 0;
             left: 0;
             right: 0;
+            height: 85vh;
             background: var(--bg-sheet);
             border-radius: 28px 28px 0 0;
-            padding: 24px;
+            padding: 24px 24px 0 24px;
             z-index: 10;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
-            gap: 20px;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            touch-action: none;
+            transform: translateY(calc(100% - 280px));
+        }
+        .bottom-sheet.expanded {
+            transform: translateY(0) !important;
+        }
+        .bottom-sheet.collapsed {
+            transform: translateY(calc(100% - 60px)) !important;
+        }
+        .bottom-sheet-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .sheet-handle {
@@ -839,30 +853,34 @@
     </div>
 
     <!-- Bottom Action Sheet -->
-    <div class="bottom-sheet">
-        <div class="sheet-handle"></div>
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="sheet-handle" id="sheetHandle"></div>
         
-        <div class="install-banner" id="installBanner">
-            <p>Instala la app para mejor experiencia</p>
-            <button class="btn-install" id="installAppBtn">Instalar</button>
-        </div>
+        <div class="bottom-sheet-content">
+            <div class="install-banner" id="installBanner">
+                <p>Instala la app para mejor experiencia</p>
+                <button class="btn-install" id="installAppBtn">Instalar</button>
+            </div>
 
-        <div class="info-card" id="infoCard">
-            <h3 id="infoTitle">¡Hola, {{ auth()->user()->name ?? 'Rider' }}!</h3>
-            <p id="infoDesc">Presiona Comenzar para recibir notificaciones de nuevos pedidos en tu zona.</p>
-        </div>
+            <div class="info-card" id="infoCard">
+                <h3 id="infoTitle">¡Hola, {{ auth()->user()->name ?? 'Rider' }}!</h3>
+                <p id="infoDesc">Presiona Comenzar para recibir notificaciones de nuevos pedidos en tu zona.</p>
+            </div>
 
-        <div class="action-row" id="disconnectedActions">
-            <button class="btn btn-primary" id="startBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Comenzar
-            </button>
-        </div>
+            <div class="action-row" id="disconnectedActions">
+                <button class="btn btn-primary" id="startBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    Comenzar
+                </button>
+            </div>
 
-        <div class="action-row" id="connectedActions" style="display: none;">
-            <button class="btn btn-danger" id="stopBtn">
-                Detener
-            </button>
+            <div class="action-row" id="connectedActions" style="display: none;">
+                <button class="btn btn-danger" id="stopBtn">
+                    Detener
+                </button>
+            </div>
+            
+            <div style="flex: 1; min-height: 100px;"></div>
         </div>
     </div>
 
@@ -1039,15 +1057,54 @@
             maxZoom: 20
         }).addTo(map);
 
+        const bottomSheet = document.getElementById('bottomSheet');
+        const sheetHandle = document.getElementById('sheetHandle');
+        let dragStartY = 0;
+        let initialSheetTranslate = 0;
+
         map.on('click', () => {
-            const sheet = document.querySelector('.bottom-sheet');
-            if (sheet && !sheet.classList.contains('collapsed')) {
-                sheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                const maxTranslateY = sheet.offsetHeight - 60;
-                sheet.classList.add('collapsed');
-                sheet.style.transform = `translateY(${maxTranslateY}px)`;
+            if (bottomSheet && !bottomSheet.classList.contains('collapsed')) {
+                bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                bottomSheet.classList.remove('expanded');
+                bottomSheet.classList.add('collapsed');
+                bottomSheet.style.transform = '';
             }
         });
+
+        if (sheetHandle && bottomSheet) {
+            sheetHandle.addEventListener('touchstart', (e) => {
+                dragStartY = e.touches[0].clientY;
+                bottomSheet.style.transition = 'none';
+                const rect = bottomSheet.getBoundingClientRect();
+                initialSheetTranslate = rect.top - (window.innerHeight - rect.height);
+            });
+
+            sheetHandle.addEventListener('touchmove', (e) => {
+                const currentY = e.touches[0].clientY;
+                const deltaY = currentY - dragStartY;
+                let newTranslate = initialSheetTranslate + deltaY;
+                if (newTranslate < 0) newTranslate = 0;
+                bottomSheet.style.transform = `translateY(${newTranslate}px)`;
+            });
+
+            sheetHandle.addEventListener('touchend', (e) => {
+                bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                bottomSheet.style.transform = '';
+                const currentY = e.changedTouches[0].clientY;
+                const deltaY = currentY - dragStartY;
+
+                if (deltaY < -40) {
+                    bottomSheet.classList.remove('collapsed');
+                    bottomSheet.classList.add('expanded');
+                } else if (deltaY > 40) {
+                    if (bottomSheet.classList.contains('expanded')) {
+                        bottomSheet.classList.remove('expanded');
+                    } else {
+                        bottomSheet.classList.add('collapsed');
+                    }
+                }
+            });
+        }
 
         // Marker for rider location and custom icons
         const riderIcon = L.divIcon({
