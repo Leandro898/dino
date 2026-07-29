@@ -37,18 +37,18 @@
                     <div class="lc-messages" id="user-chat-messages">
                         <!-- Banner de Notificaciones -->
                         <div id="lc-push-banner" class="lc-push-banner" style="display: none;">
-                            <p>🔔 ¿Quieres recibir avisos en tu celular cuando te coticemos?</p>
-                            <button type="button" id="lc-enable-push-btn" class="lc-push-banner-btn">Activar Avisos</button>
+                            <p>🔔 Activa las notificaciones para saber cuando respondamos.</p>
+                            <button type="button" id="lc-enable-push-btn" class="lc-push-banner-btn">Activar</button>
                         </div>
 
                         @if(count($messages) === 0)
                             <div class="lc-empty-state">
                                 @if($vendor_name)
-                                    <p class="lc-empty-title">¿Tienes alguna consulta?</p>
-                                    <p class="lc-empty-subtitle">Escríbele directamente a {{ $vendor_name }} antes de comprar.</p>
+                                    <p class="lc-empty-title">¿Dudas?</p>
+                                    <p class="lc-empty-subtitle">Consulta a {{ $vendor_name }}</p>
                                 @else
-                                    <p class="lc-empty-title">¿No encontraste lo que buscabas?</p>
-                                    <p class="lc-empty-subtitle">Escribe lo que necesitas y te lo cotizamos al instante.</p>
+                                    <p class="lc-empty-title">¿Qué necesitas?</p>
+                                    <p class="lc-empty-subtitle">Pídelo por aquí</p>
                                 @endif
                             </div>
                         @endif
