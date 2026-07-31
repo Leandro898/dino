@@ -29,7 +29,7 @@ jobs:
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
             
             # Correr migraciones automáticamente
-            php artisan migrate --force
+            php artisan migrate --force || true
             
             # Limpiar cachés de Laravel
             php artisan cache:clear
