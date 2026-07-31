@@ -16,7 +16,7 @@ class OrderResource extends Resource
 {
     public static function shouldRegisterNavigation(): bool
     {
-        return true;
+        return auth()->user()?->role === 'admin';
     }
     protected static ?string $model = Order::class;
 

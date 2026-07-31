@@ -41,6 +41,7 @@ class SellerPanelProvider extends PanelProvider
             ->resources([
                 \App\Filament\Resources\ProductResource::class,
                 \App\Filament\Resources\CustomRequestResource::class,
+                \App\Filament\Resources\OrderResource::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])
