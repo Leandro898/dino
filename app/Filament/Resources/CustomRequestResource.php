@@ -18,9 +18,21 @@ class CustomRequestResource extends Resource
     protected static ?string $model = CustomRequest::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
-    protected static ?string $navigationLabel = 'Pedidos Especiales';
-    protected static ?string $pluralModelLabel = 'Pedidos Especiales';
-    protected static ?string $modelLabel = 'Pedido Especial';
+
+    public static function getNavigationLabel(): string
+    {
+        return auth()->user()?->role === 'vendor' ? 'Chat' : 'Pedidos Especiales';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return auth()->user()?->role === 'vendor' ? 'Chat' : 'Pedido Especial';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return auth()->user()?->role === 'vendor' ? 'Chats' : 'Pedidos Especiales';
+    }
 
     public static function form(Form $form): Form
     {
