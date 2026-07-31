@@ -79,7 +79,10 @@ class VendorOrders extends Page
                         ->required()
                         ->default('Efectivo'),
                 ])
-                ->successNotificationTitle('Comanda enviada correctamente'),
+                ->successNotificationTitle('Comanda enviada correctamente')
+                ->after(function (\Livewire\Component $livewire) {
+                    $livewire->dispatch('order-updated');
+                }),
         ];
     }
 }
