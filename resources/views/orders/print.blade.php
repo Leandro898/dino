@@ -59,7 +59,7 @@
                     FORMA DE RETIRO
                 </div>
                 <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 10px;">
-                    {{ $order->shipping_zone ? 'envio' : 'retira' }}
+                    {{ $order->shipping_zone ? 'delivery' : 'retira' }}
                 </div>
             </div>
         </div>

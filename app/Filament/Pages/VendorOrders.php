@@ -36,6 +36,7 @@ class VendorOrders extends Page
                 ->modalWidth('2xl')
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['status'] = 'assigned';
+                    $data['shipping_zone'] = 'Local'; // Marca como delivery
                     $data['email'] = $data['email'] ?? 'sinemail@ejemplo.com';
                     $user = auth()->user();
                     if ($user && $user->role === 'vendor') {
