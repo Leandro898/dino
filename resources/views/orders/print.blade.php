@@ -36,13 +36,16 @@
                     @empty
                         @if($order->order_details || $order->beverage_details)
                             @if($order->order_details)
-                                <div style="margin-bottom: 8px;">
+                                <div style="margin-bottom: 15px;">
                                     {{ $order->order_details }}
                                 </div>
                             @endif
                             @if($order->beverage_details)
+                                <div style="font-size: 1.1rem; text-decoration: underline; margin-bottom: 8px;">
+                                    bebidas:
+                                </div>
                                 <div style="margin-bottom: 8px;">
-                                    🍹 {{ $order->beverage_details }}
+                                    {{ $order->beverage_details }}
                                 </div>
                             @endif
                         @else

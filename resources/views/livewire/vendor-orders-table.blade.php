@@ -66,8 +66,9 @@
                                                     </div>
                                                 @endif
                                                 @if($order->beverage_details)
-                                                    <div class="text-sm text-gray-700 dark:text-gray-300 border-l-2 border-indigo-500 pl-2 mt-1">
-                                                        <span class="font-medium">🍹 {{ $order->beverage_details }}</span>
+                                                    <div class="text-sm text-gray-700 dark:text-gray-300 border-l-2 border-indigo-500 pl-2 mt-2">
+                                                        <span class="font-bold text-xs uppercase text-gray-500 block mb-0.5">Bebidas:</span>
+                                                        <span class="font-medium">{{ $order->beverage_details }}</span>
                                                     </div>
                                                 @endif
                                             @else
