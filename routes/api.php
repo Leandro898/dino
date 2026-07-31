@@ -2,6 +2,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Models\Order;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Api\WhatsAppWebhookController;
 use Illuminate\Http\Request;
 
 Route::middleware('auth:sanctum')->get('/vendor/new-orders', function (Request $request) {
@@ -19,3 +20,6 @@ Route::middleware('auth:sanctum')->get('/vendor/new-orders', function (Request $
         ->count();
     return ['assigned_orders_count' => $count];
 });
+
+// Webhook para recibir mensajes de WhatsApp (Evolution API, Twilio, UltraMsg, etc.)
+Route::post('/whatsapp/webhook', [WhatsAppWebhookController::class, 'handle']);
