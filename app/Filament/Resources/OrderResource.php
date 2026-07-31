@@ -16,7 +16,7 @@ class OrderResource extends Resource
 {
     public static function shouldRegisterNavigation(): bool
     {
-        return false;
+        return true;
     }
     protected static ?string $model = Order::class;
 
