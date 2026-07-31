@@ -28,6 +28,9 @@ jobs:
             # Instalar dependencias si es necesario
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
             
+            # Correr migraciones automáticamente
+            php artisan migrate --force
+            
             # Limpiar cachés de Laravel
             php artisan cache:clear
             php artisan view:clear

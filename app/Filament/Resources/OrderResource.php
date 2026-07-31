@@ -32,14 +32,62 @@ class OrderResource extends Resource
 
     public static function canCreate(): bool
     {
-        return false;
+        return auth()->user()?->role === 'admin' || auth()->user()?->role === 'vendor';
     }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('id')->label('ID')->disabled(),
+                Forms\Components\TextInput::make('id')->label('ID')->disabled()->hiddenOn('create'),
+                Forms\Components\Select::make('vendor_id')
+                    ->label('Comercio (Vendedor)')
+                    ->options(function () {
+                        return \App\Models\User::query()
+                            ->where('role', 'vendor')
+                            ->pluck('name', 'id');
+                    })
+                    ->searchable()
+                    ->required()
+                    ->visible(fn () => auth()->user()?->role === 'admin')
+                    ->hiddenOn('edit'),
+                Forms\Components\TextInput::make('name')
+                    ->label('Nombre del Cliente')
+                    ->required()
+                    ->maxLength(255)
+                    ->hiddenOn('edit'),
+                Forms\Components\TextInput::make('phone')
+                    ->label('Teléfono (Obligatorio para el repartidor)')
+                    ->required()
+                    ->maxLength(20)
+                    ->hiddenOn('edit'),
+                Forms\Components\TextInput::make('address')
+                    ->label('Dirección de entrega')
+                    ->required()
+                    ->maxLength(255)
+                    ->hiddenOn('edit'),
+                Forms\Components\Textarea::make('order_details')
+                    ->label('Pedido (Detalle exacto de lo que pidió)')
+                    ->nullable()
+                    ->hiddenOn('edit'),
+                Forms\Components\TextInput::make('beverage_details')
+                    ->label('Bebida (Opcional)')
+                    ->nullable()
+                    ->hiddenOn('edit'),
+                Forms\Components\TextInput::make('total')
+                    ->label('Total a cobrar')
+                    ->numeric()
+                    ->required()
+                    ->hiddenOn('edit'),
+                Forms\Components\Select::make('payment_method')
+                    ->label('Método de Pago')
+                    ->options([
+                        'efectivo' => 'Efectivo',
+                        'mercadopago' => 'Mercado Pago',
+                        'transferencia' => 'Transferencia',
+                    ])
+                    ->required()
+                    ->hiddenOn('edit'),
                 Forms\Components\Select::make('status')
                     ->options(function () {
                         $user = auth()->user();
@@ -65,7 +113,8 @@ class OrderResource extends Resource
                         ];
                     })
                     ->disabled(fn ($record) => auth()->user()->role !== 'admin' && $record?->status === 'pending')
-                    ->required(),
+                    ->required()
+                    ->hiddenOn('create'),
                 Forms\Components\Select::make('delivery_user_id')
                     ->label('Repartidor Asignado')
                     ->options(function () {
@@ -77,7 +126,8 @@ class OrderResource extends Resource
                     ->searchable()
                     ->placeholder('Selecciona un repartidor')
                     ->visible(fn () => auth()->user()?->role === 'admin')
-                    ->disabled(fn ($record) => $record && in_array($record->status, ['completed', 'cancelled'])),
+                    ->disabled(fn ($record) => $record && in_array($record->status, ['completed', 'cancelled']))
+                    ->hiddenOn('create'),
             ]);
     }
 
@@ -290,7 +340,7 @@ class OrderResource extends Resource
     {
         return [
             'index' => Pages\ListOrders::route('/'),
-            //'create' => Pages\CreateOrder::route('/create'), // Disabled
+            'create' => Pages\CreateOrder::route('/create'),
             'view' => Pages\ViewOrder::route('/{record}'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];

@@ -9,4 +9,15 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $user = auth()->user();
+        if ($user && $user->role === 'vendor') {
+            $data['vendor_id'] = $user->id;
+        }
+        $data['status'] = 'pending';
+
+        return $data;
+    }
 }

@@ -24,6 +24,8 @@ class Order extends Model
         'shipping_cost',
         'mercadopago_preference_id',
         'mercadopago_payment_id',
+        'order_details',
+        'beverage_details',
     ];
 
     public function items()
