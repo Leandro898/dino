@@ -35,7 +35,7 @@ class VendorOrders extends Page
                 ->modalHeading('Cargar Nueva Comanda')
                 ->modalWidth('2xl')
                 ->mutateFormDataUsing(function (array $data): array {
-                    $data['status'] = 'Pendiente';
+                    $data['status'] = 'assigned';
                     $data['email'] = $data['email'] ?? 'sinemail@ejemplo.com';
                     $user = auth()->user();
                     if ($user && $user->role === 'vendor') {

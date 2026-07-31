@@ -52,16 +52,20 @@ class VendorOrdersTable extends Component
         $orders = Order::query()
             ->with(['items.product.user', 'user', 'deliveryRider'])
             ->whereIn('status', ['assigned', 'processing', 'completed'])
-            ->whereHas('items.product', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+            ->where(function ($query) use ($user) {
+                $query->whereHas('items.product', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })->orWhere('vendor_id', $user->id);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);
 
         $totalOrders = Order::query()
             ->whereIn('status', ['assigned', 'processing', 'completed'])
-            ->whereHas('items.product', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
+            ->where(function ($query) use ($user) {
+                $query->whereHas('items.product', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })->orWhere('vendor_id', $user->id);
             })
             ->count();
 
