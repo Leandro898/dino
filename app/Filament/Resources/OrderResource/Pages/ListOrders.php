@@ -16,12 +16,8 @@ class ListOrders extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        $user = auth()->user();
-        if ($user && $user->role === 'admin') {
-            return [
-                Actions\CreateAction::make(),
-            ];
-        }
-        return [];
+        return [
+            Actions\CreateAction::make(),
+        ];
     }
 }
