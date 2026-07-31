@@ -37,29 +37,35 @@ class UserResource extends Resource
                         'delivery' => 'Repartidor',
                         'customer' => 'Cliente',
                     ])
-                    ->required(),
+                    ->required()
+                    ->live(),
                 Forms\Components\Toggle::make('is_approved')
                     ->label('Aprobado')
                     ->default(false),
                 Forms\Components\TextInput::make('address')
                     ->label('Dirección (solo vendedores/repartidores)')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->hidden(fn (\Filament\Forms\Get $get) => !in_array($get('role'), ['vendor', 'delivery'])),
                 Forms\Components\TimePicker::make('opening_time')
                     ->label('Hora de Apertura (vendedores)')
                     ->seconds(false)
-                    ->nullable(),
+                    ->nullable()
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\TimePicker::make('closing_time')
                     ->label('Hora de Cierre (vendedores)')
                     ->seconds(false)
-                    ->nullable(),
+                    ->nullable()
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\TimePicker::make('opening_time_2')
                     ->label('Hora de Apertura - Turno 2 (vendedores)')
                     ->seconds(false)
-                    ->nullable(),
+                    ->nullable()
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\TimePicker::make('closing_time_2')
                     ->label('Hora de Cierre - Turno 2 (vendedores)')
                     ->seconds(false)
-                    ->nullable(),
+                    ->nullable()
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\CheckboxList::make('closed_days')
                     ->label('Días Cerrado (vendedores)')
                     ->options([
@@ -72,13 +78,16 @@ class UserResource extends Resource
                         'Sunday' => 'Domingo',
                     ])
                     ->columns(4)
-                    ->nullable(),
+                    ->nullable()
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\TextInput::make('latitude')
                     ->label('Latitud')
-                    ->numeric(),
+                    ->numeric()
+                    ->hidden(fn (\Filament\Forms\Get $get) => !in_array($get('role'), ['vendor', 'delivery'])),
                 Forms\Components\TextInput::make('longitude')
                     ->label('Longitud')
-                    ->numeric(),
+                    ->numeric()
+                    ->hidden(fn (\Filament\Forms\Get $get) => !in_array($get('role'), ['vendor', 'delivery'])),
             ]);
     }
 
