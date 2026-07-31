@@ -28,7 +28,17 @@ class ListCustomRequests extends ListRecords
             Actions\CreateAction::make()
                 ->label('Crear Pedido')
                 ->modalHeading('Crear Pedido')
-                ->createAnother(false),
+                ->createAnother(false)
+                ->mutateFormDataUsing(function (array $data): array {
+                    $data['session_id'] = \Illuminate\Support\Str::uuid()->toString();
+                    
+                    $user = auth()->user();
+                    if ($user && $user->role === 'vendor') {
+                        $data['vendor_id'] = $user->id;
+                    }
+                    
+                    return $data;
+                }),
         ];
     }
 }
