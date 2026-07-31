@@ -36,6 +36,7 @@ class VendorOrders extends Page
                 ->modalWidth('2xl')
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['status'] = 'Pendiente';
+                    $data['email'] = $data['email'] ?? 'sinemail@ejemplo.com';
                     $user = auth()->user();
                     if ($user && $user->role === 'vendor') {
                         $data['vendor_id'] = $user->id;
@@ -43,16 +44,16 @@ class VendorOrders extends Page
                     return $data;
                 })
                 ->form([
-                    \Filament\Forms\Components\TextInput::make('customer_name')
+                    \Filament\Forms\Components\TextInput::make('name')
                         ->label('Nombre del Cliente')
                         ->required()
                         ->maxLength(255),
-                    \Filament\Forms\Components\TextInput::make('customer_phone')
+                    \Filament\Forms\Components\TextInput::make('phone')
                         ->label('Teléfono (Obligatorio)')
                         ->tel()
                         ->required()
                         ->maxLength(255),
-                    \Filament\Forms\Components\TextInput::make('delivery_address')
+                    \Filament\Forms\Components\TextInput::make('address')
                         ->label('Dirección')
                         ->required()
                         ->maxLength(255),
