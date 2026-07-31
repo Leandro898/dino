@@ -34,7 +34,20 @@
                             {{ $item->quantity }} {{ $item->product?->name ?? 'Producto' }}
                         </div>
                     @empty
-                        <div>Sin productos</div>
+                        @if($order->order_details || $order->beverage_details)
+                            @if($order->order_details)
+                                <div style="margin-bottom: 8px;">
+                                    {{ $order->order_details }}
+                                </div>
+                            @endif
+                            @if($order->beverage_details)
+                                <div style="margin-bottom: 8px;">
+                                    🍹 {{ $order->beverage_details }}
+                                </div>
+                            @endif
+                        @else
+                            <div>Sin productos</div>
+                        @endif
                     @endforelse
                 </div>
 
