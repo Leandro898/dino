@@ -43,9 +43,9 @@ class UserResource extends Resource
                     ->label('Aprobado')
                     ->default(false),
                 Forms\Components\TextInput::make('address')
-                    ->label('Dirección (solo vendedores/repartidores)')
+                    ->label('Dirección (vendedores)')
                     ->maxLength(255)
-                    ->hidden(fn (\Filament\Forms\Get $get) => !in_array($get('role'), ['vendor', 'delivery'])),
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\TimePicker::make('opening_time')
                     ->label('Hora de Apertura (vendedores)')
                     ->seconds(false)
@@ -83,11 +83,11 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('latitude')
                     ->label('Latitud')
                     ->numeric()
-                    ->hidden(fn (\Filament\Forms\Get $get) => !in_array($get('role'), ['vendor', 'delivery'])),
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
                 Forms\Components\TextInput::make('longitude')
                     ->label('Longitud')
                     ->numeric()
-                    ->hidden(fn (\Filament\Forms\Get $get) => !in_array($get('role'), ['vendor', 'delivery'])),
+                    ->hidden(fn (\Filament\Forms\Get $get) => $get('role') !== 'vendor'),
             ]);
     }
 
