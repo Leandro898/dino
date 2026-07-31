@@ -44,7 +44,7 @@
                                 <td class="px-6 py-4 font-medium text-gray-950 dark:text-white">#{{ $order->id }}</td>
                                 <td class="px-6 py-4 font-medium text-green-600 dark:text-green-400">{{ number_format($order->total, 2) }} ARS</td>
                                 <td class="px-6 py-4">
-                                    <div class="text-gray-900 dark:text-white font-medium">{{ $order->user?->name ?? '-' }}</div>
+                                    <div class="text-gray-900 dark:text-white font-medium">{{ $order->user?->name ?? $order->name ?? '-' }}</div>
                                     @if($order->deliveryRider)
                                         <div class="text-xs text-indigo-600 dark:text-indigo-400 mt-1 flex items-center gap-1 font-semibold" title="Repartidor asignado">
                                             <span>🛵</span> {{ $order->deliveryRider->name }}
@@ -59,7 +59,20 @@
                                                 <span class="text-gray-500 dark:text-gray-400"> x{{ $item->quantity }}</span>
                                             </div>
                                         @empty
-                                            <span class="text-sm text-gray-500 dark:text-gray-400">Sin productos</span>
+                                            @if($order->order_details || $order->beverage_details)
+                                                @if($order->order_details)
+                                                    <div class="text-sm text-gray-700 dark:text-gray-300 border-l-2 border-indigo-500 pl-2">
+                                                        <span class="font-medium">{{ $order->order_details }}</span>
+                                                    </div>
+                                                @endif
+                                                @if($order->beverage_details)
+                                                    <div class="text-sm text-gray-700 dark:text-gray-300 border-l-2 border-indigo-500 pl-2 mt-1">
+                                                        <span class="font-medium">🍹 {{ $order->beverage_details }}</span>
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <span class="text-sm text-gray-500 dark:text-gray-400">Sin productos</span>
+                                            @endif
                                         @endforelse
                                     </div>
                                 </td>
