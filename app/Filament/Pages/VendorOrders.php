@@ -31,7 +31,7 @@ class VendorOrders extends Page
             \Filament\Actions\Action::make('create')
                 ->label('Nuevo Pedido')
                 ->icon('heroicon-o-plus')
-                ->url(\App\Filament\Resources\OrderResource::getUrl('create')),
+                ->url('/orders/create'),
         ];
     }
 }
