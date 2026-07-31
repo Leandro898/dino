@@ -34,7 +34,7 @@ class VendorOrders extends Page
                 ->icon('heroicon-o-plus')
                 ->modalHeading('Cargar Nueva Comanda')
                 ->modalWidth('2xl')
-                ->mutateFormDataBeforeCreate(function (array $data): array {
+                ->mutateFormDataUsing(function (array $data): array {
                     $data['status'] = 'Pendiente';
                     $user = auth()->user();
                     if ($user && $user->role === 'vendor') {
