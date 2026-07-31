@@ -16,9 +16,6 @@ class ListCustomRequests extends ListRecords
 
     public function handleNewMessage()
     {
-        $this->dispatch('play-notification-sound');
-        // Usamos el método nativo para refrescar la tabla si es necesario
-        // En v3, render() refresca el componente o enviamos evento $refresh
         $this->dispatch('$refresh');
     }
 
