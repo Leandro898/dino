@@ -24,4 +24,14 @@ class VendorOrders extends Page
     {
         return 1;
     }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            \Filament\Actions\Action::make('create')
+                ->label('Nuevo Pedido')
+                ->icon('heroicon-o-plus')
+                ->url(\App\Filament\Resources\OrderResource::getUrl('create')),
+        ];
+    }
 }
