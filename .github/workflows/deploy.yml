@@ -23,7 +23,8 @@ jobs:
             cd /var/www/dino
             
             # Descargar últimos cambios
-            git pull origin feature/map-guidance
+            git fetch --all
+            git reset --hard origin/feature/map-guidance
             
             # Instalar dependencias si es necesario
             composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
