@@ -11,8 +11,13 @@ class ListDeliverySupports extends ListRecords
 
     protected $listeners = [
         'echo:orders,.support-message.sent' => 'handleNewMessage',
-        'echo:orders,.rider.status.updated' => '$refresh',
+        'echo:orders,.rider.status.updated' => 'handleStatusUpdate',
     ];
+
+    public function handleStatusUpdate()
+    {
+        $this->dispatch('$refresh');
+    }
 
     public function handleNewMessage()
     {

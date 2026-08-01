@@ -37,7 +37,7 @@ class OrdersTableRealtime extends Component
     #[\Livewire\Attributes\On('echo:orders,.rider.status.updated')]
     public function onRiderStatusUpdated()
     {
-        // Re-render sin recargar página y sin polling
+        $this->dispatch('$refresh');
     }
 
     #[\Livewire\Attributes\On('order-updated')]

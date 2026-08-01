@@ -1838,6 +1838,15 @@
             }
         };
 
+        // Reconectar y avisar al servidor instantáneamente al desbloquear el celular o volver a la pestaña
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && isConnected) {
+                sendOnlineStatus(true);
+                startGpsTracking();
+                if (!heartbeatInterval) startHeartbeat();
+            }
+        });
+
         // Drag/Collapse Logic for Bottom Sheet
         (function() {
             const sheet = document.querySelector('.bottom-sheet');

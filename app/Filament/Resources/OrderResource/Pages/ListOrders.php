@@ -11,8 +11,13 @@ class ListOrders extends ListRecords
     protected static string $resource = OrderResource::class;
 
     protected $listeners = [
-        'echo:orders,.rider.status.updated' => '$refresh',
+        'echo:orders,.rider.status.updated' => 'handleStatusUpdate',
     ];
+
+    public function handleStatusUpdate()
+    {
+        $this->dispatch('$refresh');
+    }
 
     protected static ?string $title = 'Pedidos';
 

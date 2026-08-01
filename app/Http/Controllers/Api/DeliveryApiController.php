@@ -29,9 +29,6 @@ class DeliveryApiController extends Controller implements HasMiddleware
                 if (!in_array($role, ['admin', 'vendor', 'delivery'], true)) {
                     abort(403);
                 }
-                if ($role === 'delivery' && !$request->is('repartidor/estado*')) {
-                    \Illuminate\Support\Facades\Cache::put('rider_online_' . $request->user()->id, true, now()->addMinutes(2));
-                }
                 return $next($request);
             }),
         ];
@@ -158,7 +155,6 @@ class DeliveryApiController extends Controller implements HasMiddleware
     {
         $user = $request->user();
         $isOnline = filter_var($request->input('is_online', true), FILTER_VALIDATE_BOOLEAN);
-        $wasOnline = \Illuminate\Support\Facades\Cache::has('rider_online_' . $user->id);
 
         if ($isOnline) {
             \Illuminate\Support\Facades\Cache::put('rider_online_' . $user->id, true, now()->addMinutes(2));
@@ -166,12 +162,10 @@ class DeliveryApiController extends Controller implements HasMiddleware
             \Illuminate\Support\Facades\Cache::forget('rider_online_' . $user->id);
         }
 
-        if ($wasOnline !== $isOnline) {
-            try {
-                broadcast(new \App\Events\RiderStatusUpdated($user->id, $isOnline))->toOthers();
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Error broadcasting rider status:', ['error' => $e->getMessage()]);
-            }
+        try {
+            broadcast(new \App\Events\RiderStatusUpdated($user->id, $isOnline));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error broadcasting rider status:', ['error' => $e->getMessage()]);
         }
 
         return response()->json(['success' => true]);
