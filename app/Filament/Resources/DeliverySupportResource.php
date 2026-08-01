@@ -37,6 +37,23 @@ class DeliverySupportResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('online_status')
+                    ->label('Conexión')
+                    ->badge()
+                    ->state(function (User $record): string {
+                        return $record->isOnline() ? 'Conectado' : 'Desconectado';
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'Conectado' => 'success',
+                        'Desconectado' => 'danger',
+                        default => 'gray',
+                    })
+                    ->icon(fn (string $state): ?string => match ($state) {
+                        'Conectado' => 'heroicon-m-signal',
+                        'Desconectado' => 'heroicon-m-signal-slash',
+                        default => null,
+                    }),
                 
                 Tables\Columns\TextColumn::make('reply_status')
                     ->label('Estado Soporte')

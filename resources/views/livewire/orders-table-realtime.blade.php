@@ -146,7 +146,7 @@
                                         <option value="">Sin asignar</option>
                                         @foreach($riders as $rider)
                                             <option value="{{ $rider->id }}" {{ $order->delivery_user_id == $rider->id ? 'selected' : '' }}>
-                                                {{ $rider->name }}
+                                                {{ $rider->isOnline() ? '🟢' : '⚪' }} {{ $rider->name }}
                                             </option>
                                         @endforeach
                                     </select>

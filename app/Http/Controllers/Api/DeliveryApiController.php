@@ -29,6 +29,9 @@ class DeliveryApiController extends Controller implements HasMiddleware
                 if (!in_array($role, ['admin', 'vendor', 'delivery'], true)) {
                     abort(403);
                 }
+                if ($role === 'delivery' && !$request->is('repartidor/estado*')) {
+                    \Illuminate\Support\Facades\Cache::put('rider_online_' . $request->user()->id, true, now()->addMinutes(2));
+                }
                 return $next($request);
             }),
         ];
@@ -149,5 +152,19 @@ class DeliveryApiController extends Controller implements HasMiddleware
             'success' => true,
             'message' => 'Pedido marcado como entregado.',
         ]);
+    }
+
+    public function updateStatus(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $isOnline = filter_var($request->input('is_online', true), FILTER_VALIDATE_BOOLEAN);
+
+        if ($isOnline) {
+            \Illuminate\Support\Facades\Cache::put('rider_online_' . $user->id, true, now()->addMinutes(2));
+        } else {
+            \Illuminate\Support\Facades\Cache::forget('rider_online_' . $user->id);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

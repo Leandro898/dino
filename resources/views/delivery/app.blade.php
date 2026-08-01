@@ -1793,14 +1793,48 @@
             }
         }
 
-        // Iniciar/detener GPS tracking según conexión
+        // Heartbeat y estado online del repartidor
+        let heartbeatInterval = null;
+        const statusUpdateUrl = @json(route('delivery.status.update'));
+
+        function sendOnlineStatus(online) {
+            fetch(statusUpdateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: JSON.stringify({ is_online: online })
+            }).catch(err => console.warn('Error enviando estado:', err));
+        }
+
+        function startHeartbeat() {
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            sendOnlineStatus(true);
+            heartbeatInterval = setInterval(() => {
+                if (isConnected) sendOnlineStatus(true);
+            }, 30000); // cada 30 segundos
+        }
+
+        function stopHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+            sendOnlineStatus(false);
+        }
+
+        // Iniciar/detener GPS tracking y heartbeat según conexión
         const originalToggle = toggleConnection;
         toggleConnection = async function(connect) {
             await originalToggle(connect);
             if (connect) {
                 startGpsTracking();
+                startHeartbeat();
             } else {
                 stopGpsTracking();
+                stopHeartbeat();
             }
         };
 

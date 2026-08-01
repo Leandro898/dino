@@ -161,6 +161,14 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         return $result;
     }
 
+    public function isOnline(): bool
+    {
+        if ($this->role !== 'delivery') {
+            return false;
+        }
+        return \Illuminate\Support\Facades\Cache::has('rider_online_' . $this->id);
+    }
+
     // Relación: Un usuario (vendedor) tiene muchos productos
     public function products()
     {

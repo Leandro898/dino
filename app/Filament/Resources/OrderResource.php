@@ -121,7 +121,11 @@ class OrderResource extends Resource
                         return \App\Models\User::query()
                             ->where('role', 'delivery')
                             ->where('is_approved', true)
-                            ->pluck('name', 'id');
+                            ->get()
+                            ->mapWithKeys(function ($rider) {
+                                $status = $rider->isOnline() ? '🟢 Conectado | ' : '🔴 Desconectado | ';
+                                return [$rider->id => $status . $rider->name];
+                            });
                     })
                     ->searchable()
                     ->placeholder('Selecciona un repartidor')
@@ -166,6 +170,11 @@ class OrderResource extends Resource
                 
                 Tables\Columns\TextColumn::make('deliveryUser.name')
                     ->label('🏍️ Repartidor')
+                    ->formatStateUsing(function (?string $state, $record) {
+                        if (!$record || !$record->deliveryUser) return '—';
+                        $icon = $record->deliveryUser->isOnline() ? '🟢 ' : '🔴 ';
+                        return $icon . $record->deliveryUser->name;
+                    })
                     ->visible(fn () => auth()->user()?->role === "admin")
                     ->searchable()
                     ->sortable(),

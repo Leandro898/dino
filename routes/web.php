@@ -146,6 +146,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Nueva ruta para actualizar ubicación en tiempo real
     Route::post('/repartidor/ubicacion', [DeliveryApiController::class, 'updateLocation'])
         ->name('delivery.location.update');
+    Route::post('/repartidor/estado', [DeliveryApiController::class, 'updateStatus'])
+        ->name('delivery.status.update');
 });
 
 require __DIR__ . '/auth.php';

@@ -101,6 +101,25 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('role')
                     ->badge(),
+                Tables\Columns\TextColumn::make('online_status')
+                    ->label('Conexión')
+                    ->badge()
+                    ->state(function (User $record): string {
+                        if ($record->role !== 'delivery') {
+                            return '—';
+                        }
+                        return $record->isOnline() ? 'Conectado' : 'Desconectado';
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'Conectado' => 'success',
+                        'Desconectado' => 'danger',
+                        default => 'gray',
+                    })
+                    ->icon(fn (string $state): ?string => match ($state) {
+                        'Conectado' => 'heroicon-m-signal',
+                        'Desconectado' => 'heroicon-m-signal-slash',
+                        default => null,
+                    }),
                 Tables\Columns\ToggleColumn::make('is_approved')
                     ->label('Aprobado'),
                 Tables\Columns\TextColumn::make('created_at')
