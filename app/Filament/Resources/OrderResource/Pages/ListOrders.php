@@ -10,6 +10,10 @@ class ListOrders extends ListRecords
 {
     protected static string $resource = OrderResource::class;
 
+    protected $listeners = [
+        'echo:orders,.rider.status.updated' => '$refresh',
+    ];
+
     protected static ?string $title = 'Pedidos';
 
     protected static ?string $breadcrumb = 'Pedidos';

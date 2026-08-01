@@ -10,6 +10,10 @@ class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
 
+    protected $listeners = [
+        'echo:orders,.rider.status.updated' => '$refresh',
+    ];
+
     protected function getHeaderActions(): array
     {
         return [
