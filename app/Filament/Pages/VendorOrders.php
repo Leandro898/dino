@@ -34,6 +34,7 @@ class VendorOrders extends Page
                 ->icon('heroicon-o-plus')
                 ->modalHeading('Cargar Nueva Comanda')
                 ->modalWidth('4xl')
+                ->createAnother(false)
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['status'] = 'assigned';
                     $data['shipping_zone'] = 'Local'; // Marca como delivery
@@ -53,7 +54,7 @@ class VendorOrders extends Page
                                 ->required()
                                 ->maxLength(255),
                             \Filament\Forms\Components\TextInput::make('phone')
-                                ->label('Teléfono (Obligatorio)')
+                                ->label('Teléfono')
                                 ->tel()
                                 ->required()
                                 ->maxLength(255),
