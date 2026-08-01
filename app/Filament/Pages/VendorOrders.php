@@ -33,11 +33,12 @@ class VendorOrders extends Page
                 ->label('Nuevo Pedido')
                 ->icon('heroicon-o-plus')
                 ->modalHeading('Cargar Nueva Comanda')
-                ->modalWidth('2xl')
+                ->modalWidth('4xl')
                 ->mutateFormDataUsing(function (array $data): array {
                     $data['status'] = 'assigned';
                     $data['shipping_zone'] = 'Local'; // Marca como delivery
                     $data['email'] = $data['email'] ?? 'sinemail@ejemplo.com';
+                    $data['payment_method'] = $data['payment_method'] ?? 'Efectivo';
                     $user = auth()->user();
                     if ($user && $user->role === 'vendor') {
                         $data['vendor_id'] = $user->id;
@@ -45,40 +46,37 @@ class VendorOrders extends Page
                     return $data;
                 })
                 ->form([
-                    \Filament\Forms\Components\TextInput::make('name')
-                        ->label('Nombre del Cliente')
-                        ->required()
-                        ->maxLength(255),
-                    \Filament\Forms\Components\TextInput::make('phone')
-                        ->label('Teléfono (Obligatorio)')
-                        ->tel()
-                        ->required()
-                        ->maxLength(255),
-                    \Filament\Forms\Components\TextInput::make('address')
-                        ->label('Dirección')
-                        ->required()
-                        ->maxLength(255),
-                    \Filament\Forms\Components\TextInput::make('total')
-                        ->label('Total del Pedido (ARS)')
-                        ->required()
-                        ->numeric()
-                        ->prefix('$'),
-                    \Filament\Forms\Components\Textarea::make('order_details')
-                        ->label('Detalle del Pedido')
-                        ->placeholder('Ej: 2 docenas de empanadas...')
-                        ->columnSpanFull(),
-                    \Filament\Forms\Components\Textarea::make('beverage_details')
-                        ->label('Bebidas (Opcional)')
-                        ->placeholder('Ej: 1 Coca-Cola 2L')
-                        ->columnSpanFull(),
-                    \Filament\Forms\Components\Select::make('payment_method')
-                        ->label('Método de Pago')
-                        ->options([
-                            'Efectivo' => 'Efectivo',
-                            'Transferencia' => 'Transferencia',
-                        ])
-                        ->required()
-                        ->default('Efectivo'),
+                    \Filament\Forms\Components\Grid::make(2)
+                        ->schema([
+                            \Filament\Forms\Components\TextInput::make('name')
+                                ->label('Nombre del Cliente')
+                                ->required()
+                                ->maxLength(255),
+                            \Filament\Forms\Components\TextInput::make('phone')
+                                ->label('Teléfono (Obligatorio)')
+                                ->tel()
+                                ->required()
+                                ->maxLength(255),
+                            \Filament\Forms\Components\TextInput::make('address')
+                                ->label('Dirección')
+                                ->required()
+                                ->maxLength(255),
+                            \Filament\Forms\Components\TextInput::make('total')
+                                ->label('Total del Pedido (ARS)')
+                                ->required()
+                                ->numeric()
+                                ->prefix('$'),
+                            \Filament\Forms\Components\Textarea::make('order_details')
+                                ->label('Detalle del Pedido')
+                                ->placeholder('Ej: 2 docenas de empanadas...')
+                                ->rows(3),
+                            \Filament\Forms\Components\Textarea::make('beverage_details')
+                                ->label('Bebidas (Opcional)')
+                                ->placeholder('Ej: 1 Coca-Cola 2L')
+                                ->rows(3),
+                            \Filament\Forms\Components\Hidden::make('payment_method')
+                                ->default('Efectivo'),
+                        ]),
                 ])
                 ->successNotificationTitle('Comanda enviada correctamente')
                 ->after(function (\Livewire\Component $livewire) {
