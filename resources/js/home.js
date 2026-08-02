@@ -166,9 +166,22 @@
 
         if (!products.length) {
             resultsGallery.classList.add('is-empty', 'has-no-results');
-            resultsGallery.innerHTML = '<div class="results-status" style="position: absolute; top: 15px; width: 100%; left: 0; text-align: center; z-index: 20;">' +
-                '<p style="margin-bottom: 12px; font-size: 1rem;">No encontramos resultados para "' + escapeHtml(query) + '".</p>' +
-                '<button type="button" onclick="window.Livewire.dispatch(\'open-live-chat\')" class="tile-primary" style="padding: 10px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">Consulta por chat si no encuentras lo que buscas</button></div>';
+            const queryClean = escapeHtml(query || '');
+            const initialMsg = "¡Hola! Estoy buscando: " + queryClean + ". ¿Podrían conseguirlo para enviármelo?";
+            const msgEscaped = initialMsg.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
+            resultsGallery.innerHTML = '<div class="results-status" style="position: absolute; top: 5px; width: 100%; left: 0; display: flex; justify-content: center; z-index: 20; padding: 0 15px; box-sizing: border-box;">' +
+                '<div style="max-width: 500px; width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border-radius: 24px; padding: 26px 20px; box-shadow: 0 12px 30px rgba(124, 58, 237, 0.3); text-align: center; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;">' +
+                '<div style="font-size: 2.4rem; margin-bottom: 10px;">🛍️</div>' +
+                '<h3 style="font-size: 1.35rem; font-weight: 800; margin: 0 0 10px 0; color: #ffffff; letter-spacing: -0.01em;">¿Buscabas "' + queryClean + '"?</h3>' +
+                '<p style="font-size: 0.96rem; line-height: 1.55; margin: 0 0 22px 0; color: rgba(255,255,255,0.94); padding: 0 10px;">' +
+                'Aunque no esté actualmente en el catálogo digital, <strong>¡podemos conseguírtelo igual!</strong> Hablá en vivo con un asesor para consultarle y sumarlo hoy mismo a tu pedido.' +
+                '</p>' +
+                '<button type="button" onclick="window.Livewire.dispatch(\'open-live-chat\', { initialMessage: \'' + msgEscaped + '\' })" style="background: #ffffff; color: #6b21a8; padding: 14px 28px; border-radius: 9999px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.2); transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; word-break: break-word;">' +
+                '<span>💬</span> Consultar por "' + queryClean + '" en el Chat' +
+                '</button>' +
+                '</div>' +
+                '</div>';
             if (galleryMicBtn) galleryMicBtn.classList.remove('is-hidden');
             return;
         }
@@ -190,9 +203,19 @@
                 '</a>';
         }).join('');
 
+        const queryClean = escapeHtml(query || '');
+        const bottomMsg = queryClean ? "¡Hola! Busqué '" + queryClean + "' pero no encuentro exactamente el producto que necesito. ¿Me lo podrían conseguir?" : "¡Hola! Quisiera consultar si pueden conseguir un producto que no encontré en el catálogo.";
+        const bottomMsgEscaped = bottomMsg.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
         resultsGallery.classList.remove('is-empty', 'has-no-results');
         resultsGallery.innerHTML = '<div class="results-track">' + cards + '</div>' +
-            '<div style="text-align: center; margin-top: 55px; margin-bottom: 30px; padding-bottom: 10px;"><button type="button" onclick="window.Livewire.dispatch(\'open-live-chat\')" class="tile-primary" style="padding: 10px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">¿No es lo que buscabas? Pídelo por chat</button></div>';
+            '<div style="text-align: center; margin: 50px auto 35px auto; padding: 24px 20px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(79, 70, 229, 0.06) 100%); border: 2px dashed rgba(124, 58, 237, 0.35); border-radius: 24px; max-width: 520px; width: 92%; box-sizing: border-box;">' +
+            '<h4 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main, #1e293b); margin: 0 0 8px 0;">¿No encontraste la variedad exacta que buscabas?</h4>' +
+            '<p style="font-size: 0.92rem; color: #64748b; margin: 0 0 18px 0; line-height: 1.4;">No te preocupes, consulta en nuestro chat en vivo y un asesor verificará al instante en comercios si podemos sumarlo hoy a tu envío.</p>' +
+            '<button type="button" onclick="window.Livewire.dispatch(\'open-live-chat\', { initialMessage: \'' + bottomMsgEscaped + '\' })" style="background: linear-gradient(135deg, #6b21a8 0%, #7c3aed 100%); color: white; padding: 13px 28px; border-radius: 9999px; border: none; font-weight: 700; font-size: 0.96rem; cursor: pointer; box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35); display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;">' +
+            '<span>💬</span> Consultarle a un Asesor por Chat' +
+            '</button>' +
+            '</div>';
     };
 
     const renderVoiceTranscript = (text, isFinal, hintText = 'Tocá el micrófono para pausar') => {

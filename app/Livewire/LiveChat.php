@@ -49,7 +49,7 @@ class LiveChat extends Component
     }
 
     #[On('open-live-chat')]
-    public function openChat()
+    public function openChat($initialMessage = null)
     {
         $this->isOpen = true;
         if (!$this->customRequest) {
@@ -68,6 +68,17 @@ class LiveChat extends Component
         }
         
         $this->loadMessages();
+
+        if (is_array($initialMessage) && isset($initialMessage['initialMessage'])) {
+            $initialMessage = $initialMessage['initialMessage'];
+        }
+        if (is_string($initialMessage) && !empty(trim($initialMessage))) {
+            if (empty($this->messages)) {
+                $this->sendMessage(trim($initialMessage));
+            } else {
+                $this->message = trim($initialMessage);
+            }
+        }
     }
 
     public function closeChat()
