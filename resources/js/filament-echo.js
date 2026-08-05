@@ -39,35 +39,84 @@ window.addEventListener('play-notification-sound', () => {
     }
 });
 
-// Global listener for new client messages
+// Global listener for new client messages and new orders
 if (window.Echo) {
-    window.Echo.channel('orders')
-        .listen('.message.sent', (e) => {
-            // Only process if user is admin and not on the chat/list page to avoid duplicates
-            if (window.authUserRole === 'admin') {
-                const path = window.location.pathname;
-                if (!path.includes('/admin/custom-requests')) {
-                    // Play notification sound
-                    window.dispatchEvent(new CustomEvent('play-notification-sound'));
-                    
-                    // Show Filament toast notification
-                    if (window.FilamentNotification) {
-                        const sender = e.senderName || 'Cliente';
-                        const text = e.messageText || 'Ha enviado un mensaje.';
-                        new FilamentNotification()
-                            .title('Nuevo mensaje de ' + sender)
-                            .body(text)
-                            .info()
-                            .duration(10000)
-                            .actions([
-                                new FilamentNotificationAction('view')
-                                    .label('Ver Chat')
-                                    .url('/admin/custom-requests/' + e.requestId + '/chat')
-                                    .button()
-                            ])
-                            .send();
-                    }
+    const ordersChannel = window.Echo.channel('orders');
+
+    ordersChannel.listen('.message.sent', (e) => {
+        // Only process if user is admin and not on the chat/list page to avoid duplicates
+        if (window.authUserRole === 'admin') {
+            const path = window.location.pathname;
+            if (!path.includes('/admin/custom-requests')) {
+                // Play notification sound
+                window.dispatchEvent(new CustomEvent('play-notification-sound'));
+                
+                // Show Filament toast notification
+                if (window.FilamentNotification) {
+                    const sender = e.senderName || 'Cliente';
+                    const text = e.messageText || 'Ha enviado un mensaje.';
+                    new FilamentNotification()
+                        .title('Nuevo mensaje de ' + sender)
+                        .body(text)
+                        .info()
+                        .duration(10000)
+                        .actions([
+                            new FilamentNotificationAction('view')
+                                .label('Ver Chat')
+                                .url('/admin/custom-requests/' + e.requestId + '/chat')
+                                .button()
+                        ])
+                        .send();
                 }
             }
-        });
+        }
+    });
+
+    ordersChannel.listen('.new-order-created', (e) => {
+        console.log('🎉 [Live Notification] Nueva orden recibida #' + e.order_id, e);
+        if (window.authUserRole === 'admin' || window.authUserRole === 'vendor') {
+            try {
+                const audio = new Audio('/sounds/admin.mp3');
+                audio.volume = 1.0;
+                audio.play().catch(() => {
+                    window.dispatchEvent(new CustomEvent('play-notification-sound'));
+                });
+            } catch(err) {
+                window.dispatchEvent(new CustomEvent('play-notification-sound'));
+            }
+            
+            window.dispatchEvent(new CustomEvent('play-notification-sound'));
+
+            if (window.FilamentNotification) {
+                new FilamentNotification()
+                    .title('🎉 ¡Nuevo Pedido #' + e.order_id + '!')
+                    .body('Cliente: ' + (e.customer_name || e.name || 'Cliente') + ' - Total: $' + Number(e.total).toLocaleString('es-AR', {minimumFractionDigits: 2}) + ' ARS (' + (e.payment_method || 'Efectivo') + ')')
+                    .success()
+                    .duration(15000)
+                    .actions([
+                        new FilamentNotificationAction('view')
+                            .label('Ver Pedidos')
+                            .url('/admin/orders')
+                            .button()
+                    ])
+                    .send();
+            }
+
+            window.dispatchEvent(new CustomEvent('vendor-new-order-assigned', { detail: e }));
+            window.dispatchEvent(new CustomEvent('new-order-created', { detail: e }));
+        }
+    });
+
+    ordersChannel.listen('.order-status-updated', (e) => {
+        if (window.authUserRole === 'admin' || window.authUserRole === 'vendor') {
+            if (e.new_status === 'completed') {
+                try {
+                    const audio = new Audio('/sounds/retirar.mp3');
+                    audio.volume = 1.0;
+                    audio.play().catch(() => {});
+                } catch(err) {}
+            }
+            window.dispatchEvent(new CustomEvent('order-status-updated', { detail: e }));
+        }
+    });
 }

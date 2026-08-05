@@ -12,6 +12,9 @@ class ListOrders extends ListRecords
 
     protected $listeners = [
         'echo:orders,.rider.status.updated' => 'handleStatusUpdate',
+        'echo:orders,.new-order-created' => 'handleStatusUpdate',
+        'echo:orders,.order-status-updated' => 'handleStatusUpdate',
+        'echo:orders,.order.updated.rider' => 'handleStatusUpdate',
     ];
 
     public function handleStatusUpdate()
