@@ -29,6 +29,7 @@ class SellerPanelProvider extends PanelProvider
             ->domain('vendedor.' . $mainHost)
             ->path('') // Sirve en la raíz del subdominio
             ->login()
+            ->registration(\App\Filament\Pages\Auth\VendorRegistration::class)
             ->favicon(asset('favicon-arg.svg'))
             ->databaseNotifications()
             ->colors([
