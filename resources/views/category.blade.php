@@ -20,9 +20,9 @@
             </div>
             
             <h1 class="text-4xl font-bold text-gray-900 text-center mb-2">{{ $categoryName }}</h1>
-            <p class="title" style="margin-top: 1rem;">Buscá lo que necesitas</p>
+            <p class="title" style="display: none;">Buscá lo que necesitas</p>
 
-            <div class="search-wrap" style="margin-bottom: 1.5rem;">
+            <div class="search-wrap" style="display: none;">
                 <span class="search-icon">🔎</span>
                 <input id="quickSearch" class="search" type="search" placeholder="Buscar productos en {{ $categoryName }}..."
                     aria-label="Buscar categoria" value="{{ $search ?? '' }}">
