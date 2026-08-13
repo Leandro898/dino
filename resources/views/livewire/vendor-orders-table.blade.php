@@ -364,7 +364,7 @@
                     /* console.log */(`%c🔄 [Vendor] Estado cambiado a: ${data.new_status}`, 'color: purple');
                     const row = document.querySelector(`tr[data-order-id="${data.order_id}"]`);
                     if (row) {
-                        if (!['assigned', 'processing', 'completed'].includes(data.new_status)) {
+                        if (data.new_status === 'pending') {
                             row.remove();
                             const tbody = document.getElementById('vendorOrdersTableBody');
                             if (tbody && tbody.children.length === 0) {
