@@ -47,8 +47,8 @@
                 </button>
             </div>
 
-            <p class="title" style="display: none;">Buscá lo que necesitas</p>
-            <div class="search-wrap" style="display: none;">
+            <p class="title" style="margin-top: 1rem;">Buscá lo que necesitas</p>
+            <div class="search-wrap" style="margin-bottom: 1.5rem;">
                 <span class="search-icon">🔎</span>
                 <input id="quickSearch" class="search" type="search" placeholder="Ej: azucar, yerba, gaseosa"
                     aria-label="Buscar categoria">
