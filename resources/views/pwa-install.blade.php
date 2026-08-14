@@ -43,7 +43,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 3rem;
+                font-size: 4rem;
+                font-weight: 900;
                 margin: 0 auto 1.5rem;
                 box-shadow: 0 12px 24px rgba(106, 49, 223, 0.25);
             }
@@ -132,7 +133,7 @@
     <div class="app-landing">
         <div class="glass-card">
             <div class="app-icon">
-                🦖
+                B
             </div>
             <h1 class="title">BariTienda App</h1>
             <p class="subtitle">Instalá nuestra aplicación oficial para una experiencia más rápida y directa.</p>
