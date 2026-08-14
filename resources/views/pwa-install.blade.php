@@ -11,7 +11,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                padding: 2rem 1.5rem;
+                padding: 2rem 1.5rem 6rem 1.5rem;
                 font-family: 'Outfit', sans-serif;
                 text-align: center;
             }
