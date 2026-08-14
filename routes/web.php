@@ -67,6 +67,7 @@ Route::post('/guest-push-subscribe', [PushNotificationController::class, 'guestS
 
 // Home principal: vista tipo app con accesos rápidos
 Route::view('/', 'home')->name('home');
+Route::view('/app', 'pwa-install')->name('pwa.install');
 Route::get('/home/buscar-productos', [PublicProductController::class, 'homeSearchProducts'])
     ->name('home.search.products');
 
