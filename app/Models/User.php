@@ -147,18 +147,23 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     // 3. Añade este método obligatorio abajo del todo
     public function canAccessPanel(Panel $panel): bool
     {
+        $panelId = $panel->getId();
+
         \Log::debug('[canAccessPanel] llamado', [
             'user_id' => $this->id,
-            'user_email' => $this->email,
             'user_role' => $this->role,
-            'panel_id' => $panel->getId(),
+            'panel_id' => $panelId,
         ]);
-        // Ahora el único panel es 'admin', permitimos acceso a admin y vendor
-        $result = in_array($this->role, ['admin', 'vendor']);
-        \Log::debug('[canAccessPanel] admin result', [
-            'result' => $result
-        ]);
-        return $result;
+
+        if ($panelId === 'admin') {
+            return $this->role === 'admin';
+        }
+
+        if ($panelId === 'seller') {
+            return in_array($this->role, ['admin', 'vendor']);
+        }
+
+        return false;
     }
 
     public function isOnline(): bool
