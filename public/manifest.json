@@ -1,11 +1,11 @@
 {
     "name": "Bari Tienda",
     "short_name": "Bari Tienda",
-    "start_url": "/admin",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#8b5cf6",
-    "description": "Panel de administración de Dino",
+    "theme_color": "#6a31df",
+    "description": "Tienda online en Bariloche",
     "icons": [
         {
             "src": "https://ui-avatars.com/api/?name=B&size=192&background=8b5cf6&color=fff",
