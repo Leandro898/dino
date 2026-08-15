@@ -8,12 +8,18 @@
     "description": "Tienda online en Bariloche",
     "icons": [
         {
-            "src": "https://ui-avatars.com/api/?name=B&size=192&background=8b5cf6&color=fff",
+            "src": "/app-icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://ui-avatars.com/api/?name=B&size=192&background=5b27ba&color=fff&bold=true",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "https://ui-avatars.com/api/?name=B&size=512&background=8b5cf6&color=fff",
+            "src": "https://ui-avatars.com/api/?name=B&size=512&background=5b27ba&color=fff&bold=true",
             "sizes": "512x512",
             "type": "image/png"
         }

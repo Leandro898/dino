@@ -21,6 +21,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon-arg.svg') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#6a31df">
+    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=B&size=192&background=5b27ba&color=fff&bold=true">
     <link rel="preconnect" href="https://fonts.bunny.net">
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
