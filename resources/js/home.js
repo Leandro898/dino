@@ -170,7 +170,7 @@
             const initialMsg = "¡Hola! Estoy buscando: " + queryClean + ". ¿Podrían conseguirlo para enviármelo?";
             const msgEscaped = initialMsg.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
-            resultsGallery.innerHTML = '<div class="results-status" style="position: absolute; top: 5px; width: 100%; left: 0; display: flex; justify-content: center; z-index: 20; padding: 0 15px; box-sizing: border-box;">' +
+            resultsGallery.innerHTML = '<div class="results-status" style="position: relative; width: 100%; display: flex; justify-content: center; padding: 20px 15px; box-sizing: border-box;">' +
                 '<div style="max-width: 500px; width: 100%; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; border-radius: 24px; padding: 26px 20px; box-shadow: 0 12px 30px rgba(124, 58, 237, 0.3); text-align: center; border: 1px solid rgba(255,255,255,0.2); transition: all 0.3s ease;">' +
                 '<div style="font-size: 2.4rem; margin-bottom: 10px;">🛍️</div>' +
                 '<h3 style="font-size: 1.35rem; font-weight: 800; margin: 0 0 10px 0; color: #ffffff; letter-spacing: -0.01em;">¿Buscabas "' + queryClean + '"?</h3>' +
