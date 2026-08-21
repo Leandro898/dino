@@ -379,19 +379,23 @@ main {
 }
 
 /* Reposition center mic when results or transcript are shown */
-.results-space:not(.is-empty)~.results-mic-btn {
+.results-space:not(.is-empty)~.results-mic-btn,
+.results-space.has-no-results~.results-mic-btn {
     position: static;
     transform: none;
     margin-top: 25px;
     display: flex;
+    margin-inline: auto;
 }
-.results-space:not(.is-empty)~.results-mic-btn:hover {
+.results-space:not(.is-empty)~.results-mic-btn:hover,
+.results-space.has-no-results~.results-mic-btn:hover {
     transform: translateY(-3px);
 }
 .results-mic-btn.is-hidden {
     display: none;
 }
-.results-space:not(.is-empty)~.results-mic-label {
+.results-space:not(.is-empty)~.results-mic-label,
+.results-space.has-no-results~.results-mic-label {
     position: static;
     transform: none;
     margin-top: 12px;
