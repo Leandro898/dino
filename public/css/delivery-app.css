@@ -203,6 +203,11 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+.bottom-sheet-content::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
 .sheet-drag-zone {
