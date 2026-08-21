@@ -66,8 +66,6 @@ class ListProducts extends ListRecords
                         }
                     });
                 }),
-            'carrefour' => \Filament\Resources\Components\Tab::make('Carrefour')
-                ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('external_source', 'carrefour')),
             'comidas' => \Filament\Resources\Components\Tab::make('Comidas')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->where('user_id', '!=', 6)->whereHas('user', fn($q) => $q->where('role', 'vendor'))),
             'farmacia' => \Filament\Resources\Components\Tab::make('Farmacia')
