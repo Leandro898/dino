@@ -15,7 +15,7 @@ class PriceControl extends Page implements HasForms
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user && in_array($user->role, ['admin', 'manager']);
+        return $user && $user->role === 'admin';
     }
     use InteractsWithForms;
 
@@ -31,7 +31,7 @@ class PriceControl extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        return in_array(auth()->user()?->role, ['admin', 'manager']);
+        return auth()->user()?->role === 'admin';
     }
 
     public ?array $data = [];

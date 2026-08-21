@@ -31,7 +31,7 @@ class AdminDashboard extends BaseDashboard
 
     public function getWidgets(): array
     {
-        if (!in_array(auth()->user()?->role, ['admin', 'manager'])) {
+        if (auth()->user()?->role !== 'admin') {
             return [];
         }
         return parent::getWidgets();
