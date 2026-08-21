@@ -778,12 +778,7 @@ main {
         transform: translate3d(-122px, 0, 0) scale(1);
     }
 }
-.results-space.has-no-results ~ .results-mic-btn {
-    top: 70%;
-}
-.results-space.has-no-results ~ .results-mic-label {
-    top: calc(70% + 45px);
-}
+
 
 /* ==========================================
    Live Chat Component Styles
@@ -1053,18 +1048,3 @@ main {
     width: 100%;
 }
 
-.results-space.has-no-results ~ .results-mic-btn {
-    position: absolute;
-    top: 70%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-.results-space.has-no-results ~ .results-mic-btn:hover {
-    transform: translate(-50%, -52%);
-}
-.results-space.has-no-results ~ .results-mic-label {
-    position: absolute;
-    top: calc(70% + 45px);
-    left: 50%;
-    transform: translateX(-50%);
-}
