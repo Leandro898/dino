@@ -48,7 +48,6 @@ class ProductResource extends Resource
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->imageEditor()
-                    ->optimize('webp')
                     ->disk('public')
                     ->directory('products')
                     ->visibility('public')
