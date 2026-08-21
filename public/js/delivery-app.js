@@ -563,7 +563,7 @@ async function fetchOrders() {
                     ` : ''}
 
                     ${data.status === 'shipped' ? `
-                        <button onclick="markDelivered(${data.id})" class="btn" style="width: 100%; height: 50px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                        <button onclick="markDelivered(${data.id}, ${data.latitude || 'null'}, ${data.longitude || 'null'})" class="btn" style="width: 100%; height: 50px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
                             ✅ Marcar como Entregado
                         </button>
                     ` : ''}
@@ -681,7 +681,16 @@ window.markPickedUp = async function(orderId) {
     }
 };
 
-window.markDelivered = async function(orderId) {
+window.markDelivered = async function(orderId, custLat, custLng) {
+    if (custLat && custLng && riderMarker) {
+        const riderLatLng = riderMarker.getLatLng();
+        const dist = calculateDistance(riderLatLng.lat, riderLatLng.lng, custLat, custLng);
+        if (dist > 0.25) { // 250 metros
+            await showCustomModal('Demasiado lejos', `Estás a ${(dist * 1000).toFixed(0)} metros del cliente. Debes estar a menos de 250m para poder marcar el pedido como entregado.`, false);
+            return;
+        }
+    }
+
     const confirmed = await showCustomModal('Entregar Pedido', '¿Confirmas que has entregado este pedido al cliente?');
     if (!confirmed) return;
     try {
