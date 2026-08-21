@@ -45,6 +45,16 @@ class ProductResource extends Resource
                     ->rows(5),
                 Forms\Components\TextInput::make('price')->numeric()->prefix('$')->required(),
                 Forms\Components\TextInput::make('stock')->numeric()->default(1),
+                Forms\Components\Select::make('external_category')
+                    ->label('Categoría (opcional)')
+                    ->options([
+                        'bebidas' => 'Bebidas',
+                        'almacen' => 'Almacén',
+                        'comidas' => 'Comidas',
+                        'farmacia' => 'Farmacia',
+                    ])
+                    ->nullable()
+                    ->helperText('Selecciona la categoría para mostrarlo en la sección correcta. Si no eliges nada, el sistema intentará clasificarlo automáticamente.'),
                 Forms\Components\FileUpload::make('image')
                     ->image()
                     ->imageEditor()
@@ -117,32 +127,45 @@ class ProductResource extends Resource
                         ];
 
                         if ($data['value'] === 'bebidas') {
-                            $query->where('user_id', 6)
+                            $query->whereHas('user', fn($q) => $q->where('role', '!=', 'vendor'))
                                   ->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($keywords) {
                                       $q->whereIn('external_category', ['bebidas', 'drinks']);
-                                      foreach ($keywords as $keyword) {
-                                          $pattern = '%' . mb_strtolower($keyword) . '%';
-                                          $q->orWhereRaw('LOWER(COALESCE(name, "")) LIKE ?', [$pattern])
-                                            ->orWhereRaw('LOWER(COALESCE(description, "")) LIKE ?', [$pattern]);
-                                      }
+                                      $q->orWhere(function (\Illuminate\Database\Eloquent\Builder $subQ) use ($keywords) {
+                                          $subQ->whereNull('external_category');
+                                          $subQ->where(function (\Illuminate\Database\Eloquent\Builder $keywordQ) use ($keywords) {
+                                              foreach ($keywords as $keyword) {
+                                                  $pattern = '%' . mb_strtolower($keyword) . '%';
+                                                  $keywordQ->orWhereRaw('LOWER(COALESCE(name, "")) LIKE ?', [$pattern])
+                                                           ->orWhereRaw('LOWER(COALESCE(description, "")) LIKE ?', [$pattern]);
+                                              }
+                                          });
+                                      });
                                   });
                         } elseif ($data['value'] === 'almacen') {
-                            $query->where('user_id', 6)
+                            $query->whereHas('user', fn($q) => $q->where('role', '!=', 'vendor'))
                                   ->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($keywords) {
-                                      $q->where(function (\Illuminate\Database\Eloquent\Builder $categoryQuery) {
-                                          $categoryQuery->whereNull('external_category')
-                                              ->orWhereNotIn('external_category', ['bebidas', 'drinks']);
+                                      $q->where('external_category', 'almacen');
+                                      $q->orWhere(function (\Illuminate\Database\Eloquent\Builder $subQ) use ($keywords) {
+                                          $subQ->where(function (\Illuminate\Database\Eloquent\Builder $categoryQuery) {
+                                              $categoryQuery->whereNull('external_category')
+                                                  ->orWhereNotIn('external_category', ['bebidas', 'drinks', 'almacen', 'comidas', 'farmacia']);
+                                          });
+                                          foreach ($keywords as $keyword) {
+                                              $pattern = '%' . mb_strtolower($keyword) . '%';
+                                              $subQ->whereRaw('LOWER(COALESCE(name, "")) NOT LIKE ?', [$pattern])
+                                                ->whereRaw('LOWER(COALESCE(description, "")) NOT LIKE ?', [$pattern]);
+                                          }
                                       });
-                                      foreach ($keywords as $keyword) {
-                                          $pattern = '%' . mb_strtolower($keyword) . '%';
-                                          $q->whereRaw('LOWER(COALESCE(name, "")) NOT LIKE ?', [$pattern])
-                                            ->whereRaw('LOWER(COALESCE(description, "")) NOT LIKE ?', [$pattern]);
-                                      }
                                   });
                         } elseif ($data['value'] === 'comidas') {
-                            $query->where('user_id', '!=', 6)->whereHas('user', fn($q) => $q->where('role', 'vendor'));
+                            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) {
+                                $q->where('external_category', 'comidas')
+                                  ->orWhere(function (\Illuminate\Database\Eloquent\Builder $subQ) {
+                                      $subQ->where('user_id', '!=', 6)->whereHas('user', fn($userQ) => $userQ->where('role', 'vendor'));
+                                  });
+                            });
                         } elseif ($data['value'] === 'farmacia') {
-                            $query->where('external_source', 'pedidosya')->where('external_category', 'farmacia');
+                            $query->where('external_category', 'farmacia');
                         }
                     }),
             ])
