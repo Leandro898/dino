@@ -1,6 +1,8 @@
 <!-- Bottom Action Sheet -->
 <div class="bottom-sheet" id="bottomSheet">
-    <div class="sheet-handle" id="sheetHandle"></div>
+    <div class="sheet-drag-zone">
+        <div class="sheet-handle" id="sheetHandle"></div>
+    </div>
     
     <div class="bottom-sheet-content">
         <div class="install-banner" id="installBanner">

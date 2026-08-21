@@ -205,25 +205,23 @@ body, html {
     gap: 20px;
 }
 
+.sheet-drag-zone {
+    padding: 24px 0 16px 0;
+    margin: -24px -24px 8px -24px;
+    cursor: ns-resize;
+    touch-action: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+}
+
 .sheet-handle {
-    position: relative;
     width: 45px;
     height: 5px;
     background: #cbd5e1;
     border-radius: 3px;
-    margin: -12px auto 8px auto;
-    cursor: ns-resize;
     touch-action: none;
-}
-
-.sheet-handle::after {
-    content: '';
-    position: absolute;
-    top: -20px;
-    bottom: -20px;
-    left: -50px;
-    right: -50px;
-    cursor: ns-resize;
 }
 
 .tooltip-vendor {
