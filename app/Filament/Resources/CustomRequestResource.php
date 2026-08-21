@@ -19,6 +19,11 @@ class CustomRequestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin' || auth()->user()?->role === 'vendor';
+    }
+
     public static function getNavigationLabel(): string
     {
         return auth()->user()?->role === 'vendor' ? 'Chat' : 'Pedidos Especiales';

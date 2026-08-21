@@ -16,10 +16,16 @@ class ProjectBoardPage extends Page
 
     public array $notes = [];
 
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && in_array($user->role, ['admin', 'manager']);
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user && $user->role === 'admin';
+        return $user && in_array($user->role, ['admin', 'manager']);
     }
 
     public function mount(): void

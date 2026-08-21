@@ -10,19 +10,19 @@ class AdminDashboard extends BaseDashboard
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->role === 'admin';
+        return in_array(auth()->user()?->role, ['admin', 'manager']);
     }
 
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user && $user->role === 'admin';
+        return $user && in_array($user->role, ['admin', 'manager']);
     }
 
     public function mount()
     {
         // Redirect vendor users to their own dashboard
-        if (auth()->user()?->role !== 'admin') {
+        if (!in_array(auth()->user()?->role, ['admin', 'manager'])) {
             $mainHost = parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost';
             $protocol = request()->secure() ? 'https://' : 'http://';
             return redirect()->to($protocol . 'vendedor.' . $mainHost);
@@ -31,7 +31,7 @@ class AdminDashboard extends BaseDashboard
 
     public function getWidgets(): array
     {
-        if (auth()->user()?->role !== 'admin') {
+        if (!in_array(auth()->user()?->role, ['admin', 'manager'])) {
             return [];
         }
         return parent::getWidgets();

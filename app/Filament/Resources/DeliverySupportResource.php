@@ -20,6 +20,16 @@ class DeliverySupportResource extends Resource
     protected static ?string $modelLabel = 'Soporte Repartidor';
     protected static ?string $navigationGroup = 'Soporte';
 
+    public static function canAccess(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'manager']);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return in_array(auth()->user()?->role, ['admin', 'manager']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([]);

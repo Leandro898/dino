@@ -17,6 +17,12 @@ class ShippingZoneResource extends Resource
         $user = auth()->user();
         return $user && $user->role === 'admin';
     }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'admin';
+    }
     protected static ?string $model = ShippingZone::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-map';

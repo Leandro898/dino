@@ -18,6 +18,11 @@ class OrderResource extends Resource
     {
         return auth()->user()?->role === 'admin';
     }
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
     protected static ?string $model = Order::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';

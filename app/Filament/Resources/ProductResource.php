@@ -17,8 +17,13 @@ class ProductResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        // Mostrar productos solo a admin y vendors
-        return $user && in_array($user->role, ['admin', 'vendor']);
+        return $user && in_array($user->role, ['admin', 'vendor', 'manager']);
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && in_array($user->role, ['admin', 'vendor', 'manager']);
     }
     protected static ?string $model = Product::class;
 
@@ -51,7 +56,7 @@ class ProductResource extends Resource
                 Forms\Components\Toggle::make('is_active')
                     ->label('Visible (Publicado)')
                     ->default(true)
-                    ->disabled(fn () => auth()->user() && auth()->user()->role !== 'admin'),
+                    ->disabled(fn () => auth()->user() && !in_array(auth()->user()->role, ['admin', 'manager'])),
             ]);
     }
 
@@ -83,14 +88,14 @@ class ProductResource extends Resource
                     ->label('Stock')
                     ->sortable(),
 
-                // Muestra el nombre del vendedor solo para admin
+                // Muestra el nombre del vendedor solo para admin o manager
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Vendedor')
-                    ->visible($user && $user->role === 'admin'),
+                    ->visible($user && in_array($user->role, ['admin', 'manager'])),
 
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Visible')
-                    ->disabled(fn () => $user && $user->role !== 'admin'),
+                    ->disabled(fn () => $user && !in_array($user->role, ['admin', 'manager'])),
             ])
             ->filters([
                 //

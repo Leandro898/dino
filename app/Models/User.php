@@ -156,7 +156,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         ]);
 
         if ($panelId === 'admin') {
-            return $this->role === 'admin';
+            return in_array($this->role, ['admin', 'manager']);
         }
 
         if ($panelId === 'seller') {
