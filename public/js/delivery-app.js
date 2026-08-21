@@ -508,7 +508,7 @@ async function fetchOrders() {
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 ${paymentBadgeHtml}
                 ${!data.is_accepted ? `
-                <button onclick="rejectCurrentOrder(${data.id})" style="background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #64748b; cursor: pointer; transition: all 0.2s;">✕</button>
+                <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Nuevo Pedido</span>
                 ` : `
                 <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Pedido #${data.id}</span>
                 `}
@@ -568,9 +568,14 @@ async function fetchOrders() {
                 </div>
 
                 ${!data.is_accepted ? `
-                    <button onclick="acceptCurrentOrder(${data.id})" class="btn" style="width: 100%; height: 50px; background: #111827; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-                        Aceptar pedido
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="rejectCurrentOrder(${data.id})" class="btn" style="flex: 1; height: 50px; background: #ef4444; color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(239,68,68,0.2);">
+                            Rechazar
+                        </button>
+                        <button onclick="acceptCurrentOrder(${data.id})" class="btn" style="flex: 2; height: 50px; background: #111827; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                            Aceptar pedido
+                        </button>
+                    </div>
                 ` : `
                     ${(data.latitude && data.longitude) ? `
                         <a href="https://www.google.com/maps/dir/?api=1&destination=${data.latitude},${data.longitude}&travelmode=driving" 
