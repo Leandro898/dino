@@ -179,13 +179,6 @@ if (bottomSheet) {
     bottomSheet.addEventListener('touchstart', (e) => {
         dragStartY = e.touches[0].clientY;
         
-        const isExpanded = bottomSheet.classList.contains('expanded');
-        if (isExpanded && sheetContent && sheetContent.contains(e.target)) {
-            if (sheetContent.scrollTop > 0) {
-                return; // let native scroll
-            }
-        }
-        
         bottomSheet.style.transition = 'none';
         
         const maxTranslate = bottomSheet.offsetHeight;
@@ -202,17 +195,6 @@ if (bottomSheet) {
         const currentY = e.touches[0].clientY;
         const deltaY = currentY - dragStartY;
         
-        const isExpanded = bottomSheet.classList.contains('expanded');
-        
-        if (isExpanded && sheetContent && sheetContent.contains(e.target)) {
-            if (sheetContent.scrollTop > 0) {
-                return; // let native scroll
-            }
-            if (deltaY < 0) {
-                return; // dragging up: let native scroll scroll the content
-            }
-        }
-        
         // We are dragging the sheet, prevent native scroll
         if (e.cancelable) {
             e.preventDefault();
@@ -226,17 +208,6 @@ if (bottomSheet) {
     bottomSheet.addEventListener('touchend', (e) => {
         const currentY = e.changedTouches[0].clientY;
         const deltaY = currentY - dragStartY;
-        
-        const isExpanded = bottomSheet.classList.contains('expanded');
-        
-        if (isExpanded && sheetContent && sheetContent.contains(e.target)) {
-            if (sheetContent.scrollTop > 0) {
-                return;
-            }
-            if (deltaY < 0) {
-                return; 
-            }
-        }
         
         bottomSheet.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         bottomSheet.style.transform = ''; 
