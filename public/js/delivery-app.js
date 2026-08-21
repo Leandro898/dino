@@ -176,26 +176,35 @@ map.on('click', () => {
 });
 
 if (bottomSheet) {
+    let isDragging = false;
+
     bottomSheet.addEventListener('touchstart', (e) => {
         dragStartY = e.touches[0].clientY;
+        isDragging = true;
         
         bottomSheet.style.transition = 'none';
         
-        const maxTranslate = bottomSheet.offsetHeight;
-        if (bottomSheet.classList.contains('expanded')) {
-            initialSheetTranslate = 0;
-        } else if (bottomSheet.classList.contains('half')) {
-            initialSheetTranslate = maxTranslate - 380;
+        const style = window.getComputedStyle(bottomSheet);
+        const transform = style.transform;
+        if (transform !== 'none') {
+            const matrix = new DOMMatrix(transform);
+            initialSheetTranslate = matrix.m42;
         } else {
-            initialSheetTranslate = maxTranslate - 130; // default collapsed
+            initialSheetTranslate = 0;
         }
     }, { passive: true });
 
     bottomSheet.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
         const currentY = e.touches[0].clientY;
         const deltaY = currentY - dragStartY;
         
-        // We are dragging the sheet, prevent native scroll
+        // Permitir scroll interno si está expandido y hacemos scroll hacia abajo en el contenido
+        const content = document.querySelector('.bottom-sheet-content');
+        if (bottomSheet.classList.contains('expanded') && content && content.scrollTop > 0 && deltaY < 0) {
+            return; // let native scroll happen
+        }
+        
         if (e.cancelable) {
             e.preventDefault();
         }
@@ -206,6 +215,8 @@ if (bottomSheet) {
     }, { passive: false });
 
     bottomSheet.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
         const currentY = e.changedTouches[0].clientY;
         const deltaY = currentY - dragStartY;
         
@@ -226,12 +237,23 @@ if (bottomSheet) {
         const distCollapsed = Math.abs(currentTranslate - snapCollapsed);
         
         // Momentum logic
-        if (deltaY < -30 && distExpanded < distCollapsed) {
-            if (initialSheetTranslate === snapCollapsed) {
-                 if (deltaY < -150) bottomSheet.classList.add('expanded');
-                 else bottomSheet.classList.add('half');
-                 return;
+        if (Math.abs(deltaY) > 20) {
+            if (deltaY < 0) {
+                // Hacia arriba
+                if (currentTranslate > snapHalf) {
+                    bottomSheet.classList.add('half');
+                } else {
+                    bottomSheet.classList.add('expanded');
+                }
+            } else {
+                // Hacia abajo
+                if (currentTranslate < snapHalf) {
+                    bottomSheet.classList.add('half');
+                } else {
+                    bottomSheet.classList.add('collapsed');
+                }
             }
+            return;
         }
         
         if (distExpanded < distHalf && distExpanded < distCollapsed) {

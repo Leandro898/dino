@@ -186,7 +186,6 @@ body, html {
     flex-direction: column;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateY(calc(100% - 130px)); /* default collapsed: shows handle and Comenzar button */
-    touch-action: none; /* Disable all native scroll to make drag flawless anywhere on sheet */
 }
 .bottom-sheet.expanded {
     transform: translateY(0) !important;
