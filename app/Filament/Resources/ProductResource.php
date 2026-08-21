@@ -105,6 +105,7 @@ class ProductResource extends Resource
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Visible')
                     ->disabled(fn () => $user && !in_array($user->role, ['admin', 'manager'])),
+            ])
             ->filters([
                 //
             ])
