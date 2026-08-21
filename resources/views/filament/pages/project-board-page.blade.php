@@ -12,27 +12,30 @@
         <!-- Notas -->
         <template x-for="(note, index) in notes" :key="note.id">
             <div
-                class="absolute w-64 shadow-md rounded-xl overflow-hidden cursor-move transition-shadow duration-200"
+                class="absolute shadow-md rounded-xl overflow-hidden transition-shadow duration-200 flex flex-col resize"
                 :class="isDragging === note.id ? 'shadow-2xl z-50 scale-105' : 'z-10 hover:shadow-xl'"
-                :style="`transform: translate(${note.x}px, ${note.y}px); background-color: ${note.color};`"
-                @mousedown="startDrag($event, note)"
+                :style="`transform: translate(${note.x}px, ${note.y}px); background-color: ${note.color}; width: ${note.width || 256}px; height: ${note.height || 200}px; min-width: 150px; min-height: 150px;`"
+                @mouseup="stopResize($event, note)"
             >
                 <!-- Header of Note -->
-                <div class="flex justify-between items-center px-3 py-2 bg-black/10 border-b border-black/5">
+                <div 
+                    class="flex justify-between items-center px-3 py-2 bg-black/10 border-b border-black/5 cursor-move"
+                    @mousedown="startDrag($event, note)"
+                >
                     <span class="text-xs font-black text-gray-700 uppercase tracking-wider" x-text="note.author"></span>
                     <button @click="$wire.deleteNote(note.id)" class="text-gray-600 hover:text-red-600 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
                 <!-- Body of Note -->
-                <div class="p-3">
+                <div class="p-3 flex-1 flex flex-col">
                     <textarea
                         x-model="note.content"
                         @mousedown.stop
                         @change="$wire.updateNoteContent(note.id, note.content)"
                         @focus="isEditing = true"
                         @blur="isEditing = false"
-                        class="w-full h-36 bg-transparent border-none resize-none focus:ring-0 p-0 text-gray-800 placeholder-gray-500 font-medium"
+                        class="w-full flex-1 bg-transparent border-none resize-none focus:ring-0 p-0 text-gray-800 placeholder-gray-500 font-medium h-full"
                         placeholder="Escribe una idea..."
                     ></textarea>
                 </div>
@@ -96,6 +99,20 @@
                 if (this.isDragging) {
                     $wire.updateNotePosition(note.id, note.x, note.y);
                     this.isDragging = null;
+                }
+            },
+
+            stopResize(e, note) {
+                // If it's not the container, ignore
+                if (e.target !== e.currentTarget) return;
+                
+                const newWidth = e.target.clientWidth;
+                const newHeight = e.target.clientHeight;
+                
+                if (newWidth !== (note.width || 256) || newHeight !== (note.height || 200)) {
+                    note.width = newWidth;
+                    note.height = newHeight;
+                    $wire.updateNoteSize(note.id, newWidth, newHeight);
                 }
             }
         }))

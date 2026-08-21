@@ -58,6 +58,8 @@ class ProjectBoardPage extends Page
             'content' => '',
             'color' => $color,
             'author' => auth()->user()->name ?? 'Admin',
+            'width' => 256,
+            'height' => 200,
         ];
 
         $this->saveNotes();
@@ -69,6 +71,18 @@ class ProjectBoardPage extends Page
             if ($note['id'] === $id) {
                 $note['x'] = $x;
                 $note['y'] = $y;
+                break;
+            }
+        }
+        $this->saveNotes();
+    }
+
+    public function updateNoteSize($id, $width, $height)
+    {
+        foreach ($this->notes as &$note) {
+            if ($note['id'] === $id) {
+                $note['width'] = $width;
+                $note['height'] = $height;
                 break;
             }
         }
