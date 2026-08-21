@@ -35,7 +35,7 @@
 
                                 @if ($details['image'])
                                     <img src="{{ asset('storage/' . $details['image']) }}"
-                                        class="w-20 h-20 object-cover rounded-xl">
+                                        class="w-20 h-20 object-cover rounded-xl" loading="lazy">
                                 @endif
 
                                 <div>

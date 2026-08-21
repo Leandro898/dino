@@ -72,6 +72,8 @@ class VendorDashboard extends BaseDashboard implements HasForms
                         FileUpload::make('banner')
                             ->label('Banner del Comercio')
                             ->image()
+                            ->imageEditor()
+                            ->optimize('webp')
                             ->disk('public')
                             ->directory('vendors/banners')
                             ->visibility('public')

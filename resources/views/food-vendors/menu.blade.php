@@ -81,7 +81,7 @@
                         <div class="relative aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-[#2a2a2a] dark:to-[#1a1a1a] overflow-hidden">
                             @if ($product->image)
                                 <img src="{{ $product->image_src }}" alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy">
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
                                     <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

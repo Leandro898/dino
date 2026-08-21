@@ -42,6 +42,8 @@ class ProductResource extends Resource
                 Forms\Components\TextInput::make('stock')->numeric()->default(1),
                 Forms\Components\FileUpload::make('image')
                     ->image()
+                    ->imageEditor()
+                    ->optimize('webp')
                     ->disk('public')
                     ->directory('products')
                     ->visibility('public')

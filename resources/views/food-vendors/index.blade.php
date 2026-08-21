@@ -19,10 +19,10 @@
                     <div class="aspect-video bg-white border-b border-gray-150 flex items-center justify-center relative overflow-hidden">
                         @if ($vendor->banner)
                             <img src="{{ $vendor->banner_url }}" alt="{{ $vendor->name }}"
-                                style="max-height: 100%; max-width: 100%; object-fit: contain; padding: 8px;">
+                                style="max-height: 100%; max-width: 100%; object-fit: contain; padding: 8px;" loading="lazy">
                         @elseif ($vendor->products->first()?->image)
                             <img src="{{ $vendor->products->first()->image_src }}" alt="{{ $vendor->name }}"
-                                class="w-full h-full object-cover">
+                                class="w-full h-full object-cover" loading="lazy">
                         @else
                             <div class="w-full h-full bg-gradient-to-br from-purple-400 to-orange-400 flex items-center justify-center text-white text-center">
                                 <div>

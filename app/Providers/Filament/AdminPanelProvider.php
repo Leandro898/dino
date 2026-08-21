@@ -40,6 +40,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Pages\OrdersRealtime::class,
                 \App\Filament\Pages\AdminOrders::class,
                 \App\Filament\Pages\PriceControl::class,
+                \App\Filament\Pages\ProjectBoardPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])
