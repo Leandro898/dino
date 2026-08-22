@@ -592,8 +592,8 @@ async function fetchOrders() {
                     ` : ''}
                     
                     ${['assigned', 'processing'].includes(data.status) ? `
-                        <button onclick="markPickedUp(${data.id})" class="btn" style="width: 100%; height: 50px; background: #f59e0b; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-                            🛍️ Confirmar Retiro del Local
+                        <button id="btn-mark-picked-up" onclick="markPickedUp(${data.id})" class="btn" style="width: 100%; height: 50px; background: ${distToVendor !== null && distToVendor > 150 ? '#94a3b8' : '#f59e0b'}; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: ${distToVendor !== null && distToVendor > 150 ? 'not-allowed' : 'pointer'}; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" ${distToVendor !== null && distToVendor > 150 ? 'disabled' : ''}>
+                            ${distToVendor !== null && distToVendor > 150 ? '📍 Acércate al local para retirar' : '🛍️ Confirmar Retiro del Local'}
                         </button>
                     ` : ''}
 
@@ -855,6 +855,25 @@ function startGpsTracking() {
 
                 // Actualizar marcador del rider en el mapa local
                 riderMarker.setLatLng([lat, lng]);
+
+                // Actualizar estado del botón de retiro si está activo
+                if (currentActiveOrderData && currentActiveOrderData.vendor_latitude && currentActiveOrderData.vendor_longitude) {
+                    const btn = document.getElementById('btn-mark-picked-up');
+                    if (btn) {
+                        const dist = calculateDistance(lat, lng, currentActiveOrderData.vendor_latitude, currentActiveOrderData.vendor_longitude);
+                        if (dist !== null && dist <= 150) {
+                            btn.disabled = false;
+                            btn.style.background = '#f59e0b';
+                            btn.style.cursor = 'pointer';
+                            btn.innerHTML = '🛍️ Confirmar Retiro del Local';
+                        } else if (dist !== null && dist > 150) {
+                            btn.disabled = true;
+                            btn.style.background = '#94a3b8';
+                            btn.style.cursor = 'not-allowed';
+                            btn.innerHTML = '📍 Acércate al local para retirar';
+                        }
+                    }
+                }
 
                 // Enviar al servidor
                 fetch(locationUpdateUrl, {
