@@ -592,8 +592,8 @@ async function fetchOrders() {
                     ` : ''}
                     
                     ${['assigned', 'processing'].includes(data.status) ? `
-                        <button id="btn-mark-picked-up" onclick="markPickedUp(${data.id})" class="btn" style="width: 100%; height: 50px; background: ${distToVendor !== null && distToVendor > 150 ? '#94a3b8' : '#f59e0b'}; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: ${distToVendor !== null && distToVendor > 150 ? 'not-allowed' : 'pointer'}; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" ${distToVendor !== null && distToVendor > 150 ? 'disabled' : ''}>
-                            ${distToVendor !== null && distToVendor > 150 ? '📍 Acércate al local para retirar' : '🛍️ Confirmar Retiro del Local'}
+                        <button id="btn-mark-picked-up" onclick="markPickedUp(${data.id}, ${data.vendor_latitude || 'null'}, ${data.vendor_longitude || 'null'})" class="btn" style="width: 100%; height: 50px; background: ${distToVendor !== null && distToVendor > 0.15 ? '#94a3b8' : '#f59e0b'}; color: white; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: ${distToVendor !== null && distToVendor > 0.15 ? 'not-allowed' : 'pointer'}; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" ${distToVendor !== null && distToVendor > 0.15 ? 'disabled' : ''}>
+                            ${distToVendor !== null && distToVendor > 0.15 ? '📍 Acércate al local para retirar' : '🛍️ Confirmar Retiro del Local'}
                         </button>
                     ` : ''}
 
@@ -690,7 +690,16 @@ window.rejectCurrentOrder = async function(orderId) {
     }
 };
 
-window.markPickedUp = async function(orderId) {
+window.markPickedUp = async function(orderId, vendorLat, vendorLng) {
+    if (vendorLat && vendorLng && riderMarker) {
+        const riderLatLng = riderMarker.getLatLng();
+        const dist = calculateDistance(riderLatLng.lat, riderLatLng.lng, vendorLat, vendorLng);
+        if (dist > 0.15) { // 150 metros
+            await showCustomModal('Demasiado lejos', `Estás a ${(dist * 1000).toFixed(0)} metros del local. Debes estar a menos de 150m para poder confirmar el retiro.`, false);
+            return;
+        }
+    }
+
     const confirmed = await showCustomModal('Retiro del Local', '¿Confirmas que has retirado este pedido del local?');
     if (!confirmed) return;
     try {
@@ -861,12 +870,12 @@ function startGpsTracking() {
                     const btn = document.getElementById('btn-mark-picked-up');
                     if (btn) {
                         const dist = calculateDistance(lat, lng, currentActiveOrderData.vendor_latitude, currentActiveOrderData.vendor_longitude);
-                        if (dist !== null && dist <= 150) {
+                        if (dist !== null && dist <= 0.15) {
                             btn.disabled = false;
                             btn.style.background = '#f59e0b';
                             btn.style.cursor = 'pointer';
                             btn.innerHTML = '🛍️ Confirmar Retiro del Local';
-                        } else if (dist !== null && dist > 150) {
+                        } else if (dist !== null && dist > 0.15) {
                             btn.disabled = true;
                             btn.style.background = '#94a3b8';
                             btn.style.cursor = 'not-allowed';
