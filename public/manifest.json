@@ -8,7 +8,7 @@
     "description": "Tienda online en Bariloche",
     "icons": [
         {
-            "src": "/app-icon.svg",
+            "src": "/favicon-arg.svg",
             "sizes": "any",
             "type": "image/svg+xml",
             "purpose": "any maskable"

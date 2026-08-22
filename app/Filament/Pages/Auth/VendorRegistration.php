@@ -21,6 +21,11 @@ class VendorRegistration extends BaseRegister
                 $this->makeForm()
                     ->schema([
                         $this->getNameFormComponent()->label('Nombre del Comercio / Negocio'),
+                        \Filament\Forms\Components\TextInput::make('phone')
+                            ->label('Teléfono (WhatsApp)')
+                            ->tel()
+                            ->required()
+                            ->maxLength(255),
                         $this->getEmailFormComponent()->label('Correo Electrónico'),
                         $this->getPasswordFormComponent()->label('Contraseña'),
                         $this->getPasswordConfirmationFormComponent()->label('Confirmar Contraseña'),
