@@ -410,6 +410,9 @@ async function showOrderNotification(order) {
 async function fetchOrders() {
     if (!isConnected) return;
     
+    // Función auxiliar para el help center si es necesaria en el futuro.
+    function updateHelpCenterUI() {}
+    
     try {
         const urlWithTimestamp = latestUrl + (latestUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
         const response = await fetch(urlWithTimestamp, { headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' }});
