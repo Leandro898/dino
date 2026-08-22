@@ -1,6 +1,6 @@
 <x-delivery-layout title="Bari Rider" themeColor="#ffffff" :useVite="false">
     @push('head')
-    <link rel="manifest" href="{{ asset('delivery-manifest.json') }}?v=7">
+    <link rel="manifest" href="{{ asset('delivery-manifest.json') }}?v=8">
     <!-- Pusher & Echo CDNs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/8.3.0/pusher.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
