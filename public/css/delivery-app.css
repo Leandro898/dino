@@ -615,6 +615,50 @@ input:checked + .toggle-slider:before {
     transform: scale(0.9);
 }
 
+/* List Menu Styles (Help Center) */
+.menu-section {
+    margin-bottom: 24px;
+}
+.menu-section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+.list-menu {
+    display: flex;
+    flex-direction: column;
+}
+.list-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f3f4f6;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: background 0.2s;
+}
+.list-menu-item:active {
+    opacity: 0.7;
+}
+.list-menu-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: var(--text-muted);
+}
+.list-menu-text {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.list-menu-chevron {
+    color: var(--primary);
+}
+
 #logout-form { display: none; }
 
 @keyframes pulse-rider {

@@ -26,6 +26,8 @@
     @include('delivery.partials.drawer')
     @include('delivery.partials.profile-view')
     @include('delivery.partials.support-view')
+    @include('delivery.partials.help-center-view')
+    @include('delivery.partials.help-center-issues-view')
     @include('delivery.partials.settings-view')
 
     <!-- Leaflet JS -->

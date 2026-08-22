@@ -99,6 +99,7 @@ let isConnected = false;
 let isSupportViewActive = false;
 let baselineInitialized = false;
 let deferredPrompt = null;
+let currentActiveOrderData = null;
 
 // --- WebSocket configuration (Laravel Echo + Reverb) ---
 window.Pusher = Pusher;
@@ -420,6 +421,8 @@ async function fetchOrders() {
         }
 
         if (!data.has_order) {
+            currentActiveOrderData = null;
+            updateHelpCenterUI();
             infoTitle.textContent = "Sin pedidos asignados";
             infoDesc.innerHTML = "Esperando que se te asigne un pedido. Mantente en línea.";
             localStorage.removeItem('delivery_last_order_id');
@@ -432,6 +435,9 @@ async function fetchOrders() {
             connectedActions.style.display = 'flex';
             return;
         }
+
+        currentActiveOrderData = data;
+        updateHelpCenterUI();
 
         // Remove previous markers/routes
         if (vendorMarker) { map.removeLayer(vendorMarker); vendorMarker = null; }
