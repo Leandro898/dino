@@ -66,8 +66,15 @@ class SellerPanelProvider extends PanelProvider
                     '<link rel="manifest" href="/vendedor-manifest.json">' .
                     '<meta name="theme-color" content="#4F46E5">' .
                     '<meta name="vapid-public-key" content="' . config('webpush.vapid.public_key') . '">' .
-                    '<link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=V&size=192&background=4F46E5&color=fff">' .
-                    '<script>window.authUserRole = "{{ auth()->user()?->role ?? \'guest\' }}";</script>'
+                    '<script>window.authUserRole = "{{ auth()->user()?->role ?? \'guest\' }}";</script>' .
+                    '<script>' .
+                    'window.ReverbConfig = {' .
+                        'key: "' . config('broadcasting.connections.reverb.key') . '",' .
+                        'wsPort: ' . config('broadcasting.connections.reverb.options.port', 8080) . ',' .
+                        'wssPort: 443,' .
+                        'forceTLS: ' . (config('broadcasting.connections.reverb.options.scheme') === 'https' ? 'true' : 'false') .
+                    '};' .
+                    '</script>'
                 ),
             )
             ->renderHook(

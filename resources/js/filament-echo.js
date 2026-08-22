@@ -9,7 +9,7 @@ window.Echo = new Echo({
     key: window.ReverbConfig ? window.ReverbConfig.key : import.meta.env.VITE_REVERB_APP_KEY,
     wsHost: window.location.hostname || import.meta.env.VITE_REVERB_HOST,
     wsPort: window.ReverbConfig ? window.ReverbConfig.wsPort : (import.meta.env.VITE_REVERB_PORT ?? 8080),
-    wssPort: window.ReverbConfig ? window.ReverbConfig.wssPort : (import.meta.env.VITE_REVERB_PORT ?? 8080),
+    wssPort: 443,
     forceTLS: window.ReverbConfig ? window.ReverbConfig.forceTLS : (window.location.protocol === 'https:' || (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https'),
     enabledTransports: ['ws', 'wss'],
     authorizer: (channel, options) => {
