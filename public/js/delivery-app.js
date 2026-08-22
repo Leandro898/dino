@@ -402,6 +402,9 @@ async function showOrderNotification(order) {
             icon: window.BariDeliveryConfig.assets.ogImage
         });
     }
+
+    // Siempre mostrar el modal visual en pantalla por si las notificaciones nativas fallan
+    showCustomModal('¡Nuevo Pedido Asignado!', `Tienes un pedido de ${order.vendor_name || 'Comercio'} para entregar a ${order.customer_name}. Revisa los detalles.`, false);
 }
 
 async function fetchOrders() {
