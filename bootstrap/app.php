@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Registrar visitas reales de usuarios (filtra bots automáticamente)
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackPageView::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\RedirectIfDelivery::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
