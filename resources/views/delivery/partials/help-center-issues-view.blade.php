@@ -1,10 +1,10 @@
 <!-- Centro de Ayuda - Inconvenientes con una orden View -->
 <div class="pwa-view" id="helpCenterIssuesView">
-    <div class="view-header">
-        <button class="icon-btn" style="box-shadow:none; background:#f3f4f6;" onclick="closeView('helpCenterIssuesView')">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    <div class="view-header" style="border-bottom: none; padding-bottom: 0;">
+        <button class="icon-btn" style="box-shadow:none; background:transparent; margin-left: -8px;" onclick="closeView('helpCenterIssuesView')">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
-        <h2 style="font-size: 1.1rem; font-weight: 600;">Inconvenientes con una orden</h2>
+        <h2 style="font-size: 1.15rem; font-weight: 700; color: #1e293b;">Inconvenientes con una orden</h2>
         <div style="width: 44px;"></div>
     </div>
     <div class="view-content" style="padding-top: 16px;">
