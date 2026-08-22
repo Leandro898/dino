@@ -15,6 +15,18 @@ class RiderMapPage extends Page
 
     protected static string $view = 'filament.pages.rider-map-page';
 
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && in_array($user->role, ['admin', 'manager']);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && in_array($user->role, ['admin', 'manager']);
+    }
+
     public array $riders = [];
 
     public function mount()
