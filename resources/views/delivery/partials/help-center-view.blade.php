@@ -4,11 +4,10 @@
         <button class="icon-btn" style="box-shadow:none; background:#f3f4f6;" onclick="closeView('helpCenterView')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
-        <h2 style="font-size: 1.1rem; font-weight: 600;">Centro de ayuda</h2>
+        <h2 style="font-size: 1.1rem; font-weight: 600;">Soporte</h2>
         <div style="width: 44px;"></div>
     </div>
     <div class="view-content" style="padding-top: 16px;">
-        <h3 style="color: #f43f5e; font-size: 1.25rem; font-weight: 600; margin-bottom: 20px;">Centro de Ayuda</h3>
 
         <div class="menu-section">
             <h4 class="menu-section-title">Pedidos</h4>
