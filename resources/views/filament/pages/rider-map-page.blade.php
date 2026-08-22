@@ -76,12 +76,18 @@
                         if (window.Echo) {
                             console.log('Echo is ready! Subscribing to map events...');
                             window.Echo.private('admin.map')
+                                .subscribed(() => {
+                                    console.log('✅ Successfully subscribed to private admin.map channel!');
+                                })
                                 .listen('.global-rider-location-updated', (e) => {
                                     console.log('Rider location update received:', e);
                                     this.addOrUpdateMarker(e.riderId, e.riderName, e.latitude, e.longitude);
                                 });
 
                             window.Echo.channel('orders')
+                                .subscribed(() => {
+                                    console.log('✅ Successfully subscribed to public orders channel!');
+                                })
                                 .listen('.rider.status.updated', (e) => {
                                     console.log('Rider status update received:', e);
                                     if (!e.isOnline) {

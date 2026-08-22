@@ -18,8 +18,10 @@ window.Echo = new Echo({
                 token = token ? token.getAttribute('content') : '';
                 fetch('/broadcasting/auth', {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': token
                     },
                     body: JSON.stringify({
@@ -28,7 +30,7 @@ window.Echo = new Echo({
                     })
                 })
                 .then(response => {
-                    if (!response.ok) throw new Error('Auth failed');
+                    if (!response.ok) throw new Error('Auth failed with status: ' + response.status);
                     return response.json();
                 })
                 .then(data => callback(false, data))
