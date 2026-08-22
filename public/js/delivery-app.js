@@ -346,32 +346,8 @@ if (installAppBtn) {
 // --- Audio Alert ---
 function playAlertSound() {
     try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function playTone(freq, startTime, duration) {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            
-            osc.type = 'triangle'; // Un sonido claro que resalta en la calle
-            osc.frequency.setValueAtTime(freq, startTime);
-            
-            gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(0.3, startTime + 0.02); // Ataque rápido
-            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration); // Caída suave
-            
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            
-            osc.start(startTime);
-            osc.stop(startTime + duration);
-        }
-
-        const now = ctx.currentTime;
-        // Un triple timbre melódico (G5, C6, E6) para notificar un pedido
-        playTone(784.00, now, 0.4);
-        playTone(1046.50, now + 0.12, 0.4);
-        playTone(1318.51, now + 0.24, 0.6);
-
+        const audio = new Audio('/sounds/rider-alert.mp3');
+        audio.play().catch(e => console.warn('Audio play failed', e));
     } catch (error) {
         console.warn('Audio play failed', error);
     }
