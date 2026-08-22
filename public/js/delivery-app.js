@@ -780,7 +780,7 @@ async function toggleConnection(connect) {
                 if (!isConnected) {
                     isConnected = true;
                     topStatusDot.className = 'dot active';
-                    topStatusText.textContent = 'Conectado';
+                    topStatusText.textContent = 'Conectado (v2)';
                     disconnectedActions.style.display = 'none';
                     connectedActions.style.display = 'flex';
                 }
