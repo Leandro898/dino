@@ -1,21 +1,29 @@
 <x-filament-panels::page>
     <div x-data="projectBoard()" x-init="initBoard()" class="w-full bg-gray-100 dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl shadow-inner relative overflow-auto" style="height: 75vh; min-height: 600px;">
         
-        <!-- Botón Agregar -->
-        <div class="sticky top-4 left-4 z-50 w-max" style="margin-bottom: -60px;">
+        <!-- Controles Superiores -->
+        <div class="sticky top-4 left-4 z-50 w-max flex gap-2" style="margin-bottom: -60px;">
             <x-filament::button @click="$wire.addNote()" color="primary" size="lg" class="shadow-lg">
                 <svg slot="icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Nueva Nota
             </x-filament::button>
+
+            <!-- Zoom Controls -->
+            <div class="flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-10 mt-1">
+                <button @click="zoomOut()" class="px-3 h-full text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition border-r border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"></path></svg>
+                </button>
+                <span class="px-2 text-sm font-bold text-gray-700 dark:text-gray-200 min-w-[3.5rem] text-center" x-text="Math.round(scale * 100) + '%'"></span>
+                <button @click="zoomIn()" class="px-3 h-full text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition border-l border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                </button>
+            </div>
         </div>
 
         <!-- Canvas -->
         <div 
-            class="relative transition-transform duration-75 origin-top-left" 
+            class="relative transition-transform duration-200 origin-top-left" 
             :style="`width: 3000px; height: 3000px; transform: scale(${scale}); background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;`"
-            @touchstart="handleCanvasTouchStart"
-            @touchmove="handleCanvasTouchMove"
-            @wheel="handleWheel"
         >
 
         <!-- Notas -->
@@ -62,42 +70,18 @@
             isDragging: null,
             isEditing: false,
             scale: 1,
-            initialDistance: 0,
-            initialScale: 1,
             startX: 0,
             startY: 0,
             initialX: 0,
             initialY: 0,
             pollInterval: null,
 
-            handleCanvasTouchStart(e) {
-                if (e.touches.length === 2) {
-                    this.initialDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    this.initialScale = this.scale;
-                }
+            zoomIn() {
+                this.scale = Math.min(this.scale + 0.1, 2);
             },
 
-            handleCanvasTouchMove(e) {
-                if (e.touches.length === 2) {
-                    e.preventDefault();
-                    const currentDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    const newScale = this.initialScale * (currentDistance / this.initialDistance);
-                    this.scale = Math.min(Math.max(0.3, newScale), 3);
-                }
-            },
-            
-            handleWheel(e) {
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    const newScale = this.scale - (e.deltaY * 0.005);
-                    this.scale = Math.min(Math.max(0.3, newScale), 3);
-                }
+            zoomOut() {
+                this.scale = Math.max(this.scale - 0.1, 0.4);
             },
 
             initBoard() {
