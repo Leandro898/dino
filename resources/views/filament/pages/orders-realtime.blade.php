@@ -202,16 +202,31 @@
         }
 
         // 🔊 Función para reproducir sonido de Soporte de Repartidor
-        function playSupportSound() {
+        function playSupportSound(senderName = 'un repartidor') {
             const audio = new Audio('{{ asset('sounds/order.mp3') }}');
             audio.volume = 1.0;
             audio.play()
                 .then(() => {
                     if ('speechSynthesis' in window) {
                         setTimeout(() => {
-                            const utterance = new SpeechSynthesisUtterance('Nuevo mensaje de soporte de repartidor');
-                            utterance.lang = 'es-ES';
+                            const message = 'Nuevo mensaje de soporte de ' + senderName;
+                            const utterance = new SpeechSynthesisUtterance(message);
+                            utterance.lang = 'es-AR';
                             utterance.rate = 0.95;
+                            
+                            let voices = window.speechSynthesis.getVoices();
+                            
+                            // Buscar voz masculina (Diego en Mac/iOS, Pablo en Windows)
+                            let voice = voices.find(v => v.name.includes('Diego')); // Mac/iOS Argentina Male
+                            if (!voice) voice = voices.find(v => v.name.includes('Pablo')); // Windows Spain Male
+                            if (!voice) voice = voices.find(v => v.lang === 'es-AR'); // Cualquier voz de Argentina
+                            if (!voice) voice = voices.find(v => v.lang.startsWith('es')); // Fallback
+                            
+                            if (voice) {
+                                utterance.voice = voice;
+                                console.log('🗣️ Voz seleccionada:', voice.name);
+                            }
+                            
                             window.speechSynthesis.speak(utterance);
                         }, 1200);
                     }
@@ -424,7 +439,7 @@
                 console.log('🎉 ¡MENSAJE DE SOPORTE DE REPARTIDOR RECIBIDO!', data);
                 const currentUserId = {{ auth()->id() }};
                 if (data.senderId !== currentUserId) {
-                    playSupportSound();
+                    playSupportSound(data.senderName);
                     showSupportNotification(data.deliveryUserId, data.senderName);
                 }
             });
