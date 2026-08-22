@@ -72,26 +72,30 @@
                         this.addOrUpdateMarker(rider.id, rider.name, rider.lat, rider.lng);
                     });
 
-                    // Listen to global rider location updates via Laravel Echo
-                    if (window.Echo) {
-                        window.Echo.private('admin.map')
-                            .listen('.global-rider-location-updated', (e) => {
-                                console.log('Rider location update received:', e);
-                                this.addOrUpdateMarker(e.riderId, e.riderName, e.latitude, e.longitude);
-                            });
+                    const setupEcho = () => {
+                        if (window.Echo) {
+                            console.log('Echo is ready! Subscribing to map events...');
+                            window.Echo.private('admin.map')
+                                .listen('.global-rider-location-updated', (e) => {
+                                    console.log('Rider location update received:', e);
+                                    this.addOrUpdateMarker(e.riderId, e.riderName, e.latitude, e.longitude);
+                                });
 
-                        // Listen to status updates (online/offline)
-                        window.Echo.channel('orders')
-                            .listen('.rider.status.updated', (e) => {
-                                console.log('Rider status update received:', e);
-                                if (!e.isOnline) {
-                                    this.removeMarker(e.riderId);
-                                } else if (e.latitude && e.longitude && e.name) {
-                                    // Rider is online and we have their last known location
-                                    this.addOrUpdateMarker(e.riderId, e.name, e.latitude, e.longitude);
-                                }
-                            });
-                    }
+                            window.Echo.channel('orders')
+                                .listen('.rider.status.updated', (e) => {
+                                    console.log('Rider status update received:', e);
+                                    if (!e.isOnline) {
+                                        this.removeMarker(e.riderId);
+                                    } else if (e.latitude && e.longitude && e.name) {
+                                        this.addOrUpdateMarker(e.riderId, e.name, e.latitude, e.longitude);
+                                    }
+                                });
+                        } else {
+                            setTimeout(setupEcho, 500);
+                        }
+                    };
+                    
+                    setupEcho();
                 },
 
                 removeMarker(id) {

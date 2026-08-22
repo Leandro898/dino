@@ -11,6 +11,31 @@ window.Echo = new Echo({
     wssPort: window.ReverbConfig ? window.ReverbConfig.wssPort : (import.meta.env.VITE_REVERB_PORT ?? 8080),
     forceTLS: window.ReverbConfig ? window.ReverbConfig.forceTLS : (window.location.protocol === 'https:' || (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https'),
     enabledTransports: ['ws', 'wss'],
+    authorizer: (channel, options) => {
+        return {
+            authorize: (socketId, callback) => {
+                let token = document.querySelector('meta[name="csrf-token"]');
+                token = token ? token.getAttribute('content') : '';
+                fetch('/broadcasting/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: JSON.stringify({
+                        socket_id: socketId,
+                        channel_name: channel.name
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Auth failed');
+                    return response.json();
+                })
+                .then(data => callback(false, data))
+                .catch(error => callback(true, error));
+            }
+        };
+    }
 });
 
 window.addEventListener('play-notification-sound', () => {
