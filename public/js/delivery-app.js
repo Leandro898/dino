@@ -408,7 +408,8 @@ async function fetchOrders() {
     if (!isConnected) return;
     
     try {
-        const response = await fetch(latestUrl, { headers: { 'Accept': 'application/json' }});
+        const urlWithTimestamp = latestUrl + (latestUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+        const response = await fetch(urlWithTimestamp, { headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' }});
         if (!response.ok) throw new Error('HTTP Error');
         const data = await response.json();
 
