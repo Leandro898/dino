@@ -1,13 +1,16 @@
 <x-filament-panels::page>
-    <div x-data="projectBoard()" x-init="initBoard()" class="w-full bg-gray-100 dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl shadow-inner relative overflow-hidden" style="height: 75vh; min-height: 600px; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;">
+    <div x-data="projectBoard()" x-init="initBoard()" class="w-full bg-gray-100 dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl shadow-inner relative overflow-auto" style="height: 75vh; min-height: 600px;">
         
         <!-- Botón Agregar -->
-        <div class="absolute top-4 left-4 z-50">
+        <div class="sticky top-4 left-4 z-50 w-max" style="margin-bottom: -60px;">
             <x-filament::button @click="$wire.addNote()" color="primary" size="lg" class="shadow-lg">
                 <svg slot="icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Nueva Nota
             </x-filament::button>
         </div>
+
+        <!-- Canvas -->
+        <div class="relative" style="width: 3000px; height: 3000px; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;">
 
         <!-- Notas -->
         <template x-for="(note, index) in notes" :key="note.id">
@@ -21,6 +24,8 @@
                 <div 
                     class="flex justify-between items-center px-3 py-2 bg-black/10 border-b border-black/5 cursor-move"
                     @mousedown="startDrag($event, note)"
+                    @touchstart="startDrag($event, note)"
+                    style="touch-action: none;"
                 >
                     <span class="text-xs font-black text-gray-700 uppercase tracking-wider" x-text="note.author"></span>
                     <button @click="$wire.deleteNote(note.id)" class="text-gray-600 hover:text-red-600 transition-colors">
@@ -41,6 +46,7 @@
                 </div>
             </div>
         </template>
+        </div>
     </div>
 
     @script
@@ -73,24 +79,38 @@
                 this.isDragging = note.id;
                 this.initialX = note.x;
                 this.initialY = note.y;
-                this.startX = e.clientX;
-                this.startY = e.clientY;
 
-                const onMouseMove = (e) => this.drag(e, note);
-                const onMouseUp = () => {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+                this.startX = clientX;
+                this.startY = clientY;
+
+                const onMove = (e) => this.drag(e, note);
+                const onEnd = () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onEnd);
+                    document.removeEventListener('touchmove', onMove);
+                    document.removeEventListener('touchend', onEnd);
                     this.stopDrag(note);
                 };
 
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('touchend', onEnd);
             },
 
             drag(e, note) {
                 if (!this.isDragging) return;
-                const dx = e.clientX - this.startX;
-                const dy = e.clientY - this.startY;
+                
+                if (e.type.includes('touch')) e.preventDefault();
+
+                const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+                const dx = clientX - this.startX;
+                const dy = clientY - this.startY;
                 note.x = this.initialX + dx;
                 note.y = this.initialY + dy;
             },
