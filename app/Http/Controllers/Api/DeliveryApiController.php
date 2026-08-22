@@ -163,7 +163,13 @@ class DeliveryApiController extends Controller implements HasMiddleware
         }
 
         try {
-            broadcast(new \App\Events\RiderStatusUpdated($user->id, $isOnline));
+            broadcast(new \App\Events\RiderStatusUpdated(
+                $user->id, 
+                $isOnline, 
+                $user->name, 
+                $user->latitude, 
+                $user->longitude
+            ));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error broadcasting rider status:', ['error' => $e->getMessage()]);
         }

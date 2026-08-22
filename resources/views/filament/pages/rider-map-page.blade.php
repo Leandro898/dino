@@ -86,6 +86,9 @@
                                 console.log('Rider status update received:', e);
                                 if (!e.isOnline) {
                                     this.removeMarker(e.riderId);
+                                } else if (e.latitude && e.longitude && e.name) {
+                                    // Rider is online and we have their last known location
+                                    this.addOrUpdateMarker(e.riderId, e.name, e.latitude, e.longitude);
                                 }
                             });
                     }

@@ -14,14 +14,20 @@ class RiderStatusUpdated implements ShouldBroadcastNow
 
     public int $riderId;
     public bool $isOnline;
+    public ?string $name;
+    public ?float $latitude;
+    public ?float $longitude;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(int $riderId, bool $isOnline)
+    public function __construct(int $riderId, bool $isOnline, ?string $name = null, ?float $latitude = null, ?float $longitude = null)
     {
         $this->riderId = $riderId;
         $this->isOnline = $isOnline;
+        $this->name = $name;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
     }
 
     /**
