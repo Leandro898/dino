@@ -385,7 +385,7 @@ body, html {
 }
 
 .drawer-header {
-    background: linear-gradient(135deg, #e11d48, #be123c); /* Pinkish/red like PedidosYa */
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover)); /* Brand gradient */
     padding: 40px 20px 20px 20px;
     color: white;
     border-radius: 0 0 24px 24px;
