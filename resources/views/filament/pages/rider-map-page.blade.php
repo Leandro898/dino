@@ -79,6 +79,22 @@
                                 console.log('Rider location update received:', e);
                                 this.addOrUpdateMarker(e.riderId, e.riderName, e.latitude, e.longitude);
                             });
+
+                        // Listen to status updates (online/offline)
+                        window.Echo.channel('orders')
+                            .listen('.rider.status.updated', (e) => {
+                                console.log('Rider status update received:', e);
+                                if (!e.isOnline) {
+                                    this.removeMarker(e.riderId);
+                                }
+                            });
+                    }
+                },
+
+                removeMarker(id) {
+                    if (this.markers[id]) {
+                        this.map.removeLayer(this.markers[id]);
+                        delete this.markers[id];
                     }
                 },
 
