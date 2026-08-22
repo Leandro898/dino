@@ -410,9 +410,6 @@ async function showOrderNotification(order) {
 async function fetchOrders() {
     if (!isConnected) return;
     
-    // Función auxiliar para el help center si es necesaria en el futuro.
-    function updateHelpCenterUI() {}
-    
     try {
         const urlWithTimestamp = latestUrl + (latestUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
         const response = await fetch(urlWithTimestamp, { headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache' }});
@@ -852,6 +849,53 @@ async function toggleConnection(connect) {
 }
 
 window.queuedDisconnect = false;
+
+window.updateHelpCenterUI = function() {
+    const btnCancel = document.getElementById('btnCancelOrder');
+    const noOptions = document.getElementById('noCancelOptionsMsg');
+
+    if (currentActiveOrderData && (currentActiveOrderData.status === 'pending' || currentActiveOrderData.status === 'assigned')) {
+        if (btnCancel) btnCancel.style.display = 'flex';
+        if (noOptions) noOptions.style.display = 'none';
+    } else {
+        if (btnCancel) btnCancel.style.display = 'none';
+        if (noOptions) noOptions.style.display = 'block';
+    }
+};
+
+window.promptCancelOrder = async function() {
+    if (!currentActiveOrderData) return;
+    
+    const confirmed = await showCustomModal('Cancelar Pedido', '¿Estás seguro que deseas liberar/cancelar este pedido? Volverá a la bolsa de pedidos para otros repartidores.');
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch(`/repartidor/pedidos/${currentActiveOrderData.id}/rechazar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Error al cancelar pedido');
+        const data = await response.json();
+        
+        if (data.success) {
+            closeView('helpCenterIssuesView');
+            closeView('helpCenterView');
+            await showCustomModal('Pedido Cancelado', 'Has liberado el pedido exitosamente.', false);
+            fetchOrders();
+        } else {
+            await showCustomModal('Atención', data.error || 'No se pudo cancelar el pedido.', false);
+        }
+    } catch (error) {
+        console.error(error);
+        await showCustomModal('Error', 'Ocurrió un error al intentar cancelar el pedido.', false);
+    }
+};
 
 window.requestDisconnect = async function() {
     if (currentActiveOrderData) {
