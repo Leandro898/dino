@@ -9,14 +9,14 @@
     "theme_color": "#ffffff",
     "icons": [
         {
-            "src": "https://ui-avatars.com/api/?name=B&size=192&background=ffffff&color=7e22ce&bold=true",
+            "src": "/images/rider-logo.jpg",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/jpeg"
         },
         {
-            "src": "https://ui-avatars.com/api/?name=B&size=512&background=ffffff&color=7e22ce&bold=true",
+            "src": "/images/rider-logo.jpg",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/jpeg"
         }
     ]
 }
