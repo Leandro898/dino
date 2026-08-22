@@ -1040,7 +1040,8 @@ async function openSupportChat() {
     isSupportViewActive = true;
     document.getElementById('supportBadge').style.display = 'none';
     document.getElementById('supportDrawerBadge').style.display = 'none';
-    await fetchSupportMessages();
+    // Removemos await para que la UI no se trabe al abrir la vista
+    fetchSupportMessages();
 }
 
 async function fetchSupportMessages() {
