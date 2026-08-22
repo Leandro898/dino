@@ -59,6 +59,21 @@ class Order extends Model
                 'request_url' => request()->url(),
                 'user' => auth()->id()
             ]);
+
+            // Lógica para asignación de repartidor
+            if ($order->isDirty('delivery_user_id')) {
+                $oldRiderId = $order->getOriginal('delivery_user_id');
+                $newRiderId = $order->delivery_user_id;
+
+                if ($oldRiderId !== $newRiderId) {
+                    $order->is_accepted_by_rider = false; // Reset acceptance
+
+                    // Pasar a assigned automáticamente si estaba en pending
+                    if ($newRiderId && $order->status === 'pending') {
+                        $order->status = 'assigned';
+                    }
+                }
+            }
         });
 
         static::updated(function ($order) {

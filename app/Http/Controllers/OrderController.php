@@ -67,7 +67,18 @@ class OrderController extends Controller
                         'error' => 'No se puede asignar un repartidor a un pedido completado o cancelado.'
                     ], 422);
                 }
-                $order->delivery_user_id = $request->input('delivery_user_id') ?: null;
+                
+                $newDeliveryUserId = $request->input('delivery_user_id') ?: null;
+                
+                if ($order->delivery_user_id !== $newDeliveryUserId) {
+                    $order->delivery_user_id = $newDeliveryUserId;
+                    $order->is_accepted_by_rider = false; // Resetear aceptación para el nuevo rider
+                    
+                    // Si el pedido estaba en pending, lo pasamos a assigned automáticamente
+                    if ($newDeliveryUserId && $order->status === 'pending') {
+                        $order->status = 'assigned';
+                    }
+                }
             }
             
             $order->save();
