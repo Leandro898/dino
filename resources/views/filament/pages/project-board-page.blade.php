@@ -10,7 +10,13 @@
         </div>
 
         <!-- Canvas -->
-        <div class="relative" style="width: 3000px; height: 3000px; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;">
+        <div 
+            class="relative transition-transform duration-75 origin-top-left" 
+            :style="`width: 3000px; height: 3000px; transform: scale(${scale}); background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;`"
+            @touchstart="handleCanvasTouchStart"
+            @touchmove="handleCanvasTouchMove"
+            @wheel="handleWheel"
+        >
 
         <!-- Notas -->
         <template x-for="(note, index) in notes" :key="note.id">
@@ -55,11 +61,44 @@
             notes: $wire.entangle('notes'),
             isDragging: null,
             isEditing: false,
+            scale: 1,
+            initialDistance: 0,
+            initialScale: 1,
             startX: 0,
             startY: 0,
             initialX: 0,
             initialY: 0,
             pollInterval: null,
+
+            handleCanvasTouchStart(e) {
+                if (e.touches.length === 2) {
+                    this.initialDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    this.initialScale = this.scale;
+                }
+            },
+
+            handleCanvasTouchMove(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const newScale = this.initialScale * (currentDistance / this.initialDistance);
+                    this.scale = Math.min(Math.max(0.3, newScale), 3);
+                }
+            },
+            
+            handleWheel(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const newScale = this.scale - (e.deltaY * 0.005);
+                    this.scale = Math.min(Math.max(0.3, newScale), 3);
+                }
+            },
 
             initBoard() {
                 // Sincronización automática cada 3 segundos si nadie está editando/arrastrando
@@ -109,8 +148,8 @@
                 const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
                 const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
 
-                const dx = clientX - this.startX;
-                const dy = clientY - this.startY;
+                const dx = (clientX - this.startX) / this.scale;
+                const dy = (clientY - this.startY) / this.scale;
                 note.x = this.initialX + dx;
                 note.y = this.initialY + dy;
             },
