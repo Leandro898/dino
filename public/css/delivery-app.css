@@ -655,20 +655,21 @@ input:checked + .toggle-slider:before {
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: #f1f5f9;
+    background: rgba(255, 51, 102, 0.1); /* Bari Tienda Primary con opacidad */
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 16px;
-    color: #64748b;
+    color: var(--primary);
 }
 .list-menu-text {
     flex: 1;
     font-size: 1.05rem;
     font-weight: 600;
+    color: var(--text-main);
 }
 .list-menu-chevron {
-    color: #cbd5e1;
+    color: var(--primary);
 }
 
 #logout-form { display: none; }
