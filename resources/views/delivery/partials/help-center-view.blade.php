@@ -1,13 +1,13 @@
 <!-- Centro de Ayuda View -->
 <div class="pwa-view" id="helpCenterView">
-    <div class="view-header" style="border-bottom: none; padding-bottom: 0;">
-        <button class="icon-btn" style="box-shadow:none; background:transparent; margin-left: -8px;" onclick="closeView('helpCenterView')">
+    <div class="pwa-header">
+        <button class="icon-btn" style="box-shadow:none; background:transparent;" onclick="closeView('helpCenterView')">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
         <h2 style="font-size: 1.15rem; font-weight: 700; color: #1e293b;">Soporte</h2>
         <div style="width: 44px;"></div>
     </div>
-    <div class="view-content" style="padding-top: 24px;">
+    <div class="pwa-content" style="padding: 16px;">
 
         <div class="menu-section">
             <h4 class="menu-section-title">Pedidos</h4>
