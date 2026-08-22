@@ -564,6 +564,12 @@ async function fetchOrders() {
 
             <!-- Resumen Financiero -->
             <div style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                ${window.queuedDisconnect ? `
+                    <div style="background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                        <span style="color: #d97706; font-size: 0.9rem; font-weight: 700; display: block; text-align: center;">⏸️ Pausa Programada: Te desconectarás al entregar.</span>
+                        <button onclick="window.queuedDisconnect = false; fetchOrders();" style="background: none; border: none; color: #d97706; font-size: 0.8rem; font-weight: 600; width: 100%; text-decoration: underline; margin-top: 5px; cursor: pointer;">Cancelar pausa</button>
+                    </div>
+                ` : ''}
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 0.9rem; font-weight: 700; color: #475569;">Pagar por el pedido</span>
                     <span style="font-size: 1rem; font-weight: 800; color: #1e293b;">$${isCash ? payToStore.toFixed(0) : '0'}</span>
@@ -750,7 +756,12 @@ window.markDelivered = async function(orderId, custLat, custLng) {
         if (!response.ok) throw new Error('Error al marcar entregado');
         const data = await response.json();
         if (data.success) {
-            fetchOrders();
+            if (window.queuedDisconnect) {
+                window.queuedDisconnect = false;
+                toggleConnection(false);
+            } else {
+                fetchOrders();
+            }
         } else {
             await showCustomModal('Atención', data.error || 'No se pudo marcar como entregado.', false);
         }
@@ -840,9 +851,28 @@ async function toggleConnection(connect) {
     }
 }
 
+window.queuedDisconnect = false;
+
+window.requestDisconnect = async function() {
+    if (currentActiveOrderData) {
+        if (currentActiveOrderData.status === 'pending' || currentActiveOrderData.status === 'assigned') {
+            await showCustomModal('No puedes pausar', 'Tienes un pedido pendiente de retiro. Por favor, libera el pedido o solicita soporte para cancelarlo antes de desconectarte.', false);
+            return;
+        } else if (currentActiveOrderData.status === 'processing' || currentActiveOrderData.status === 'shipped') {
+            const confirmed = await showCustomModal('Pausa Programada', 'Tienes un pedido en curso. Tu cuenta pasará a "Pausa" automáticamente una vez que entregues este pedido. ¿Deseas programar la pausa?');
+            if (confirmed) {
+                window.queuedDisconnect = true;
+                fetchOrders();
+            }
+            return;
+        }
+    }
+    toggleConnection(false);
+};
+
 // --- Event Listeners ---
-if (startBtn) startBtn.addEventListener('click', () => toggleConnection(true));
-if (stopBtn) stopBtn.addEventListener('click', () => toggleConnection(false));
+if (startBtn) startBtn.addEventListener('click', () => { window.queuedDisconnect = false; toggleConnection(true); });
+if (stopBtn) stopBtn.addEventListener('click', window.requestDisconnect);
 
 // --- GPS Tracking: enviar ubicación del rider cada 10 segundos ---
 let gpsTrackingInterval = null;
