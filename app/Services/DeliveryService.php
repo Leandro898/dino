@@ -103,7 +103,20 @@ class DeliveryService
             'latitude' => $latitude,
             'longitude' => $longitude,
         ]);
+        
+        // 1. Emitir evento global para el mapa en vivo de los administradores
+        try {
+            broadcast(new \App\Events\GlobalRiderLocationUpdated(
+                $rider->id,
+                $rider->name,
+                $latitude,
+                $longitude
+            ));
+        } catch (\Exception $e) {
+            Log::error('Error broadcasting global rider location:', ['error' => $e->getMessage()]);
+        }
 
+        // 2. Emitir evento al cliente que está esperando el pedido
         $activeOrder = Order::query()
             ->where('delivery_user_id', $rider->id)
             ->whereIn('status', ['shipped', 'processing', 'assigned'])

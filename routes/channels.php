@@ -46,3 +46,9 @@ Broadcast::channel('order.{orderId}', function (User $user, int $orderId): bool 
         || ((int) $user->id === (int) $order->user_id)
         || ($user->name === $order->name || $user->email === $order->email);
 });
+
+// 🗺️ Canal para el mapa de seguimiento global de repartidores
+Broadcast::channel('admin.map', function (User $user) {
+    return in_array($user->role, ['admin', 'manager']);
+});
+
