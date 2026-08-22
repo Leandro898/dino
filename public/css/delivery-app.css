@@ -516,7 +516,7 @@ input:checked + .toggle-slider:before {
 
 .pwa-header {
     background: white;
-    padding: env(safe-area-inset-top, 16px) 16px 16px 16px;
+    padding: max(16px, env(safe-area-inset-top)) 16px 16px 16px;
     display: flex;
     align-items: center;
     gap: 16px;
