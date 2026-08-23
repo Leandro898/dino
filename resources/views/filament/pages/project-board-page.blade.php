@@ -22,6 +22,7 @@
 
         <!-- Canvas -->
         <div 
+            wire:ignore
             class="relative transition-transform duration-200 origin-top-left" 
             :style="`width: 3000px; height: 3000px; transform: scale(${scale}); background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;`"
         >
