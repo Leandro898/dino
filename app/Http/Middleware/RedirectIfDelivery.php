@@ -16,8 +16,13 @@ class RedirectIfDelivery
     public function handle(Request $request, Closure $next): Response
     {
         if (auth()->check() && auth()->user()->role === 'delivery') {
-            // Permitir rutas de la app de repartidor, logout y auth de websockets
-            if (!$request->routeIs('delivery.*') && !$request->routeIs('logout') && !$request->is('broadcasting/auth')) {
+            // Permitir rutas de la app de repartidor, logout, auth de websockets y rutas de verificacion de email
+            $allowedRoutes = ['delivery.*', 'logout', 'verification.*'];
+            
+            $isAllowed = collect($allowedRoutes)->contains(fn ($route) => $request->routeIs($route)) 
+                || $request->is('broadcasting/auth');
+
+            if (!$isAllowed) {
                 return redirect()->route('delivery.app');
             }
         }
