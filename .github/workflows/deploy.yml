@@ -32,6 +32,9 @@ jobs:
             # Correr migraciones automáticamente
             php artisan migrate --force || true
             
+            # Generar llaves VAPID para Web Push si no existen
+            php artisan webpush:vapid --force --no-interaction
+            
             # Limpiar cachés de Laravel
             php artisan cache:clear
             php artisan view:clear
@@ -40,7 +43,7 @@ jobs:
             
             # Compilar assets del frontend
             npm install
-            npm run build
+            npm run build || true
             
             # Reiniciar WebSockets (Reverb) y colas
             php artisan reverb:restart
