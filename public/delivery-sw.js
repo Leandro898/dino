@@ -21,3 +21,23 @@ self.addEventListener('notificationclick', (event) => {
         })
     );
 });
+
+self.addEventListener('push', function (e) {
+    if (!(self.Notification && self.Notification.permission === 'granted')) {
+        return;
+    }
+
+    if (e.data) {
+        var msg = e.data.json();
+
+        e.waitUntil(self.registration.showNotification(msg.title, {
+            body: msg.body,
+            icon: msg.icon || '/favicon.ico',
+            badge: msg.badge || '/favicon.ico',
+            vibrate: [200, 100, 200, 100, 200, 100, 200],
+            requireInteraction: true,
+            data: msg.data,
+            actions: msg.actions || []
+        }));
+    }
+});

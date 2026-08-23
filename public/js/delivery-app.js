@@ -55,42 +55,61 @@ window.addEventListener('popstate', function(event) {
 function togglePush(checkbox) {
     if(checkbox.checked) {
         if ('Notification' in window && Notification.permission !== 'granted') {
-            Notification.requestPermission();
+            Notification.requestPermission().then(function (permission) {
+                if (permission === 'granted') {
+                    subscribeUser();
+                } else {
+                    checkbox.checked = false;
+                }
+            });
+        } else if (Notification.permission === 'granted') {
+            subscribeUser();
         }
     }
 }
 
-function testNotification() {
-    if (!('Notification' in window)) {
-        alert("Tu navegador no soporta notificaciones push.");
-        return;
+function urlB64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
     }
+    return outputArray;
+}
 
-    if (Notification.permission === "granted") {
-        if (navigator.serviceWorker) {
-            navigator.serviceWorker.ready.then(function(registration) {
-                registration.showNotification("¡Todo bien! 🎉", {
-                    body: "Tus notificaciones están funcionando y deberías poder recibirlas.",
-                    icon: "https://ui-avatars.com/api/?name=B&size=192&background=ffffff&color=7e22ce&bold=true",
-                    vibrate: [200, 100, 200]
-                });
-            });
-        } else {
-            new Notification("¡Todo bien! 🎉", {
-                body: "Tus notificaciones están funcionando y deberías poder recibirlas."
-            });
-        }
-    } else if (Notification.permission !== "denied") {
-        Notification.requestPermission().then(function (permission) {
-            if (permission === "granted") {
-                testNotification();
-            } else {
-                alert("Necesitas aceptar los permisos para recibir alertas.");
-            }
+function subscribeUser() {
+    if (!('serviceWorker' in navigator)) return;
+
+    navigator.serviceWorker.ready.then(function(registration) {
+        const vapidPublicKey = window.BariDeliveryConfig.vapidPublicKey;
+        const convertedVapidKey = urlB64ToUint8Array(vapidPublicKey);
+
+        registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+        }).then(function(subscription) {
+            
+            // Envía la suscripción al backend
+            fetch(window.BariDeliveryConfig.routes.pushSubscribe, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': window.BariDeliveryConfig.csrfToken
+                },
+                body: JSON.stringify(subscription)
+            }).then(response => {
+                if (response.ok) {
+                    showToast('¡Notificaciones Push activadas!');
+                }
+            }).catch(error => console.error('Error enviando suscripción', error));
+
+        }).catch(function(err) {
+            console.log('Falló la suscripción', err);
+            showToast('Error al activar notificaciones');
         });
-    } else {
-        alert("Las notificaciones están bloqueadas. Debes activarlas desde la configuración de tu navegador.");
-    }
+    });
 }
 
 // --- API & State ---

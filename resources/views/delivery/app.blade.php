@@ -42,7 +42,8 @@
                 locationUpdate: @json(route('delivery.location.update')),
                 statusUpdate: @json(route('delivery.status.update')),
                 supportMessages: "{{ route('delivery.support.messages') }}",
-                supportSend: "{{ route('delivery.support.send') }}"
+                supportSend: "{{ route('delivery.support.send') }}",
+                pushSubscribe: "{{ route('push.subscribe') }}"
             },
             reverb: {
                 key: '{{ config("broadcasting.connections.reverb.key") }}',
@@ -52,8 +53,10 @@
             },
             assets: {
                 ogImage: '{{ asset("images/og-image.png") }}',
-                serviceWorker: '{{ asset("delivery-sw.js") }}?v=6'
-            }
+                serviceWorker: '{{ asset("delivery-sw.js") }}?v=7'
+            },
+            vapidPublicKey: '{{ env("VAPID_PUBLIC_KEY") }}',
+            csrfToken: '{{ csrf_token() }}'
         };
     </script>
     

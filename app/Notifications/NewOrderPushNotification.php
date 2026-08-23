@@ -34,12 +34,16 @@ class NewOrderPushNotification extends Notification implements ShouldQueue
 
     public function toWebPush($notifiable, $notification)
     {
+        $url = $notifiable->role === 'delivery' 
+            ? url('/repartidor/app') 
+            : url('/admin/orders');
+
         return (new WebPushMessage)
             ->title('¡Nuevo Pedido Recibido!')
             ->icon('/favicon.ico')
             ->body('Pedido #' . $this->order->id . ' de ' . ($this->order->user->name ?? 'Invitado') . ' por $' . $this->order->total)
             ->action('Ver pedido', 'view_order')
-            ->data(['url' => url('/admin/orders')]);
+            ->data(['url' => $url]);
     }
 
     /**

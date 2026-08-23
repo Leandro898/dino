@@ -72,7 +72,7 @@ class SellerPanelProvider extends PanelProvider
                         'key: "' . config('broadcasting.connections.reverb.key') . '",' .
                         'wsPort: ' . config('broadcasting.connections.reverb.options.port', 8080) . ',' .
                         'wssPort: 443,' .
-                        'forceTLS: ' . (config('broadcasting.connections.reverb.options.scheme') === 'https' ? 'true' : 'false') .
+                        'forceTLS: true' .
                     '};' .
                     '</script>'
                 ),
